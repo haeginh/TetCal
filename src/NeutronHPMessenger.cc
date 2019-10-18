@@ -23,73 +23,49 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file hadronic/Hadr03/src/PhysicsList.cc
-/// \brief Implementation of the PhysicsList class
+/// \file electromagnetic/TestEm12/src/NeutronHPMessenger.cc
+/// \brief Implementation of the NeutronHPMessenger class
 //
-// $Id: PhysicsList.cc 70268 2013-05-28 14:17:50Z maire $
+// $Id: NeutronHPMessenger.cc 67268 2013-02-13 11:38:40Z ihrivnac $
+//
 
 
-#include "TETPhysicsList.hh"
-
-#include "G4SystemOfUnits.hh"
-#include "G4UnitsTable.hh"
+#include "NeutronHPMessenger.hh"
 
 #include "HadronElasticPhysicsHP.hh"
-#include "G4HadronPhysicsFTFP_BERT_HP.hh"
-#include "G4IonPhysics.hh"
-//#include "G4IonINCLXXPhysics.hh"
-#include "GammaPhysics.hh"
 
-#include "G4EmLivermorePhysics.hh"
-#include "G4DecayPhysics.hh"
-#include "G4RadioactiveDecayPhysics.hh"
+#include "G4UIdirectory.hh"
+#include "G4UIcmdWithABool.hh"
 
 
-TETPhysicsList::TETPhysicsList()
-:G4VModularPhysicsList()
+NeutronHPMessenger::NeutronHPMessenger(HadronElasticPhysicsHP* phys)
+:G4UImessenger(),fNeutronPhysics(phys),
+ fPhysDir(0), fThermalCmd(0)
 {
-  G4int verb = 0;
-  SetVerboseLevel(verb);
+	fPhysDir = new G4UIdirectory("/hadron/phys/");
+	fPhysDir->SetGuidance("physics list commands");
 
-  //add new units
-  //
-  new G4UnitDefinition( "millielectronVolt", "meV", "Energy", 1.e-3*eV);
-  new G4UnitDefinition( "mm2/g",  "mm2/g", "Surface/Mass", mm2/g);
-  new G4UnitDefinition( "um2/mg", "um2/mg","Surface/Mass", um*um/mg);
-
-  // Hadron Elastic scattering
-  RegisterPhysics( new HadronElasticPhysicsHP(verb) );
-
-  // Hadron Inelastic Physics
-  RegisterPhysics( new G4HadronPhysicsFTFP_BERT_HP(verb));
-
-  // Ion Physics
-  RegisterPhysics( new G4IonPhysics(verb));
-
-  // Gamma-Nuclear Physics
-  RegisterPhysics( new GammaPhysics("gamma"));
-
-
-  // EM physics
-  RegisterPhysics(new G4EmLivermorePhysics());
-
-  // Decay
-  RegisterPhysics(new G4DecayPhysics());
-
-  // Radioactive decay
-  RegisterPhysics(new G4RadioactiveDecayPhysics());
+	fThermalCmd = new G4UIcmdWithABool("/hadron/phys/thermalScattering",this);
+	fThermalCmd->SetGuidance("set thermal scattering model");
+	fThermalCmd->SetParameterName("thermal",false);
+	fThermalCmd->AvailableForStates(G4State_PreInit);
 }
 
 
-TETPhysicsList::~TETPhysicsList()
-{ }
 
-
-void TETPhysicsList::SetCuts()
+NeutronHPMessenger::~NeutronHPMessenger()
 {
-  SetCutValue(1*mm, "proton");
-  SetCutValue(1*mm, "e-");
-  SetCutValue(1*mm, "e+");
-  SetCutValue(1*mm, "gamma");
+	delete fThermalCmd;
+	delete fPhysDir;
 }
+
+
+void NeutronHPMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
+{
+	if (command == fThermalCmd)
+	{
+		fNeutronPhysics->SetThermalPhysics(fThermalCmd->GetNewBoolValue(newValue));
+	}
+}
+
 

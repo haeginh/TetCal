@@ -23,73 +23,55 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file hadronic/Hadr03/src/PhysicsList.cc
-/// \brief Implementation of the PhysicsList class
+/// \file hadronic/Hadr06/include/HadronElasticPhysicsHP.hh
+/// \brief Definition of the HadronElasticPhysicsHP class
 //
-// $Id: PhysicsList.cc 70268 2013-05-28 14:17:50Z maire $
-
-
-#include "TETPhysicsList.hh"
-
-#include "G4SystemOfUnits.hh"
-#include "G4UnitsTable.hh"
+// $Id:HadronElasticPhysicsHP.cc 71037 2013-06-10 09:20:54Z gcosmo $
+//
+// HP models for neutron < 20 MeV
 
 #include "HadronElasticPhysicsHP.hh"
-#include "G4HadronPhysicsFTFP_BERT_HP.hh"
-#include "G4IonPhysics.hh"
-//#include "G4IonINCLXXPhysics.hh"
-#include "GammaPhysics.hh"
 
-#include "G4EmLivermorePhysics.hh"
-#include "G4DecayPhysics.hh"
-#include "G4RadioactiveDecayPhysics.hh"
+#include "NeutronHPMessenger.hh"
 
+#include "G4HadronicProcess.hh"
+#include "G4ParticleHPElastic.hh"
+#include "G4ParticleHPElasticData.hh"
+#include "G4ParticleHPThermalScattering.hh"
+#include "G4ParticleHPThermalScatteringData.hh"
 
-TETPhysicsList::TETPhysicsList()
-:G4VModularPhysicsList()
+#include "G4SystemOfUnits.hh"
+
+HadronElasticPhysicsHP::HadronElasticPhysicsHP(G4int ver)
+: G4HadronElasticPhysics(ver),
+  fThermal(false), fNeutronMessenger(0)  
 {
-  G4int verb = 0;
-  SetVerboseLevel(verb);
-
-  //add new units
-  //
-  new G4UnitDefinition( "millielectronVolt", "meV", "Energy", 1.e-3*eV);
-  new G4UnitDefinition( "mm2/g",  "mm2/g", "Surface/Mass", mm2/g);
-  new G4UnitDefinition( "um2/mg", "um2/mg","Surface/Mass", um*um/mg);
-
-  // Hadron Elastic scattering
-  RegisterPhysics( new HadronElasticPhysicsHP(verb) );
-
-  // Hadron Inelastic Physics
-  RegisterPhysics( new G4HadronPhysicsFTFP_BERT_HP(verb));
-
-  // Ion Physics
-  RegisterPhysics( new G4IonPhysics(verb));
-
-  // Gamma-Nuclear Physics
-  RegisterPhysics( new GammaPhysics("gamma"));
-
-
-  // EM physics
-  RegisterPhysics(new G4EmLivermorePhysics());
-
-  // Decay
-  RegisterPhysics(new G4DecayPhysics());
-
-  // Radioactive decay
-  RegisterPhysics(new G4RadioactiveDecayPhysics());
+	fNeutronMessenger = new NeutronHPMessenger(this);
 }
 
 
-TETPhysicsList::~TETPhysicsList()
-{ }
-
-
-void TETPhysicsList::SetCuts()
+HadronElasticPhysicsHP::~HadronElasticPhysicsHP()
 {
-  SetCutValue(1*mm, "proton");
-  SetCutValue(1*mm, "e-");
-  SetCutValue(1*mm, "e+");
-  SetCutValue(1*mm, "gamma");
+	delete fNeutronMessenger;
 }
+
+
+void HadronElasticPhysicsHP::ConstructProcess()
+{
+	G4HadronElasticPhysics::ConstructProcess();
+	GetNeutronModel()->SetMinEnergy(19.5*MeV);
+
+	G4HadronicProcess* process = GetNeutronProcess();
+	G4ParticleHPElastic* model1 = new G4ParticleHPElastic();
+	process->RegisterMe(model1);
+	process->AddDataSet(new G4ParticleHPElasticData());
+
+	if (fThermal) {
+		G4ParticleHPThermalScattering* model2 = new G4ParticleHPThermalScattering();
+		process->RegisterMe(model2);
+		process->AddDataSet(new G4ParticleHPThermalScatteringData());
+		model1->SetMinEnergy(4*eV);
+	}
+}
+
 
