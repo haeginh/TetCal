@@ -67,7 +67,8 @@ public:
 	virtual void EndOfRunAction(const G4Run*);
 
 	void PrintResult(std::ostream &out);
-	void PrintLine(std::ostream &out);
+	void PrintLineExternal(std::ostream &out);
+	void PrintLineInternal(std::ostream &out);
 
 private:
 	TETModelImport* tetData;
@@ -79,9 +80,10 @@ private:
 	G4Timer*        runTimer;
 
 	G4String primaryParticle;
-	G4String primaryBeamDir;
+	G4String primarySourceName;
 	G4double primaryEnergy;
 	G4double beamArea;
+	G4bool   isExternal;
 };
 
 #endif

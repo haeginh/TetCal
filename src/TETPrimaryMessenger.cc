@@ -32,30 +32,53 @@
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithAString.hh"
 #include "G4RunManager.hh"
+#include <sstream>
+#include <vector>
 
 TETPrimaryMessenger::TETPrimaryMessenger(TETPrimaryGeneratorAction* _primary)
-:G4UImessenger(), fPrimary(_primary), fPrimaryDir(0), fBeamDirCmd(0)
+:G4UImessenger(), fPrimary(_primary)
 {
-	fPrimaryDir = new G4UIdirectory("/beam/");
-	fBeamDirCmd = new G4UIcmdWithAString("/beam/dir", this);
+	fExternalDir = new G4UIdirectory("/external/");
+	fBeamDirCmd = new G4UIcmdWithAString("/external/dir", this);
 	fBeamDirCmd->SetCandidates("AP PA LLAT RLAT ROT ISO");
+
+	fInternalDir      = new G4UIdirectory("/internal/");
+	fSourceOrganCmd   = new G4UIcmdWithAString("/internal/source", this);
+	fSurfaceSourceCmd = new G4UIcmdWithAString("/internal/surface", this);
 }
 
 TETPrimaryMessenger::~TETPrimaryMessenger() {
-	delete fPrimaryDir;
+	delete fExternalDir;
 	delete fBeamDirCmd;
+	delete fInternalDir;
+	delete fSourceOrganCmd;
 }
 
 void TETPrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
-	fPrimary->SetExternalBeam();
 	if(command == fBeamDirCmd){
-		if(newValue=="AP")	      	fPrimary->SetBeamDirection(AP);
-		else if(newValue=="PA")	    fPrimary->SetBeamDirection(PA);
-		else if(newValue=="RLAT")	fPrimary->SetBeamDirection(RLAT);
-		else if(newValue=="LLAT")	fPrimary->SetBeamDirection(LLAT);
-		else if(newValue=="ROT")	fPrimary->SetBeamDirection(ROT);
-		else if(newValue=="ISO")	fPrimary->SetBeamDirection(ISO);
+		fPrimary->SetExternalBeam();
+		fPrimary->SetSourceName(newValue);
+		ExternalBeam* fExternal = fPrimary->GetExternalBeamGenerator();
+		if(newValue=="AP")	      	fExternal->SetBeamDirection(AP);
+		else if(newValue=="PA")	    fExternal->SetBeamDirection(PA);
+		else if(newValue=="RLAT")	fExternal->SetBeamDirection(RLAT);
+		else if(newValue=="LLAT")	fExternal->SetBeamDirection(LLAT);
+		else if(newValue=="ROT")	fExternal->SetBeamDirection(ROT);
+		else if(newValue=="ISO")	fExternal->SetBeamDirection(ISO);
+	}
+	if(command == fSourceOrganCmd){
+		fPrimary->SetInternalBeam();
+		InternalSource* fInternal = (InternalSource*) fPrimary->GetInternalBeamGenerator();
+		if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);
+
+		fPrimary->SetSourceName("(V) "+newValue);
+
+		std::stringstream ss(newValue);
+		std::vector<G4int> organIDs;
+		G4int intTemp;
+		while(ss>>intTemp) organIDs.push_back(intTemp);
+		fInternal->SetSource(organIDs);
 	}
 }
 

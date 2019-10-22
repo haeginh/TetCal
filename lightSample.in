@@ -10,6 +10,7 @@
 # Set the nps
 /gun/particle gamma
 
+/internal/source "1 2 3"
 /beam/dir AP
 /gun/energy 0.01 MeV
 /run/beamOn 600000000

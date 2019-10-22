@@ -39,49 +39,44 @@
 #include "G4SystemOfUnits.hh"
 #include <vector>
 
+#include "SourceGenerator.hh"
+
 // *********************************************************************
 // This is UserPrimaryGeneratorAction, and the source was defined by
 // G4GeneralParticleSource class.
 // -- GeneratePrimaries: Generate primaries by G4GeneralParticleSource
 //                       class.
 // *********************************************************************
-
-enum BEAMDIR {AP, PA, LLAT, RLAT, ROT, ISO};
+class TETModelImport;
 
 class TETPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
   public:
-	TETPrimaryGeneratorAction();
+	TETPrimaryGeneratorAction(TETModelImport* tetData);
 	virtual ~TETPrimaryGeneratorAction();
 
     //GENERAL
   public:
-    virtual void GeneratePrimaries(G4Event* anEvent);
+    virtual void   GeneratePrimaries(G4Event* anEvent);
+    void           SetExternalBeam()
+    	{fSourceGenerator = fExternal; fSourceGenerator->SetExternal();}
+    void           SetInternalBeam()
+    	{fSourceGenerator = fInternal; fSourceGenerator->SetInternal();}
+    void SetSourceName(G4String _sourceN) {sourceName = _sourceN;}
+    G4ParticleGun*  GetParticleGun()          const {return fParticleGun;}
+    SourceGenerator* GetSourceGenerator()      const {return fSourceGenerator;}
+    ExternalBeam*   GetExternalBeamGenerator() const {return fExternal;}
+    InternalSource* GetInternalBeamGenerator() const {return fInternal;}
+    G4String        GetSourceName() const {return sourceName;}
+
   private:
-    G4ParticleGun* fParticleGun;
+    TETModelImport*      tetData;
+    G4ParticleGun*       fParticleGun;
     TETPrimaryMessenger* fMessenger;
-    G4bool   internalSwitch;
-
-    //EXTERNAL
-  public:
-    void         SetExternalBeam() {internalSwitch = false;}
-    void         SetBeamDirection(BEAMDIR _dir);
-
-    G4ParticleGun* GetParticleGun()       const {return fParticleGun;}
-    G4String 	   GetBeamDirection() 	  const {return beamDirName;}
-    G4double 	   GetbBeamArea() 		  const {return beamArea;}
-  private:
-    BEAMDIR  beamDir;
-    G4String beamDirName;
-    G4double xHalf, yHalf, zHalf;
-    G4double beamArea;
-
-    //INTERNAL
-  public:
-
-
-  private:
-
+    SourceGenerator*       fSourceGenerator;
+    ExternalBeam*       fExternal;
+    InternalSource*       fInternal;
+    G4String              sourceName;
 };
 
 #endif

@@ -39,8 +39,8 @@ TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* 
 		runTimer = new G4Timer;
 		std::ofstream ofs(outputFile);
 		auto massMap = tetData->GetMassMap();
-		ofs<<"[pGycm2]"<<G4endl;
-		ofs<<"run#\tnps\tinitT\trunT\tparticle\tdirection\tenergy[MeV]\t";
+		ofs<<"[External: pGycm2 / Internal: AF]"<<G4endl;
+		ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
 		for(auto itr : massMap)
 			ofs<<itr.first<<"\t"<<itr.second/g<<"\t";
 		ofs<<G4endl;
@@ -86,10 +86,11 @@ void TETRunAction::BeginOfRunAction(const G4Run* aRun)
 			->GetUserPrimaryGeneratorAction());
 	if(!primary) return;
 	primaryParticle = primary->GetParticleGun()->GetParticleDefinition()->GetParticleName();
-	primaryBeamDir = primary->GetBeamDirection();
+	primarySourceName = primary->GetSourceName();
 	primaryEnergy = primary->GetParticleGun()->GetParticleEnergy();
-	beamArea = primary->GetbBeamArea();
-	fRun->SetPrimary(primaryParticle, primaryBeamDir, primaryEnergy, beamArea);
+	beamArea = primary->GetExternalBeamGenerator()->GetBeamArea();
+	fRun->SetPrimary(primaryParticle, primarySourceName, primaryEnergy, beamArea);
+	isExternal = primary-> GetSourceGenerator() ->IsExternal();
 }
 
 void TETRunAction::EndOfRunAction(const G4Run* aRun)
@@ -103,7 +104,7 @@ void TETRunAction::EndOfRunAction(const G4Run* aRun)
 
 	//get primary info
 	primaryParticle = fRun->GetParticleName();
-	primaryBeamDir  = fRun->GetBeamDirName();
+	primarySourceName  = fRun->GetBeamDirName();
 	primaryEnergy   = fRun->GetBeamEnergy();
 	beamArea        = fRun->GetBeamArea();
 
@@ -114,7 +115,8 @@ void TETRunAction::EndOfRunAction(const G4Run* aRun)
 
 	// print by std::ofstream
 	std::ofstream ofs(outputFile.c_str(), std::ios::app);
-	PrintLine(ofs);
+	if(isExternal)PrintLineExternal(ofs);
+	else          PrintLineInternal(ofs);
 	ofs.close();
 	initTimer->Start();
 }
@@ -153,7 +155,7 @@ void TETRunAction::PrintResult(std::ostream &out)
 	out << "=====================================================================" << G4endl << G4endl;
 }
 
-void TETRunAction::PrintLine(std::ostream &out)
+void TETRunAction::PrintLineExternal(std::ostream &out)
 {
 	// Print run result
 	//
@@ -161,7 +163,7 @@ void TETRunAction::PrintLine(std::ostream &out)
 	EDEPMAP edepMap = *fRun->GetEdepMap();
 
 	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
-		<< primaryParticle << "\t" <<primaryBeamDir<< "\t" << primaryEnergy/MeV << "\t";
+		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
 	auto massMap = tetData->GetMassMap();
 	for(auto itr : massMap){
 		G4double meanDose    = edepMap[itr.first].first  / itr.second / numOfEvent;
@@ -170,6 +172,27 @@ void TETRunAction::PrintLine(std::ostream &out)
 		G4double relativeE   = sqrt(variance)/meanDose;
 
 		out << meanDose*1e12/(joule/kg) * beamArea/cm2 <<"\t" << relativeE << "\t";
+	}
+	out<<G4endl;
+}
+
+void TETRunAction::PrintLineInternal(std::ostream &out)
+{
+	// Print run result
+	//
+	using namespace std;
+	EDEPMAP edepMap = *fRun->GetEdepMap();
+
+	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
+		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
+	auto massMap = tetData->GetMassMap();
+	for(auto itr : massMap){
+		G4double meanDose    = edepMap[itr.first].first   / numOfEvent;
+		G4double squareDoese = edepMap[itr.first].second;
+		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
+		G4double relativeE   = sqrt(variance)/meanDose;
+
+		out << meanDose/primaryEnergy <<"\t" << relativeE << "\t";
 	}
 	out<<G4endl;
 }
