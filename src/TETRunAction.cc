@@ -39,7 +39,7 @@ TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* 
 		runTimer = new G4Timer;
 		std::ofstream ofs(outputFile);
 		auto massMap = tetData->GetMassMap();
-		ofs<<"[External: pGycm2 / Internal: AF]"<<G4endl;
+		ofs<<"[External: pGycm2 / Internal: SAF]"<<G4endl;
 		ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
 		for(auto itr : massMap)
 			ofs<<itr.first<<"\t"<<itr.second/g<<"\t";
@@ -192,7 +192,7 @@ void TETRunAction::PrintLineInternal(std::ostream &out)
 		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
 		G4double relativeE   = sqrt(variance)/meanDose;
 
-		out << meanDose/primaryEnergy <<"\t" << relativeE << "\t";
+		out << meanDose/primaryEnergy/itr.second /(1./kg) <<"\t" << relativeE << "\t";
 	}
 	out<<G4endl;
 }
