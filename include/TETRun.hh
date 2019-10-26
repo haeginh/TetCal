@@ -35,6 +35,7 @@
 #include "G4Event.hh"
 #include "G4THitsMap.hh"
 #include "G4SDManager.hh"
+#include "TETModelImport.hh"
 
 typedef std::map<G4int, std::pair<G4double, G4double>> EDEPMAP;
 
@@ -65,14 +66,16 @@ public:
     G4String GetBeamDirName()  {return dir;}
     G4double GetBeamEnergy()   {return primaryE;}
     G4double GetBeamArea()     {return beamArea;}
+    G4bool   GetIsExternal()   {return isExternal;}
 
 
-    void SetPrimary(G4String _primary, G4String _dir, G4double _primaryE, G4double _beamArea)
+    void SetPrimary(G4String _primary, G4String _dir, G4double _primaryE, G4double _beamArea, G4bool _isExternal)
     {
     	primary = _primary;
     	dir = _dir;
     	primaryE = _primaryE;
     	beamArea = _beamArea;
+    	isExternal = _isExternal;
     }
 
 private:
@@ -82,6 +85,8 @@ private:
     G4String dir;
     G4double primaryE;
     G4double beamArea;
+    G4bool   isExternal;
+
 };
 
 #endif

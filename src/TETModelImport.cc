@@ -31,6 +31,7 @@
 #include "TETModelImport.hh"
 
 TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
+:doseOrganized(false)
 {
 	// set phantom name
 	phantomName = _phantomName;
@@ -42,15 +43,47 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	G4String eleFile      =  phantomName + ".ele";
 	G4String nodeFile     =  phantomName + ".node";
 	G4String materialFile =  phantomName + ".material";
+	G4String doseFile     =  phantomName + ".dose";
+	G4String boneFile     =  phantomName + "RBMnBS";
 
+	// read dose file (*.dose) -if there is any
+	DoseRead(doseFile);
 	// read phantom data files (*. ele, *.node)
 	DataRead(eleFile, nodeFile);
 	// read material file (*.material)
 	MaterialRead(materialFile);
+	// read bone file (*.RBMnBS)
+	RBMBSRead(boneFile);
 	// read colour data file (colour.dat) if this is interactive mode
 	if(ui) ColourRead();
 	// print the summary of phantom information
 	PrintMaterialInfomation();
+}
+
+
+void TETModelImport::DoseRead(G4String doseFile){
+	//read dose file : PLEASE be careful not to include dose ID 0
+	std::ifstream ifs(doseFile);
+	if(!ifs.is_open()) return;
+	doseOrganized = true;
+
+	G4String aLine;
+	while(!ifs.eof()){
+		getline(ifs, aLine);
+		if(aLine.empty()) break;
+
+		std::stringstream ss(aLine);
+		G4int doseID; ss>>doseID;
+		doseName[0] = "rest";
+		G4String name; ss>>name; doseName[doseID] = name;
+		G4int organID;
+		while(ss>>organID){
+			if(organ2dose.find(organID)!=organ2dose.end())
+				G4cerr<<organID<<" was overlapped in " + name<<G4endl;
+			organ2dose[organID] = doseID;
+		}
+	}
+	ifs.close();
 }
 
 void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
@@ -218,6 +251,41 @@ void TETModelImport::MaterialRead(G4String materialFile)
 		}
 		materialMap[idx]=mat;
 		massMap[idx]=densityMap[idx]*volumeMap[idx];
+	}
+
+	if(DoseWasOrganized()){
+		for(auto aMass:massMap){
+			if(organ2dose.find(aMass.first)==organ2dose.end()){
+				organ2dose[aMass.first]= -aMass.first;
+				doseName[-aMass.first] = GetMaterial(aMass.first)->GetName();
+			}
+		}
+		for(auto dm:doseName){
+			doseMassMap[dm.first] = 0;
+		}
+		for(auto aMass:massMap){
+			doseMassMap[organ2dose[aMass.first]] += aMass.second;
+		}
+	}
+}
+
+void TETModelImport::RBMBSRead(G4String bonefile){
+	std::ifstream ifs(bonefile);
+	if(!ifs.is_open()) {
+		// exception for the case when there is no *.material file
+		G4Exception("TETModelImport::RBMBSRead","",JustWarning,
+				G4String("      There is no " + bonefile ).c_str());
+		return;
+	}
+	G4int idx, rbm, bs;
+	while(ifs>>idx>>rbm>>bs){
+		if(doseOrganized){
+			rbmRatio[-idx]=rbm;
+			bsRatio[-idx]=bs;
+		}else{
+			rbmRatio[idx]=rbm;
+			bsRatio[idx]=bs;
+		}
 	}
 }
 

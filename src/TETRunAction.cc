@@ -33,19 +33,27 @@
 #include <iostream>
 
 TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
-:tetData(_tetData), fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0)
+:tetData(_tetData), fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0),
+ primaryEnergy(-1.), beamArea(-1.), isExternal(true),rbmDose(0), rbmError(0), bsDose(0), bsError(0)
 {
-	if(isMaster){
-		runTimer = new G4Timer;
-		std::ofstream ofs(outputFile);
-		auto massMap = tetData->GetMassMap();
-		ofs<<"[External: pGycm2 / Internal: SAF]"<<G4endl;
-		ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
-		for(auto itr : massMap)
-			ofs<<itr.first<<"\t"<<itr.second/g<<"\t";
-		ofs<<G4endl;
-		ofs.close();
-	}
+	if(!isMaster) return;
+
+	runTimer = new G4Timer;
+	std::ofstream ofs(outputFile);
+
+	if(tetData->DoseWasOrganized()) massMap = tetData->GetDoseMassMap();
+	else	                        massMap = tetData->GetMassMap();
+
+	ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
+	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
+	for(auto itr : massMap)
+		if(tetData->DoseWasOrganized()) ofs<<std::to_string(itr.first)+"/"+tetData->GetDoseName(itr.first)<<"\t"<<itr.second/g<<"\t";
+		else                            ofs<<std::to_string(itr.first)+"/"+tetData->GetMaterial(itr.first)->GetName()<<"\t"<<itr.second/g<<"\t";
+	ofs<<"RBM\t\tBS\t"<<G4endl;
+	ofs.close();
+
+	rbmRatio = tetData->GetRBMmap();
+	bsRatio  = tetData->GetBSmap();
 }
 
 TETRunAction::~TETRunAction()
@@ -89,8 +97,9 @@ void TETRunAction::BeginOfRunAction(const G4Run* aRun)
 	primarySourceName = primary->GetSourceName();
 	primaryEnergy = primary->GetParticleGun()->GetParticleEnergy();
 	beamArea = primary->GetExternalBeamGenerator()->GetBeamArea();
-	fRun->SetPrimary(primaryParticle, primarySourceName, primaryEnergy, beamArea);
-	isExternal = primary-> GetSourceGenerator() ->IsExternal();
+	isExternal = primary-> GetSourceGenerator()->IsExternal();
+	fRun->SetPrimary(primaryParticle, primarySourceName, primaryEnergy, beamArea, isExternal);
+
 }
 
 void TETRunAction::EndOfRunAction(const G4Run* aRun)
@@ -107,11 +116,32 @@ void TETRunAction::EndOfRunAction(const G4Run* aRun)
 	primarySourceName  = fRun->GetBeamDirName();
 	primaryEnergy   = fRun->GetBeamEnergy();
 	beamArea        = fRun->GetBeamArea();
+	isExternal      = fRun->GetIsExternal();
 
+	//calculate bone dose
+	EDEPMAP edepMap = *fRun->GetEdepMap();
+	rbmDose = 0; rbmError = 0;
+	for(auto rbm:rbmRatio){
+		G4double meanDose    = edepMap[rbm.first].first  / massMap[rbm.first] / numOfEvent;
+		G4double squareDoese = edepMap[rbm.first].second / (massMap[rbm.first]*massMap[rbm.first]);
+		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
+		rbmDose += meanDose*rbm.second;
+		rbmError += variance*rbm.second*rbm.second;
+	} rbmError = sqrt(rbmError)/rbmDose;
+
+	bsDose = 0; bsError = 0;
+	for(auto bs:bsRatio){
+		G4double meanDose    = edepMap[bs.first].first  / massMap[bs.first] / numOfEvent;
+		G4double squareDoese = edepMap[bs.first].second / (massMap[bs.first]*massMap[bs.first]);
+		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
+		bsDose += meanDose*bs.second;
+		bsError += variance*bs.second*bs.second;
+	} bsError = sqrt(rbmError)/rbmDose;
 	// Print the run result by G4cout and std::ofstream
 	//
 	// print by G4cout
-	PrintResult(G4cout);
+	if(isExternal) PrintResultExternal(G4cout);
+	else           PrintResultInternal(G4cout);
 
 	// print by std::ofstream
 	std::ofstream ofs(outputFile.c_str(), std::ios::app);
@@ -121,7 +151,7 @@ void TETRunAction::EndOfRunAction(const G4Run* aRun)
 	initTimer->Start();
 }
 
-void TETRunAction::PrintResult(std::ostream &out)
+void TETRunAction::PrintResultExternal(std::ostream &out)
 {
 	// Print run result
 	//
@@ -134,24 +164,67 @@ void TETRunAction::PrintResult(std::ostream &out)
 	    << "=====================================================================" << G4endl
 		<< " Init time: " << initTimer->GetRealElapsed() << " s / Run time: "<< runTimer->GetRealElapsed()<<" s"<< G4endl
 	    << "=====================================================================" << G4endl
-	    << "organ ID| "
-		<< setw(19) << "Organ Mass (g)"
-		<< setw(19) << "Dose (Gy*cm2)"
-		<< setw(19) << "Relative Error" << G4endl;
+	    << setw(27) << "organ ID| "
+		<< setw(15) << "Organ Mass (g)"
+		<< setw(15) << "Dose (Gy*cm2)"
+		<< setw(15) << "Relative Error" << G4endl;
 
 	out.precision(3);
-	auto massMap = tetData->GetMassMap();
+
 	for(auto itr : massMap){
 		G4double meanDose    = edepMap[itr.first].first  / itr.second / numOfEvent;
 		G4double squareDoese = edepMap[itr.first].second / (itr.second*itr.second);
 		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
 		G4double relativeE   = sqrt(variance)/meanDose;
 
-		out << setw(8)  << itr.first << "| "
-			<< setw(19) << fixed      << itr.second/g;
-		out	<< setw(19) << scientific << meanDose/(joule/kg) * beamArea/cm2;
-		out	<< setw(19) << fixed      << relativeE << G4endl;
+		if(tetData->DoseWasOrganized()) out << setw(25) << tetData->GetDoseName(itr.first)<< "| ";
+		else                            out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
+		out	<< setw(15) << fixed      << itr.second/g;
+		out	<< setw(15) << scientific << meanDose/(joule/kg) * beamArea/cm2;
+		out	<< setw(15) << fixed      << relativeE << G4endl;
+
 	}
+	out << setw(27) << "RBM| "<< setw(30) << scientific << rbmDose/(joule/kg) * beamArea/cm2<< setw(15) << fixed      << rbmError << G4endl;
+	out << setw(27) << "BS| "<< setw(30) << scientific << bsDose/(joule/kg) * beamArea/cm2<< setw(15) << fixed      << bsError << G4endl;
+
+	out << "=====================================================================" << G4endl << G4endl;
+}
+
+void TETRunAction::PrintResultInternal(std::ostream &out)
+{
+	// Print run result
+	//
+	using namespace std;
+	EDEPMAP edepMap = *fRun->GetEdepMap();
+
+	out << G4endl
+	    << "=====================================================================" << G4endl
+	    << " Run #" << runID << " / Number of event processed : "<< numOfEvent     << G4endl
+	    << "=====================================================================" << G4endl
+		<< " Init time: " << initTimer->GetRealElapsed() << " s / Run time: "<< runTimer->GetRealElapsed()<<" s"<< G4endl
+	    << "=====================================================================" << G4endl
+	    << setw(27) << "organ ID| "
+		<< setw(15) << "Organ Mass (g)"
+		<< setw(15) << "SAF (kg-1)"
+		<< setw(15) << "Relative Error" << G4endl;
+
+	out.precision(3);
+
+	for(auto itr : massMap){
+		G4double meanDose    = edepMap[itr.first].first   / numOfEvent;
+		G4double squareDoese = edepMap[itr.first].second  / numOfEvent;
+		G4double variance    = (squareDoese - (meanDose*meanDose))/numOfEvent;
+		G4double relativeE   = sqrt(variance)/meanDose;
+
+		if(tetData->DoseWasOrganized()) out << setw(25) << tetData->GetDoseName(itr.first)<< "| ";
+		else                            out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
+		out	<< setw(15) << fixed      << itr.second/g;
+		out	<< setw(15) << scientific << meanDose/primaryEnergy/(itr.second/kg);
+		out	<< setw(15) << fixed      << relativeE << G4endl;
+	}
+	out << setw(27) << "RBM| "<< setw(30) << scientific << rbmDose * primaryEnergy /(1./kg)<< setw(15) << fixed      << rbmError << G4endl;
+	out << setw(27) << "BS| "<< setw(30) << scientific << bsDose * primaryEnergy /(1./kg)<< setw(15) << fixed      << bsError << G4endl;
+
 	out << "=====================================================================" << G4endl << G4endl;
 }
 
@@ -164,7 +237,6 @@ void TETRunAction::PrintLineExternal(std::ostream &out)
 
 	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
 		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
-	auto massMap = tetData->GetMassMap();
 	for(auto itr : massMap){
 		G4double meanDose    = edepMap[itr.first].first  / itr.second / numOfEvent;
 		G4double squareDoese = edepMap[itr.first].second / (itr.second*itr.second);
@@ -173,6 +245,8 @@ void TETRunAction::PrintLineExternal(std::ostream &out)
 
 		out << meanDose*1e12/(joule/kg) * beamArea/cm2 <<"\t" << relativeE << "\t";
 	}
+	out << rbmDose*1e12/(joule/kg) * beamArea/cm2 <<"\t" << rbmError << "\t";
+	out << bsDose*1e12/(joule/kg) * beamArea/cm2 <<"\t" << bsError << "\t";
 	out<<G4endl;
 }
 
@@ -185,14 +259,14 @@ void TETRunAction::PrintLineInternal(std::ostream &out)
 
 	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
 		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
-	auto massMap = tetData->GetMassMap();
 	for(auto itr : massMap){
 		G4double meanDose    = edepMap[itr.first].first   / numOfEvent;
-		G4double squareDoese = edepMap[itr.first].second;
-		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
+		G4double squareDoese = edepMap[itr.first].second  / numOfEvent;
+		G4double variance    = (squareDoese - (meanDose*meanDose))/numOfEvent;
 		G4double relativeE   = sqrt(variance)/meanDose;
-
-		out << meanDose/primaryEnergy/itr.second /(1./kg) <<"\t" << relativeE << "\t";
+		out << meanDose/primaryEnergy/(itr.second/kg) <<"\t" << relativeE << "\t";
 	}
+	out << rbmDose/primaryEnergy/(1./kg) <<"\t" << rbmError << "\t";
+	out << bsDose/primaryEnergy/(1./kg) <<"\t" << bsError << "\t";
 	out<<G4endl;
 }

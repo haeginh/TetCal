@@ -66,7 +66,8 @@ public:
 	virtual void BeginOfRunAction(const G4Run*);
 	virtual void EndOfRunAction(const G4Run*);
 
-	void PrintResult(std::ostream &out);
+	void PrintResultExternal(std::ostream &out);
+	void PrintResultInternal(std::ostream &out);
 	void PrintLineExternal(std::ostream &out);
 	void PrintLineInternal(std::ostream &out);
 
@@ -84,6 +85,11 @@ private:
 	G4double primaryEnergy;
 	G4double beamArea;
 	G4bool   isExternal;
+	std::map<G4int, G4double> massMap;
+
+	std::map<G4int, G4double>  rbmRatio;
+	std::map<G4int, G4double>  bsRatio;
+	G4double rbmDose, rbmError, bsDose, bsError;
 };
 
 #endif

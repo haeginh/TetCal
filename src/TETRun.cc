@@ -69,6 +69,7 @@ void TETRun::Merge(const G4Run* run)
 	dir = localRun->dir;
 	primaryE = localRun->primaryE;
 	beamArea = localRun->beamArea;
+	isExternal = localRun->isExternal;
 	for(auto itr : localMap){
 		edepMap[itr.first].first  += itr.second.first;
 		edepMap[itr.first].second += itr.second.second;

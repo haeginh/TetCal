@@ -11,5 +11,8 @@
 /gun/particle e-
 /gun/energy 0.01 MeV
 
-/internal/source "1 2 3"
+/internal/source "1 2 3 4"
+/run/beamOn 10000
+
+/external/dir AP
 /run/beamOn 10000
