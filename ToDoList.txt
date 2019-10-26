@@ -2,3 +2,4 @@
 2. add function to group the regions
 3. add DRF
 4. add function to propagate error in RunAction
+5. check visualization
