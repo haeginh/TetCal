@@ -11,7 +11,6 @@
 #include "globals.hh"
 #include "G4ThreeVector.hh"
 #include "G4Tet.hh"
-#include "G4UTet.hh"
 
 #include <vector>
 
