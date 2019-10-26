@@ -44,7 +44,7 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	G4String nodeFile     =  phantomName + ".node";
 	G4String materialFile =  phantomName + ".material";
 	G4String doseFile     =  phantomName + ".dose";
-	G4String boneFile     =  phantomName + "RBMnBS";
+	G4String boneFile     =  phantomName + ".RBMnBS";
 
 	// read dose file (*.dose) -if there is any
 	DoseRead(doseFile);
@@ -74,7 +74,6 @@ void TETModelImport::DoseRead(G4String doseFile){
 
 		std::stringstream ss(aLine);
 		G4int doseID; ss>>doseID;
-		doseName[0] = "rest";
 		G4String name; ss>>name; doseName[doseID] = name;
 		G4int organID;
 		while(ss>>organID){
@@ -256,7 +255,7 @@ void TETModelImport::MaterialRead(G4String materialFile)
 	if(DoseWasOrganized()){
 		for(auto aMass:massMap){
 			if(organ2dose.find(aMass.first)==organ2dose.end()){
-				organ2dose[aMass.first]= -aMass.first;
+				organ2dose[aMass.first] = -aMass.first;
 				doseName[-aMass.first] = GetMaterial(aMass.first)->GetName();
 			}
 		}
@@ -277,7 +276,8 @@ void TETModelImport::RBMBSRead(G4String bonefile){
 				G4String("      There is no " + bonefile ).c_str());
 		return;
 	}
-	G4int idx, rbm, bs;
+	G4int idx;
+	G4double rbm, bs;
 	while(ifs>>idx>>rbm>>bs){
 		if(doseOrganized){
 			rbmRatio[-idx]=rbm;

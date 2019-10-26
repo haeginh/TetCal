@@ -47,8 +47,8 @@ TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* 
 	ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
 	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
 	for(auto itr : massMap)
-		if(tetData->DoseWasOrganized()) ofs<<std::to_string(itr.first)+"/"+tetData->GetDoseName(itr.first)<<"\t"<<itr.second/g<<"\t";
-		else                            ofs<<std::to_string(itr.first)+"/"+tetData->GetMaterial(itr.first)->GetName()<<"\t"<<itr.second/g<<"\t";
+		if(tetData->DoseWasOrganized()) ofs<<std::to_string(itr.first)+"_"+tetData->GetDoseName(itr.first)<<"\t"<<itr.second/g<<"\t";
+		else                            ofs<<std::to_string(itr.first)+"_"+tetData->GetMaterial(itr.first)->GetName()<<"\t"<<itr.second/g<<"\t";
 	ofs<<"RBM\t\tBS\t"<<G4endl;
 	ofs.close();
 
@@ -136,7 +136,7 @@ void TETRunAction::EndOfRunAction(const G4Run* aRun)
 		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
 		bsDose += meanDose*bs.second;
 		bsError += variance*bs.second*bs.second;
-	} bsError = sqrt(rbmError)/rbmDose;
+	} bsError = sqrt(bsError)/bsDose;
 	// Print the run result by G4cout and std::ofstream
 	//
 	// print by G4cout
