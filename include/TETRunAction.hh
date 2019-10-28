@@ -67,6 +67,7 @@ public:
 	virtual void EndOfRunAction(const G4Run*);
 
 	void SetDoses();
+	void SetEffectiveDose();
 	void PrintResultExternal(std::ostream &out);
 	void PrintResultInternal(std::ostream &out);
 	void PrintLineExternal(std::ostream &out);
@@ -95,6 +96,7 @@ private:
 	std::map<G4int, G4double> massMap;
 	std::vector<G4double>     doseValues;
 	std::vector<G4double>     doseErrors;
+	G4double effectiveDose, effectiveError;
 };
 
 #endif
