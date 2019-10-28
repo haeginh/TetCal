@@ -66,6 +66,7 @@ public:
 	virtual void BeginOfRunAction(const G4Run*);
 	virtual void EndOfRunAction(const G4Run*);
 
+	void SetDoses();
 	void PrintResultExternal(std::ostream &out);
 	void PrintResultInternal(std::ostream &out);
 	void PrintLineExternal(std::ostream &out);
@@ -92,6 +93,8 @@ private:
 	G4bool   isExternal;
 	G4bool   sameToPrev;
 	std::map<G4int, G4double> massMap;
+	std::vector<G4double>     doseValues;
+	std::vector<G4double>     doseErrors;
 };
 
 #endif
