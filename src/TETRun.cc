@@ -30,11 +30,21 @@
 
 #include "TETRun.hh"
 
-TETRun::TETRun()
+TETRun::TETRun(TETModelImport* tetData)
 :G4Run()
 {
 	fCollID
 	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/eDep");
+
+	organ2dose = tetData->GetDoseMap();
+
+	auto massMap  = tetData->GetMassMap();
+	auto rbmRatio = tetData->GetRBMmap();
+	auto bsRatio  = tetData->GetBSmap();
+	for(auto rbm:rbmRatio)
+		rbmFactor[rbm.first] = rbm.second / massMap[rbm.first];
+	for(auto bs:bsRatio)
+		bsFactor[bs.first] = bs.second / massMap[bs.first];
 }
 
 TETRun::~TETRun()
@@ -53,9 +63,24 @@ void TETRun::RecordEvent(const G4Event* event)
 			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID));
 
 	// sum up the energy deposition and the square of it
-	for (auto itr : *evtMap->GetMap()) {
-		edepMap[itr.first].first  += *itr.second;                   //sum
-		edepMap[itr.first].second += (*itr.second) * (*itr.second); //sum square
+	auto doseMap = *evtMap->GetMap();
+	std::map<G4int, G4double> edepSum;
+	for (auto itr : doseMap) {
+		for(auto doseID:organ2dose[itr.first])
+			edepSum[doseID]  += *itr.second;
+	}
+	for(auto rbm:rbmFactor){
+		if(doseMap.find(rbm.first)==doseMap.end()) continue;
+		edepSum[-2] += *doseMap[rbm.first] * rbm.second;
+	}
+	for(auto bs:bsFactor){
+		if(doseMap.find(bs.first)==doseMap.end()) continue;
+		edepSum[-1] += *doseMap[bs.first] * bs.second;
+	}
+
+	for(auto edep:edepSum){
+		edepMap[edep.first].first += edep.second;                 //sum
+		edepMap[edep.first].second += edep.second * edep.second;  //square sum
 	}
 }
 

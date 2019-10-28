@@ -86,10 +86,6 @@ private:
 	G4double beamArea;
 	G4bool   isExternal;
 	std::map<G4int, G4double> massMap;
-
-	std::map<G4int, G4double>  rbmRatio;
-	std::map<G4int, G4double>  bsRatio;
-	G4double rbmDose, rbmError, bsDose, bsError;
 };
 
 #endif

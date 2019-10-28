@@ -54,7 +54,7 @@ typedef std::map<G4int, std::pair<G4double, G4double>> EDEPMAP;
 class TETRun : public G4Run 
 {
 public:
-	TETRun();
+	TETRun(TETModelImport* tetData);
 	virtual ~TETRun();
 
 	virtual void RecordEvent(const G4Event*);
@@ -86,7 +86,9 @@ private:
     G4double primaryE;
     G4double beamArea;
     G4bool   isExternal;
-
+    std::map<G4int, std::vector<G4int>>   organ2dose;
+	std::map<G4int, G4double>  rbmFactor;
+	std::map<G4int, G4double>  bsFactor;
 };
 
 #endif

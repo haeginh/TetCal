@@ -70,7 +70,8 @@ public:
 
 	// get methods
 	G4bool        DoseWasOrganized()         { return doseOrganized; }
-	G4int         GetDoseID(G4int organID)   { return organ2dose[organID];}
+	std::map<G4int, std::vector<G4int>>
+	              GetDoseMap()               { return organ2dose;}
 	G4String      GetDoseName(G4int doseID)  { return doseName[doseID];}
 	std::map<G4int, G4double> GetDoseMassMap(){ return doseMassMap; }
 
@@ -103,7 +104,7 @@ private:
 	G4ThreeVector boundingBox_Max;
 	G4ThreeVector phantomSize;
 
-	std::map<G4int, G4int>     organ2dose;
+	std::map<G4int, std::vector<G4int>>   organ2dose;
 	std::map<G4int, G4String>  doseName;
 	std::map<G4int, G4double>  doseMassMap;
 	G4bool                     doseOrganized;

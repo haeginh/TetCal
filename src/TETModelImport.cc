@@ -77,9 +77,8 @@ void TETModelImport::DoseRead(G4String doseFile){
 		G4String name; ss>>name; doseName[doseID] = name;
 		G4int organID;
 		while(ss>>organID){
-			if(organ2dose.find(organID)!=organ2dose.end())
-				G4cerr<<organID<<" was overlapped in " + name<<G4endl;
-			organ2dose[organID] = doseID;
+			if(organ2dose.find(organID)==organ2dose.end()) organ2dose[organID] = {doseID};
+			else	                                       organ2dose[organID].push_back(doseID);
 		}
 	}
 	ifs.close();
@@ -253,17 +252,12 @@ void TETModelImport::MaterialRead(G4String materialFile)
 	}
 
 	if(DoseWasOrganized()){
-		for(auto aMass:massMap){
-			if(organ2dose.find(aMass.first)==organ2dose.end()){
-				organ2dose[aMass.first] = -aMass.first;
-				doseName[-aMass.first] = GetMaterial(aMass.first)->GetName();
-			}
-		}
 		for(auto dm:doseName){
 			doseMassMap[dm.first] = 0;
 		}
-		for(auto aMass:massMap){
-			doseMassMap[organ2dose[aMass.first]] += aMass.second;
+		for(auto od:organ2dose){
+			for(auto doseID:od.second)
+				doseMassMap[doseID] += massMap[od.first];
 		}
 	}
 }
@@ -279,13 +273,8 @@ void TETModelImport::RBMBSRead(G4String bonefile){
 	G4int idx;
 	G4double rbm, bs;
 	while(ifs>>idx>>rbm>>bs){
-		if(doseOrganized){
-			rbmRatio[-idx]=rbm;
-			bsRatio[-idx]=bs;
-		}else{
-			rbmRatio[idx]=rbm;
-			bsRatio[idx]=bs;
-		}
+		rbmRatio[idx]=rbm;
+		bsRatio[idx]=bs;
 	}
 }
 

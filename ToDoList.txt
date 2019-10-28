@@ -1,5 +1,6 @@
 1. add internal surface source
-2. add function to group the regions (0)
+2. add function to group the regions (0)-> allowed the duplication of organID
 3. add DRF
 4. add function to propagate error in RunAction
 5. check visualization
+6. enabled the claculation of homogenious bone doses (RBM/BS) (0)
