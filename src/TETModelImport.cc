@@ -82,6 +82,7 @@ void TETModelImport::DoseRead(G4String doseFile){
 		}
 	}
 	ifs.close();
+
 }
 
 void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)

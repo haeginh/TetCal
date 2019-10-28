@@ -89,6 +89,7 @@ private:
     std::map<G4int, std::vector<G4int>>   organ2dose;
 	std::map<G4int, G4double>  rbmFactor;
 	std::map<G4int, G4double>  bsFactor;
+	G4bool doseOrganized;
 };
 
 #endif

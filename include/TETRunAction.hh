@@ -71,6 +71,10 @@ public:
 	void PrintLineExternal(std::ostream &out);
 	void PrintLineInternal(std::ostream &out);
 
+	std::pair<G4double, G4double> PropagateError(std::vector<G4double> doses,
+												 std::vector<G4double> errors,
+												 std::vector<G4double> ratio);
+
 private:
 	TETModelImport* tetData;
 	TETRun*         fRun;
@@ -84,7 +88,9 @@ private:
 	G4String primarySourceName;
 	G4double primaryEnergy;
 	G4double beamArea;
+	G4int    prevNPS;
 	G4bool   isExternal;
+	G4bool   sameToPrev;
 	std::map<G4int, G4double> massMap;
 };
 

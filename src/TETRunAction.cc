@@ -114,6 +114,7 @@ void TETRunAction::EndOfRunAction(const G4Run* aRun)
 	beamArea        = fRun->GetBeamArea();
 	isExternal      = fRun->GetIsExternal();
 
+
 	// Print the run result by G4cout and std::ofstream
 	//
 	// print by G4cout
@@ -125,6 +126,7 @@ void TETRunAction::EndOfRunAction(const G4Run* aRun)
 	if(isExternal)PrintLineExternal(ofs);
 	else          PrintLineInternal(ofs);
 	ofs.close();
+
 	initTimer->Start();
 }
 
@@ -169,7 +171,6 @@ void TETRunAction::PrintResultExternal(std::ostream &out)
 		out	<< setw(15) << fixed      << itr.second/g;
 		out	<< setw(15) << scientific << meanDose/(joule/kg) * beamArea/cm2;
 		out	<< setw(15) << fixed      << relativeE << G4endl;
-
 	}
 
 	out << "=====================================================================" << G4endl << G4endl;
@@ -275,4 +276,40 @@ void TETRunAction::PrintLineInternal(std::ostream &out)
 		out << meanDose/primaryEnergy/(itr.second/kg) <<"\t" << relativeE << "\t";
 	}
 	out<<G4endl;
+}
+
+std::pair<G4double, G4double> PropagateError(std::vector<G4double> doses,
+										     std::vector<G4double> errors,
+											 std::vector<G4double> ratio)
+{
+	typedef std::pair<G4double, G4double> VALUE;
+
+	if(doses.size()!=errors.size()){
+		G4Exception("TETRunAction::PropagateError","",JustWarning,
+				G4String("      wrong input " ).c_str());
+		return VALUE(0, 0);
+	}
+
+	//normalize the ratio
+	if(doses.size()!=ratio.size()){
+		G4Exception("TETRunAction::PropagateError","",JustWarning,
+				G4String("      uniform ratio was applied " ).c_str());
+		std::vector<G4double> uniform(doses.size(),1./(G4int)doses.size());
+		ratio = uniform;
+	}else{
+		G4double sum(0.);
+		for(size_t i=0;i<ratio.size();i++) sum += ratio[i];
+		for(auto &r:ratio) r/=sum;
+	}
+
+	//set mean dose
+	G4double value(0.);
+	for(size_t i=0;i<doses.size();i++) value += doses[i]*ratio[i];
+
+	//set error
+	G4double error(0.);
+	for(size_t i=0;i<doses.size();i++) error += pow(doses[i]*errors[i]*ratio[i],2);
+	error = sqrt(error);
+
+	return VALUE(value, error);
 }
