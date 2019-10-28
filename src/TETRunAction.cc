@@ -157,6 +157,11 @@ void TETRunAction::SetDoses()
 	}
 }
 
+void TETRunAction::SetEffectiveDose()
+{
+
+}
+
 void TETRunAction::PrintResultExternal(std::ostream &out)
 {
 	// Print run result
