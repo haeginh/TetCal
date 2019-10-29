@@ -23,56 +23,24 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETRun.cc
-// \file   MRCP_GEANT4/External/src/TETRun.cc
+// TETPSEnergyDeposit.hh
+// \file   MRCP_GEANT4/External/include/TETPSEnergyDeposit.hh
 // \author Haegin Han
 //
 
-#include "TETRun.hh"
+#ifndef TETPSEnergyDeposit_h
+#define TETPSEnergyDeposit_h 1
 
-TETRun::TETRun()
-:G4Run()
+#include "G4PSTrackLength.hh"
+
+class TETPSTrackLength : public G4PSTrackLength
 {
-	fCollID
-	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/tLength");
-}
+   public:
+      TETPSTrackLength(G4String name);
+      virtual ~TETPSTrackLength();
 
-TETRun::~TETRun()
-{
-	lengthBin.clear();
-}
+  protected:
+      virtual G4int GetIndex(G4Step*);
+};
 
-void TETRun::RecordEvent(const G4Event* event)
-{
-	// Hits collections
-	//
-	G4HCofThisEvent* HCE = event->GetHCofThisEvent();
-	if(!HCE) return;
-
-	G4THitsMap<G4double>* evtMap =
-			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID));
-
-	auto doseMap = *evtMap->GetMap();
-	lengthBin[floor(*doseMap[1])]++;
-}
-
-void TETRun::Merge(const G4Run* run)
-{
-	const TETRun* localRun = static_cast<const TETRun*>(run);
-	// merge the data from each thread
-	LENGHBIN localMap = localRun->lengthBin;
-
-	source = localRun->source;
-	dir = localRun->dir;
-	for(auto itr : localMap){
-		lengthBin[itr.first]  += itr.second;
-	}
-
-	G4Run::Merge(run);
-}
-
-
-
-
-
-
+#endif

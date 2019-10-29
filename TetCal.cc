@@ -56,8 +56,9 @@
 
 #include "Randomize.hh"
 #include "G4Timer.hh"
-#include "G4PhysListFactory.hh"
-#include "G4VModularPhysicsList.hh"
+//#include "G4PhysListFactory.hh"
+//#include "G4VModularPhysicsList.hh"
+#include "PhysicsList.hh"
 
 void PrintUsage(){
 	G4cerr<< "Usage: ./External -m [MACRO] -o [OUTPUT] -f (option for MRCP-AF phantom)"  <<G4endl;
@@ -140,9 +141,9 @@ int main(int argc,char** argv)
 	// detector construction
 	runManager->SetUserInitialization(new TETDetectorConstruction(tetData));
 	// physics list
-	G4PhysListFactory factory;
-	G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BIC_LIV");
-//	runManager->SetUserInitialization(physList);
+//	G4PhysListFactory factory;
+//	G4VModularPhysicsList* physList = factory.GetReferencePhysList("QBBC");
+	runManager->SetUserInitialization(new PhysicsList());
 //	runManager->SetUserInitialization(new TETPhysicsList());
 	// user action initialisation
 	runManager->SetUserInitialization(new TETActionInitialization(tetData, output, initTimer));

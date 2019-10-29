@@ -52,7 +52,7 @@ TETPrimaryGeneratorAction::~TETPrimaryGeneratorAction()
 
 void TETPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-	G4ThreeVector direction, position;
+	G4ThreeVector position;
 	fSourceGenerator->GetAprimaryPos(position);
 	fParticleGun->SetParticlePosition(position);
 	fParticleGun->GeneratePrimaryVertex(anEvent);

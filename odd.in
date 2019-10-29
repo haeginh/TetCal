@@ -1,0 +1,15 @@
+# Set the verbose
+#/run/verbose 2
+
+# Set the number of threads for multi-threading mode
+/run/numberOfThreads  4
+
+# Initialize
+/run/initialize
+
+# Set the nps
+#/gun/particle gamma
+
+/odd/organ 1
+/odd/dir front
+/run/beamOn 300000

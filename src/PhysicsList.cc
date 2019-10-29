@@ -23,56 +23,47 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETRun.cc
-// \file   MRCP_GEANT4/External/src/TETRun.cc
-// \author Haegin Han
+/// \file eventgenerator/particleGun/src/PhysicsList.cc
+/// \brief Implementation of the PhysicsList class
 //
+//
+// 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo...... 
 
-#include "TETRun.hh"
+#include "PhysicsList.hh"
+#include "G4ParticleTypes.hh"
 
-TETRun::TETRun()
-:G4Run()
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+PhysicsList::PhysicsList()
+: G4VUserPhysicsList()
+{ }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+PhysicsList::~PhysicsList()
+{ }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void PhysicsList::ConstructParticle()
 {
-	fCollID
-	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/tLength");
+  G4Geantino::GeantinoDefinition();
 }
 
-TETRun::~TETRun()
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void PhysicsList::ConstructProcess()
 {
-	lengthBin.clear();
+  AddTransportation();
 }
 
-void TETRun::RecordEvent(const G4Event* event)
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void PhysicsList::SetCuts()
 {
-	// Hits collections
-	//
-	G4HCofThisEvent* HCE = event->GetHCofThisEvent();
-	if(!HCE) return;
-
-	G4THitsMap<G4double>* evtMap =
-			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID));
-
-	auto doseMap = *evtMap->GetMap();
-	lengthBin[floor(*doseMap[1])]++;
+ SetCutsWithDefault(); 
 }
 
-void TETRun::Merge(const G4Run* run)
-{
-	const TETRun* localRun = static_cast<const TETRun*>(run);
-	// merge the data from each thread
-	LENGHBIN localMap = localRun->lengthBin;
-
-	source = localRun->source;
-	dir = localRun->dir;
-	for(auto itr : localMap){
-		lengthBin[itr.first]  += itr.second;
-	}
-
-	G4Run::Merge(run);
-}
-
-
-
-
-
-
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

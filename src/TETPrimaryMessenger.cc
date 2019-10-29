@@ -64,7 +64,7 @@ void TETPrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 		while(ss>>intTemp) organIDs.push_back(intTemp);
 		fInternal->SetSource(organIDs);
 	}
-	if(command == fSourceOrganCmd){
+	if(command == fBeamDirCmd){
 		if(newValue == "front")
 			fPrimary->GetParticleGun()->SetParticleMomentumDirection(G4ThreeVector(0., -1., 0.));
 		if(newValue == "back")

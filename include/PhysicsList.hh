@@ -23,56 +23,36 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETRun.cc
-// \file   MRCP_GEANT4/External/src/TETRun.cc
-// \author Haegin Han
+/// \file eventgenerator/particleGun/include/PhysicsList.hh
+/// \brief Definition of the PhysicsList class
 //
+//
+// 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#include "TETRun.hh"
+#ifndef PhysicsList_h
+#define PhysicsList_h 1
 
-TETRun::TETRun()
-:G4Run()
+#include "G4VUserPhysicsList.hh"
+#include "globals.hh"
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+class PhysicsList: public G4VUserPhysicsList
 {
-	fCollID
-	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/tLength");
-}
+  public:
+    PhysicsList();
+   ~PhysicsList();
 
-TETRun::~TETRun()
-{
-	lengthBin.clear();
-}
+  protected:
+    // Construct particle and physics
+    virtual void ConstructParticle();
+    virtual void ConstructProcess(); 
+    virtual void SetCuts();   
+};
 
-void TETRun::RecordEvent(const G4Event* event)
-{
-	// Hits collections
-	//
-	G4HCofThisEvent* HCE = event->GetHCofThisEvent();
-	if(!HCE) return;
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-	G4THitsMap<G4double>* evtMap =
-			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID));
-
-	auto doseMap = *evtMap->GetMap();
-	lengthBin[floor(*doseMap[1])]++;
-}
-
-void TETRun::Merge(const G4Run* run)
-{
-	const TETRun* localRun = static_cast<const TETRun*>(run);
-	// merge the data from each thread
-	LENGHBIN localMap = localRun->lengthBin;
-
-	source = localRun->source;
-	dir = localRun->dir;
-	for(auto itr : localMap){
-		lengthBin[itr.first]  += itr.second;
-	}
-
-	G4Run::Merge(run);
-}
-
-
-
-
-
+#endif
 

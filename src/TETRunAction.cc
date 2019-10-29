@@ -131,7 +131,7 @@ void TETRunAction::PrintResult(std::ostream &out)
 	    << "=====================================================================" << G4endl;
 	out.precision(3);
 
-	for(auto lb:lengthBin) G4cout<<setw(7)<<lb.first<<" mm   "<<lb.second<<G4endl;
+	for(auto lb:lengthBin) G4cout<<setw(7)<<lb.first/mm<<" mm   "<<lb.second<<G4endl;
 
 	out << "=====================================================================" << G4endl << G4endl;
 }
@@ -144,10 +144,10 @@ void TETRunAction::PrintLine(std::ostream &out)
 	using namespace std;
 	LENGHBIN lengthBin = fRun->GetLengthBin();
 
-	out << numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
+	out << numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()
 		<< "\t" <<primarySourceName<< "\t" << primaryDir << "\t";
 
-	for(G4int i=0;i<2000;i++) G4cout<< lengthBin[i]<<"\t";
+	for(G4int i=0;i<2000;i++) out<< lengthBin[i]<<"\t";
 
 	out<<G4endl;
 }
