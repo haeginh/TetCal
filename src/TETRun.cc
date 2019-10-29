@@ -30,29 +30,16 @@
 
 #include "TETRun.hh"
 
-TETRun::TETRun(TETModelImport* tetData)
+TETRun::TETRun()
 :G4Run()
 {
 	fCollID
-	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/eDep");
-
-	organ2dose = tetData->GetDoseMap();
-
-	auto massMap  = tetData->GetMassMap();
-	auto rbmRatio = tetData->GetRBMmap();
-	auto bsRatio  = tetData->GetBSmap();
-
-	for(auto rbm:rbmRatio)
-		rbmFactor[rbm.first] = rbm.second / massMap[rbm.first];
-	for(auto bs:bsRatio)
-		bsFactor[bs.first] = bs.second / massMap[bs.first];
-
-	doseOrganized = tetData->DoseWasOrganized();
+	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/tLength");
 }
 
 TETRun::~TETRun()
 {
-	edepMap.clear();
+	lengthBin.clear();
 }
 
 void TETRun::RecordEvent(const G4Event* event)
@@ -65,62 +52,20 @@ void TETRun::RecordEvent(const G4Event* event)
 	G4THitsMap<G4double>* evtMap =
 			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID));
 
-	// sum up the energy deposition and the square of it
 	auto doseMap = *evtMap->GetMap();
-	if(!doseOrganized){
-		for(auto itr:doseMap){
-			edepMap[itr.first].first += *itr.second;
-			edepMap[itr.first].second += (*itr.second)*(*itr.second);
-		}
-		G4double rbmDose(0.), bsDose(0.);
-		for(auto rbm:rbmFactor){
-			if(doseMap.find(rbm.first)==doseMap.end()) continue;
-			rbmDose += *doseMap[rbm.first] * rbm.second;
-		}
-		for(auto bs:bsFactor){
-			if(doseMap.find(bs.first)==doseMap.end()) continue;
-			bsDose += *doseMap[bs.first] * bs.second;
-		}
-		edepMap[-2].first+=rbmDose; edepMap[-2].second+=rbmDose*rbmDose;
-		edepMap[-1].first+=bsDose; edepMap[-1].second+=bsDose*bsDose;
-		return;
-	}
-
-	//for the organized doses
-	std::map<G4int, G4double> edepSum;
-	for (auto itr : doseMap) {
-		for(auto doseID:organ2dose[itr.first])
-			edepSum[doseID]  += *itr.second;
-	}
-	for(auto rbm:rbmFactor){
-		if(doseMap.find(rbm.first)==doseMap.end()) continue;
-		edepSum[-2] += *doseMap[rbm.first] * rbm.second;
-	}
-	for(auto bs:bsFactor){
-		if(doseMap.find(bs.first)==doseMap.end()) continue;
-		edepSum[-1] += *doseMap[bs.first] * bs.second;
-	}
-
-	for(auto edep:edepSum){
-		edepMap[edep.first].first += edep.second;                 //sum
-		edepMap[edep.first].second += edep.second * edep.second;  //square sum
-	}
+	lengthBin[floor(*doseMap[0])]++;
 }
 
 void TETRun::Merge(const G4Run* run)
 {
 	const TETRun* localRun = static_cast<const TETRun*>(run);
 	// merge the data from each thread
-	EDEPMAP localMap = localRun->edepMap;
+	LENGHBIN localMap = localRun->lengthBin;
 
-	primary = localRun->primary;
+	source = localRun->source;
 	dir = localRun->dir;
-	primaryE = localRun->primaryE;
-	beamArea = localRun->beamArea;
-	isExternal = localRun->isExternal;
 	for(auto itr : localMap){
-		edepMap[itr.first].first  += itr.second.first;
-		edepMap[itr.first].second += itr.second.second;
+		lengthBin[itr.first]  += itr.second;
 	}
 
 	G4Run::Merge(run);

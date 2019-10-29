@@ -31,33 +31,30 @@
 
 
 #include "TETPrimaryGeneratorAction.hh"
+#include "G4Geantino.hh"
 #include <fstream>
 
 TETPrimaryGeneratorAction::TETPrimaryGeneratorAction(TETModelImport* _tetData)
 :tetData(_tetData), fSourceGenerator(0)
 {
 	fParticleGun = new G4ParticleGun(1);
+	fParticleGun->SetParticleDefinition(G4Geantino::GeantinoDefinition());
 	fMessenger   = new TETPrimaryMessenger(this);
-	fExternal    = new ExternalBeam();
 	fInternal    = new InternalSource(tetData);
-
 }
 
 TETPrimaryGeneratorAction::~TETPrimaryGeneratorAction()
 {
 	delete fParticleGun;
 	delete fMessenger;
-	delete fExternal;
 	delete fInternal;
 }
 
 void TETPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-
 	G4ThreeVector direction, position;
-	fSourceGenerator->GetAprimaryPosDir(position, direction);
+	fSourceGenerator->GetAprimaryPos(position);
 	fParticleGun->SetParticlePosition(position);
-	fParticleGun->SetParticleMomentumDirection(direction);
 	fParticleGun->GeneratePrimaryVertex(anEvent);
 }
 

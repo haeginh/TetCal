@@ -58,14 +58,11 @@ class TETPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     //GENERAL
   public:
     virtual void   GeneratePrimaries(G4Event* anEvent);
-    void           SetExternalBeam()
-    	{fSourceGenerator = fExternal; fSourceGenerator->SetExternal();}
     void           SetInternalBeam()
     	{fSourceGenerator = fInternal; fSourceGenerator->SetInternal();}
     void SetSourceName(G4String _sourceN) {sourceName = _sourceN;}
     G4ParticleGun*  GetParticleGun()          const {return fParticleGun;}
     SourceGenerator* GetSourceGenerator()      const {return fSourceGenerator;}
-    ExternalBeam*   GetExternalBeamGenerator() const {return fExternal;}
     InternalSource* GetInternalBeamGenerator() const {return fInternal;}
     G4String        GetSourceName() const {return sourceName;}
 
@@ -74,7 +71,6 @@ class TETPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4ParticleGun*       fParticleGun;
     TETPrimaryMessenger* fMessenger;
     SourceGenerator*       fSourceGenerator;
-    ExternalBeam*       fExternal;
     InternalSource*       fInternal;
     G4String              sourceName;
 };

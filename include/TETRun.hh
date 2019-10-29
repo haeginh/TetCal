@@ -35,9 +35,8 @@
 #include "G4Event.hh"
 #include "G4THitsMap.hh"
 #include "G4SDManager.hh"
-#include "TETModelImport.hh"
 
-typedef std::map<G4int, std::pair<G4double, G4double>> EDEPMAP;
+typedef std::map<G4int, G4int> LENGHBIN;
 
 // *********************************************************************
 // This is G4Run class that sums up energy deposition from each event.
@@ -54,42 +53,28 @@ typedef std::map<G4int, std::pair<G4double, G4double>> EDEPMAP;
 class TETRun : public G4Run 
 {
 public:
-	TETRun(TETModelImport* tetData);
+	TETRun();
 	virtual ~TETRun();
 
 	virtual void RecordEvent(const G4Event*);
 	void ConstructMFD(const G4String& mfdName);
     virtual void Merge(const G4Run*);
 
-    EDEPMAP* GetEdepMap() {return &edepMap;};
-    G4String GetParticleName() {return primary;}
-    G4String GetBeamDirName()  {return dir;}
-    G4double GetBeamEnergy()   {return primaryE;}
-    G4double GetBeamArea()     {return beamArea;}
-    G4bool   GetIsExternal()   {return isExternal;}
+    LENGHBIN GetLengthBin() {return lengthBin;};
+    G4String GetBeamSourceName()  {return source;}
+    G4ThreeVector GetBeamDir()   {return dir;}
 
-
-    void SetPrimary(G4String _primary, G4String _dir, G4double _primaryE, G4double _beamArea, G4bool _isExternal)
+    void SetPrimary(G4String _source, G4ThreeVector _dir)
     {
-    	primary = _primary;
+    	source = _source;
     	dir = _dir;
-    	primaryE = _primaryE;
-    	beamArea = _beamArea;
-    	isExternal = _isExternal;
     }
 
 private:
-    EDEPMAP edepMap;
+    LENGHBIN lengthBin;
     G4int   fCollID;
-    G4String primary;
-    G4String dir;
-    G4double primaryE;
-    G4double beamArea;
-    G4bool   isExternal;
-    std::map<G4int, std::vector<G4int>>   organ2dose;
-	std::map<G4int, G4double>  rbmFactor;
-	std::map<G4int, G4double>  bsFactor;
-	G4bool doseOrganized;
+    G4String source;
+    G4ThreeVector dir;
 };
 
 #endif

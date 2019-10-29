@@ -38,35 +38,19 @@
 TETPrimaryMessenger::TETPrimaryMessenger(TETPrimaryGeneratorAction* _primary)
 :G4UImessenger(), fPrimary(_primary)
 {
-	fExternalDir = new G4UIdirectory("/external/");
-	fBeamDirCmd = new G4UIcmdWithAString("/external/dir", this);
-	fBeamDirCmd->SetCandidates("AP PA LLAT RLAT ROT ISO");
-
-	fInternalDir      = new G4UIdirectory("/internal/");
-	fSourceOrganCmd   = new G4UIcmdWithAString("/internal/source", this);
-	fSurfaceSourceCmd = new G4UIcmdWithAString("/internal/surface", this);
+	fInternalDir      = new G4UIdirectory("/odd/");
+	fSourceOrganCmd   = new G4UIcmdWithAString("/odd/organ", this);
+	fBeamDirCmd       = new G4UIcmdWithAString("/odd/dir", this);
+	fBeamDirCmd->SetCandidates("front back left right top bottom");
 }
 
 TETPrimaryMessenger::~TETPrimaryMessenger() {
-	delete fExternalDir;
-	delete fBeamDirCmd;
 	delete fInternalDir;
 	delete fSourceOrganCmd;
 }
 
 void TETPrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
-	if(command == fBeamDirCmd){
-		fPrimary->SetExternalBeam();
-		fPrimary->SetSourceName(newValue);
-		ExternalBeam* fExternal = fPrimary->GetExternalBeamGenerator();
-		if(newValue=="AP")	      	fExternal->SetBeamDirection(AP);
-		else if(newValue=="PA")	    fExternal->SetBeamDirection(PA);
-		else if(newValue=="RLAT")	fExternal->SetBeamDirection(RLAT);
-		else if(newValue=="LLAT")	fExternal->SetBeamDirection(LLAT);
-		else if(newValue=="ROT")	fExternal->SetBeamDirection(ROT);
-		else if(newValue=="ISO")	fExternal->SetBeamDirection(ISO);
-	}
 	if(command == fSourceOrganCmd){
 		fPrimary->SetInternalBeam();
 		InternalSource* fInternal = (InternalSource*) fPrimary->GetInternalBeamGenerator();
@@ -79,6 +63,20 @@ void TETPrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 		G4int intTemp;
 		while(ss>>intTemp) organIDs.push_back(intTemp);
 		fInternal->SetSource(organIDs);
+	}
+	if(command == fSourceOrganCmd){
+		if(newValue == "front")
+			fPrimary->GetParticleGun()->SetParticleMomentumDirection(G4ThreeVector(0., -1., 0.));
+		if(newValue == "back")
+			fPrimary->GetParticleGun()->SetParticleMomentumDirection(G4ThreeVector(0., 1., 0.));
+		if(newValue == "left")
+			fPrimary->GetParticleGun()->SetParticleMomentumDirection(G4ThreeVector(1., 0., 0.));
+		if(newValue == "right")
+			fPrimary->GetParticleGun()->SetParticleMomentumDirection(G4ThreeVector(-1., 0., 0.));
+		if(newValue == "top")
+			fPrimary->GetParticleGun()->SetParticleMomentumDirection(G4ThreeVector(0., 0., 1.));
+		if(newValue == "bottom")
+			fPrimary->GetParticleGun()->SetParticleMomentumDirection(G4ThreeVector(0., 0., -1.));
 	}
 }
 

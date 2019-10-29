@@ -27,6 +27,7 @@ void InternalSource::SetSource(std::vector<G4int> sources)
 	std::set<G4int>    sourceSet(sources.begin(), sources.end());
 
 	//Cout
+	tetPick.clear();
 	std::stringstream ss;
 	ss<<"Set source organs for ";
 	for(auto s:sourceSet) ss<<s<<" ";
@@ -53,14 +54,13 @@ void InternalSource::SetSource(std::vector<G4int> sources)
 	G4cout<<ss.str();
 }
 
-void InternalSource::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &direction)
+void InternalSource::GetAprimaryPos(G4ThreeVector &position)
 {
 	G4double rand = G4UniformRand();
 	for(auto tp:tetPick){
 		if(rand>tp.first) continue;
 		position = RandomSamplingInTet(tetData->GetTetrahedron(tp.second)); break;
 	}
-	direction = G4RandomDirection();
 }
 
 G4ThreeVector InternalSource::RandomSamplingInTet(G4Tet* tet){

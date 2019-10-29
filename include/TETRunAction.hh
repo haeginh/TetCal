@@ -66,19 +66,10 @@ public:
 	virtual void BeginOfRunAction(const G4Run*);
 	virtual void EndOfRunAction(const G4Run*);
 
-	void SetDoses();
-	void SetEffectiveDose();
-	void PrintResultExternal(std::ostream &out);
-	void PrintResultInternal(std::ostream &out);
-	void PrintLineExternal(std::ostream &out);
-	void PrintLineInternal(std::ostream &out);
-
-	std::pair<G4double, G4double> PropagateError(std::vector<G4double> doses,
-												 std::vector<G4double> errors,
-												 std::vector<G4double> ratio);
+	void PrintResult(std::ostream &out);
+	void PrintLine(std::ostream &out);
 
 private:
-	TETModelImport* tetData;
 	TETRun*         fRun;
 	G4int           numOfEvent;
 	G4int           runID;
@@ -86,17 +77,8 @@ private:
 	G4Timer*        initTimer;
 	G4Timer*        runTimer;
 
-	G4String primaryParticle;
 	G4String primarySourceName;
-	G4double primaryEnergy;
-	G4double beamArea;
-	G4int    prevNPS;
-	G4bool   isExternal;
-	G4bool   sameToPrev;
-	std::map<G4int, G4double> massMap;
-	std::vector<G4double>     doseValues;
-	std::vector<G4double>     doseErrors;
-	G4double effectiveDose, effectiveError;
+	G4ThreeVector primaryDir;
 };
 
 #endif

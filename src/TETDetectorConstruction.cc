@@ -29,7 +29,7 @@
 //
 
 #include "TETDetectorConstruction.hh"
-
+#include "TETPSTrackLength.hh"
 #include "G4VisAttributes.hh"
 
 TETDetectorConstruction::TETDetectorConstruction(TETModelImport* _tetData)
@@ -117,7 +117,7 @@ void TETDetectorConstruction::ConstructSDandField()
 	pSDman->AddNewDetector( MFDet );
 
 	// scorer for energy depositon in each organ
-	MFDet->RegisterPrimitive(new TETPSEnergyDeposit("eDep", tetData));
+	MFDet->RegisterPrimitive(new TETPSTrackLength("tLengh"));
 
 	// attach the detector to logical volume for parameterised geometry (phantom geometry)
 	SetSensitiveDetector(tetLogic, MFDet);
