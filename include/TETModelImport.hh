@@ -69,12 +69,6 @@ public:
 	virtual ~TETModelImport() {};
 
 	// get methods
-	G4bool        DoseWasOrganized()         { return doseOrganized; }
-	std::map<G4int, std::vector<G4int>>
-	              GetDoseMap()               { return organ2dose;}
-	G4String      GetDoseName(G4int doseID)  { return doseName[doseID];}
-	std::map<G4int, G4double> GetDoseMassMap(){ return doseMassMap; }
-
 	G4String      GetPhantomName()           { return phantomName; };
 	G4Material*   GetMaterial(G4int idx)     { return materialMap[idx];}
 	G4int         GetNumTetrahedron()        { return tetVector.size();}
@@ -86,15 +80,11 @@ public:
 	G4ThreeVector GetPhantomSize()           { return phantomSize; }
 	G4ThreeVector GetPhantomBoxMin()         { return boundingBox_Min; }
 	G4ThreeVector GetPhantomBoxMax()         { return boundingBox_Max; }
-	std::map<G4int, G4double> GetRBMmap()    { return rbmRatio;}
-	std::map<G4int, G4double> GetBSmap()     { return bsRatio;}
 private:
 
 	// private methods
-	void DoseRead(G4String);
 	void DataRead(G4String, G4String);
 	void MaterialRead(G4String);
-	void RBMBSRead(G4String);
 	void ColourRead();
 	void PrintMaterialInfomation();
 
@@ -104,11 +94,6 @@ private:
 	G4ThreeVector boundingBox_Max;
 	G4ThreeVector phantomSize;
 
-	std::map<G4int, std::vector<G4int>>   organ2dose;
-	std::map<G4int, G4String>  doseName;
-	std::map<G4int, G4double>  doseMassMap;
-	G4bool                     doseOrganized;
-
 	std::vector<G4ThreeVector> vertexVector;
 	std::vector<G4Tet*>        tetVector;
 	std::vector<G4int*>        eleVector;
@@ -117,8 +102,6 @@ private:
 	std::map<G4int, G4double>  volumeMap;
 	std::map<G4int, G4double>  massMap;
 	std::map<G4int, G4Colour>  colourMap;
-	std::map<G4int, G4double>  rbmRatio;
-	std::map<G4int, G4double>  bsRatio;
 
 	std::map<G4int, std::vector<std::pair<G4int, G4double>>> materialIndexMap;
 	std::vector<G4int>                                       materialIndex;

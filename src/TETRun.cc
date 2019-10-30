@@ -35,19 +35,6 @@ TETRun::TETRun(TETModelImport* tetData)
 {
 	fCollID
 	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/eDep");
-
-	organ2dose = tetData->GetDoseMap();
-
-	auto massMap  = tetData->GetMassMap();
-	auto rbmRatio = tetData->GetRBMmap();
-	auto bsRatio  = tetData->GetBSmap();
-
-	for(auto rbm:rbmRatio)
-		rbmFactor[rbm.first] = rbm.second / massMap[rbm.first];
-	for(auto bs:bsRatio)
-		bsFactor[bs.first] = bs.second / massMap[bs.first];
-
-	doseOrganized = tetData->DoseWasOrganized();
 }
 
 TETRun::~TETRun()
@@ -67,44 +54,11 @@ void TETRun::RecordEvent(const G4Event* event)
 
 	// sum up the energy deposition and the square of it
 	auto doseMap = *evtMap->GetMap();
-	if(!doseOrganized){
-		for(auto itr:doseMap){
-			edepMap[itr.first].first += *itr.second;
-			edepMap[itr.first].second += (*itr.second)*(*itr.second);
-		}
-		G4double rbmDose(0.), bsDose(0.);
-		for(auto rbm:rbmFactor){
-			if(doseMap.find(rbm.first)==doseMap.end()) continue;
-			rbmDose += *doseMap[rbm.first] * rbm.second;
-		}
-		for(auto bs:bsFactor){
-			if(doseMap.find(bs.first)==doseMap.end()) continue;
-			bsDose += *doseMap[bs.first] * bs.second;
-		}
-		edepMap[-2].first+=rbmDose; edepMap[-2].second+=rbmDose*rbmDose;
-		edepMap[-1].first+=bsDose; edepMap[-1].second+=bsDose*bsDose;
-		return;
+	for(auto itr:doseMap){
+		edepMap[itr.first].first += *itr.second;
+		edepMap[itr.first].second += (*itr.second)*(*itr.second);
 	}
-
-	//for the organized doses
-	std::map<G4int, G4double> edepSum;
-	for (auto itr : doseMap) {
-		for(auto doseID:organ2dose[itr.first])
-			edepSum[doseID]  += *itr.second;
-	}
-	for(auto rbm:rbmFactor){
-		if(doseMap.find(rbm.first)==doseMap.end()) continue;
-		edepSum[-2] += *doseMap[rbm.first] * rbm.second;
-	}
-	for(auto bs:bsFactor){
-		if(doseMap.find(bs.first)==doseMap.end()) continue;
-		edepSum[-1] += *doseMap[bs.first] * bs.second;
-	}
-
-	for(auto edep:edepSum){
-		edepMap[edep.first].first += edep.second;                 //sum
-		edepMap[edep.first].second += edep.second * edep.second;  //square sum
-	}
+	return;
 }
 
 void TETRun::Merge(const G4Run* run)

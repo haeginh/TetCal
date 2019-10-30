@@ -67,15 +67,10 @@ public:
 	virtual void EndOfRunAction(const G4Run*);
 
 	void SetDoses();
-	void SetEffectiveDose();
 	void PrintResultExternal(std::ostream &out);
 	void PrintResultInternal(std::ostream &out);
 	void PrintLineExternal(std::ostream &out);
 	void PrintLineInternal(std::ostream &out);
-
-	std::pair<G4double, G4double> PropagateError(std::vector<G4double> doses,
-												 std::vector<G4double> errors,
-												 std::vector<G4double> ratio);
 
 private:
 	TETModelImport* tetData;
