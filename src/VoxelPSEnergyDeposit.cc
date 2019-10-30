@@ -23,55 +23,28 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file hadronic/Hadr06/include/HadronElasticPhysicsHP.hh
-/// \brief Definition of the HadronElasticPhysicsHP class
+// TETPSEnergyDeposit.cc
+// \file   MRCP_GEANT4/External/src/TETPSEnergyDeposit.cc
+// \author Haegin Han
 //
-// $Id:HadronElasticPhysicsHP.cc 71037 2013-06-10 09:20:54Z gcosmo $
-//
-// HP models for neutron < 20 MeV
 
-#include "HadronElasticPhysicsHP.hh"
+#include "VoxelPSEnergyDeposit.hh"
 
-#include "NeutronHPMessenger.hh"
+VoxelPSEnergyDeposit::VoxelPSEnergyDeposit(G4String name, ImportVoxelPhantom* _voxData)
+  :G4PSEnergyDeposit(name), voxData(_voxData)
+{}
 
-#include "G4HadronicProcess.hh"
-#include "G4ParticleHPElastic.hh"
-#include "G4ParticleHPElasticData.hh"
-#include "G4ParticleHPThermalScattering.hh"
-#include "G4ParticleHPThermalScatteringData.hh"
+VoxelPSEnergyDeposit::~VoxelPSEnergyDeposit()
+{}
 
-#include "G4SystemOfUnits.hh"
-
-HadronElasticPhysicsHP::HadronElasticPhysicsHP(G4int ver)
-: G4HadronElasticPhysics(ver),
-  fThermal(false), fNeutronMessenger(0)  
+G4int VoxelPSEnergyDeposit::GetIndex(G4Step* aStep)
 {
-	fNeutronMessenger = new NeutronHPMessenger(this);
+	const G4VTouchable* touchable = aStep->GetPreStepPoint()->GetTouchable();
+	G4int ix = touchable->GetReplicaNumber(1);
+	G4int iy = touchable->GetReplicaNumber(2);
+	G4int iz = touchable->GetReplicaNumber(0);
+
+	G4int organID = voxData->GetVoxelData(ix,iy,iz);
+
+	return organID;
 }
-
-
-HadronElasticPhysicsHP::~HadronElasticPhysicsHP()
-{
-	delete fNeutronMessenger;
-}
-
-
-void HadronElasticPhysicsHP::ConstructProcess()
-{
-	G4HadronElasticPhysics::ConstructProcess();
-	GetNeutronModel()->SetMinEnergy(19.5*MeV);
-
-	G4HadronicProcess* process = GetNeutronProcess();
-	G4ParticleHPElastic* model1 = new G4ParticleHPElastic();
-	process->RegisterMe(model1);
-	process->AddDataSet(new G4ParticleHPElasticData());
-
-	if (fThermal) {
-		G4ParticleHPThermalScattering* model2 = new G4ParticleHPThermalScattering();
-		process->RegisterMe(model2);
-		process->AddDataSet(new G4ParticleHPThermalScatteringData());
-		model1->SetMinEnergy(4*eV);
-	}
-}
-
-

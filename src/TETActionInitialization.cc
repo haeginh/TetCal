@@ -30,8 +30,8 @@
 
 #include "TETActionInitialization.hh"
 
-TETActionInitialization::TETActionInitialization(TETModelImport* _tetData, G4String _output, G4Timer* _init)
- : G4VUserActionInitialization(), tetData(_tetData), output(_output), initTimer(_init)
+TETActionInitialization::TETActionInitialization(ImportVoxelPhantom* _voxData, G4String _output, G4Timer* _init)
+ : G4VUserActionInitialization(), voxData(_voxData), output(_output), initTimer(_init)
 {}
 
 TETActionInitialization::~TETActionInitialization()
@@ -39,14 +39,13 @@ TETActionInitialization::~TETActionInitialization()
 
 void TETActionInitialization::BuildForMaster() const
 {
-	SetUserAction(new TETRunAction(tetData, output, initTimer));
+	SetUserAction(new VoxelRunAction(voxData, output, initTimer));
 }
 
 void TETActionInitialization::Build() const
 {
 	// initialise UserAction classes
-	SetUserAction(new TETPrimaryGeneratorAction(tetData));
-	SetUserAction(new TETRunAction(tetData, output, initTimer));
-	SetUserAction(new TETSteppingAction);
+	SetUserAction(new TETPrimaryGeneratorAction(voxData));
+	SetUserAction(new VoxelRunAction(voxData, output, initTimer));
 }  
 

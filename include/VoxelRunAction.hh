@@ -23,43 +23,80 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETSteppingAction.hh
-// \file   MRCP_GEANT4/External/include/TETSteppingAction.hh
+// TETRunAction.hh
+// \file   MRCP_GEANT4/External/include/TETRunAction.hh
 // \author Haegin Han
 //
 
-#ifndef TETSteppingAction_h
-#define TETSteppingAction_h 1
+#ifndef TETRunAction_h
+#define TETRunAction_h 1
 
-#include "G4UserSteppingAction.hh"
-#include "globals.hh"
-#include "G4ThreeVector.hh"
-#include "G4Step.hh"
+#include <ostream>
+#include <fstream>
+#include <map>
+
 #include "G4RunManager.hh"
 #include "G4UnitsTable.hh"
+#include "G4UserRunAction.hh"
+#include "G4SystemOfUnits.hh"
 
-class G4LogicalVolume;
+#include "TETPrimaryGeneratorAction.hh"
+#include "ImportVoxelPhantom.hh"
+#include "VoxelRun.hh"
 
 // *********************************************************************
-// With very low probability, because of the internal bug of G4TET, the
-// particles can be stuck in the vertices of tetrahedrons. This
-// UserSteppingAction class was written to slightly move these stuck
-// particles.
-// -- UserSteppingAction: Slightly move the stuck particles.
+// The main function of this UserRunAction class is to produce the result
+// data and print them.
+// -- GenerateRun: Generate TETRun class which will calculate the sum of
+//                  energy deposition.
+// -- BeginOfRunAction: Set the RunManager to print the progress at the
+//                      interval of 10%.
+// -- EndOfRunAction: Print the run result by G4cout and std::ofstream.
+//  └-- PrintResult: Method to print the result.
 // *********************************************************************
 
-class TETSteppingAction : public G4UserSteppingAction
+class VoxelRunAction : public G4UserRunAction
 {
-  public:
-    TETSteppingAction();
-    virtual ~TETSteppingAction();
+public:
+	VoxelRunAction(ImportVoxelPhantom* voxData, G4String output, G4Timer* initTimer);
+	virtual ~VoxelRunAction();
 
-    virtual void UserSteppingAction(const G4Step*);
+public:
+	virtual G4Run* GenerateRun();
+	virtual void BeginOfRunAction(const G4Run*);
+	virtual void EndOfRunAction(const G4Run*);
 
-  private:
-    G4double kCarTolerance;
-    G4int    stepCounter;
-    G4bool   checkFlag;
+	void SetDoses();
+	void PrintResultExternal(std::ostream &out);
+	void PrintResultInternal(std::ostream &out);
+	void PrintLineExternal(std::ostream &out);
+	void PrintLineInternal(std::ostream &out);
+
+private:
+	ImportVoxelPhantom* voxData;
+	TETRun*         fRun;
+	G4int           numOfEvent;
+	G4int           runID;
+	G4String        outputFile;
+	G4Timer*        initTimer;
+	G4Timer*        runTimer;
+
+	G4String primaryParticle;
+	G4String primarySourceName;
+	G4double primaryEnergy;
+	G4double beamArea;
+	G4int    prevNPS;
+	G4bool   isExternal;
+	G4bool   sameToPrev;
+	std::map<G4int, G4double> massMap;
+	std::vector<G4double>     doseValues;
+	std::vector<G4double>     doseErrors;
+	G4double effectiveDose, effectiveError;
 };
 
 #endif
+
+
+
+
+

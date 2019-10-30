@@ -34,11 +34,10 @@
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
 
-#include "HadronElasticPhysicsHP.hh"
 #include "G4HadronPhysicsFTFP_BERT_HP.hh"
 #include "G4IonPhysics.hh"
 //#include "G4IonINCLXXPhysics.hh"
-#include "GammaPhysics.hh"
+
 
 #include "G4EmLivermorePhysics.hh"
 #include "G4DecayPhysics.hh"

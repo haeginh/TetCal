@@ -33,14 +33,12 @@
 #include "TETPrimaryGeneratorAction.hh"
 #include <fstream>
 
-TETPrimaryGeneratorAction::TETPrimaryGeneratorAction(TETModelImport* _tetData)
-:tetData(_tetData), fSourceGenerator(0)
+TETPrimaryGeneratorAction::TETPrimaryGeneratorAction(ImportVoxelPhantom* _voxData)
+:voxData(_voxData), fSourceGenerator(0)
 {
 	fParticleGun = new G4ParticleGun(1);
 	fMessenger   = new TETPrimaryMessenger(this);
 	fExternal    = new ExternalBeam();
-	fInternal    = new InternalSource(tetData);
-
 }
 
 TETPrimaryGeneratorAction::~TETPrimaryGeneratorAction()
@@ -48,7 +46,6 @@ TETPrimaryGeneratorAction::~TETPrimaryGeneratorAction()
 	delete fParticleGun;
 	delete fMessenger;
 	delete fExternal;
-	delete fInternal;
 }
 
 void TETPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)

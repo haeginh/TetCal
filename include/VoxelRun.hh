@@ -23,80 +23,69 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETRunAction.hh
-// \file   MRCP_GEANT4/External/include/TETRunAction.hh
+// TETRun.hh
+// \file   MRCP_GEANT4/External/include/TETRun.hh
 // \author Haegin Han
 //
 
-#ifndef TETRunAction_h
-#define TETRunAction_h 1
+#ifndef TETRun_h
+#define TETRun_h 1
 
-#include <ostream>
-#include <fstream>
-#include <map>
+#include "G4Run.hh"
+#include "G4Event.hh"
+#include "G4THitsMap.hh"
+#include "G4SDManager.hh"
+#include "ImportVoxelPhantom.hh"
 
-#include "G4RunManager.hh"
-#include "G4UnitsTable.hh"
-#include "G4UserRunAction.hh"
-#include "G4SystemOfUnits.hh"
-
-#include "TETRun.hh"
-#include "TETPrimaryGeneratorAction.hh"
-#include "TETModelImport.hh"
+typedef std::map<G4int, std::pair<G4double, G4double>> EDEPMAP;
 
 // *********************************************************************
-// The main function of this UserRunAction class is to produce the result
-// data and print them.
-// -- GenerateRun: Generate TETRun class which will calculate the sum of
-//                  energy deposition.
-// -- BeginOfRunAction: Set the RunManager to print the progress at the
-//                      interval of 10%.
-// -- EndOfRunAction: Print the run result by G4cout and std::ofstream.
-//  └-- PrintResult: Method to print the result.
+// This is G4Run class that sums up energy deposition from each event.
+// The sum of the square of energy deposition was also calculated to
+// produce the relative error of the dose.
+// -- RecordEvent: Sum up the energy deposition and the square of it.
+//                 The sums for each organ were saved as the form of
+//                 std::map.
+// -- Merge: Merge the data calculated in each thread.
 // *********************************************************************
 
-class TETRunAction : public G4UserRunAction
+//enum BEAMDIR {AP, PA, LLAT, RLAT, ROT, ISO};
+
+class TETRun : public G4Run 
 {
 public:
-	TETRunAction(TETModelImport* tetData, G4String output, G4Timer* initTimer);
-	virtual ~TETRunAction();
+	TETRun(ImportVoxelPhantom* voxData);
+	virtual ~TETRun();
 
-public:
-	virtual G4Run* GenerateRun();
-	virtual void BeginOfRunAction(const G4Run*);
-	virtual void EndOfRunAction(const G4Run*);
+	virtual void RecordEvent(const G4Event*);
+	void ConstructMFD(const G4String& mfdName);
+    virtual void Merge(const G4Run*);
 
-	void SetDoses();
-	void PrintResultExternal(std::ostream &out);
-	void PrintResultInternal(std::ostream &out);
-	void PrintLineExternal(std::ostream &out);
-	void PrintLineInternal(std::ostream &out);
+    EDEPMAP* GetEdepMap() {return &edepMap;};
+    G4String GetParticleName() {return primary;}
+    G4String GetBeamDirName()  {return dir;}
+    G4double GetBeamEnergy()   {return primaryE;}
+    G4double GetBeamArea()     {return beamArea;}
+    G4bool   GetIsExternal()   {return isExternal;}
+
+
+    void SetPrimary(G4String _primary, G4String _dir, G4double _primaryE, G4double _beamArea, G4bool _isExternal)
+    {
+    	primary = _primary;
+    	dir = _dir;
+    	primaryE = _primaryE;
+    	beamArea = _beamArea;
+    	isExternal = _isExternal;
+    }
 
 private:
-	TETModelImport* tetData;
-	TETRun*         fRun;
-	G4int           numOfEvent;
-	G4int           runID;
-	G4String        outputFile;
-	G4Timer*        initTimer;
-	G4Timer*        runTimer;
-
-	G4String primaryParticle;
-	G4String primarySourceName;
-	G4double primaryEnergy;
-	G4double beamArea;
-	G4int    prevNPS;
-	G4bool   isExternal;
-	G4bool   sameToPrev;
-	std::map<G4int, G4double> massMap;
-	std::vector<G4double>     doseValues;
-	std::vector<G4double>     doseErrors;
-	G4double effectiveDose, effectiveError;
+    EDEPMAP edepMap;
+    G4int   fCollID;
+    G4String primary;
+    G4String dir;
+    G4double primaryE;
+    G4double beamArea;
+    G4bool   isExternal;
 };
 
 #endif
-
-
-
-
-

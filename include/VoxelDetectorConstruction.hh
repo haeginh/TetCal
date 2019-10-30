@@ -23,23 +23,57 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETPSEnergyDeposit.cc
-// \file   MRCP_GEANT4/External/src/TETPSEnergyDeposit.cc
-// \author Haegin Han
+// The code was written by :
+//	*Jong Hwi Jeong  jonghwi@hanyang.ac.kr
+//      *Chan Hyeong Kim chkim@hanyang.ac.kr
 //
+// Department of Nuclear Engineering, Hanyang University
+// 17 Haengdang, Seongdong, Seoul 133-791, Korea
+// Tel: +82-2-2220-4057
+// Fax: +82-2-2220-4059
+//
+// ********************************************************************
 
-#include "TETPSEnergyDeposit.hh"
+#ifndef DETECTORCONSTRUCTION_HH
+#define DETECTORCONSTRUCTION_HH
 
-TETPSEnergyDeposit::TETPSEnergyDeposit(G4String name, TETModelImport* _tetData)
-  :G4PSEnergyDeposit(name), tetData(_tetData)
-{}
+#include <fstream>
+#include <sstream>
 
-TETPSEnergyDeposit::~TETPSEnergyDeposit()
-{}
+#include "globals.hh"
+#include "G4Box.hh"
+#include "G4VUserDetectorConstruction.hh"
+#include "G4MultiFunctionalDetector.hh"
+#include "G4VisAttributes.hh"
 
-G4int TETPSEnergyDeposit::GetIndex(G4Step* aStep)
-{
-	// return the organ ID (= material index)
-	G4int copyNo = aStep->GetPreStepPoint()->GetTouchable()->GetCopyNumber();
-	return tetData->GetMaterialIndex(copyNo);
-}
+#include "VoxelNestedParameterisation.hh"
+#include "VoxelPSEnergyDeposit.hh"
+#include "ImportVoxelPhantom.hh"
+
+class VoxelDetectorConstruction : public G4VUserDetectorConstruction {
+
+public:
+
+	VoxelDetectorConstruction(ImportVoxelPhantom* );
+	virtual ~VoxelDetectorConstruction();
+
+	virtual G4VPhysicalVolume* Construct();
+	virtual void ConstructSDandField();
+
+private:
+	G4VisAttributes* blankAtt;
+
+	ImportVoxelPhantom* voxelPhantom;
+
+	// world & container logical and physical volumes
+	G4VPhysicalVolume* fpWorldPhysical;
+	G4LogicalVolume* logicVoxel;
+	// Data members
+	G4ThreeVector fphantomSize;   // Size of voxel phantom
+	G4ThreeVector fvoxelSize;     // voxel size
+	G4int         fNx,fNy,fNz;    // Number of segmentation of voxel phantom
+	G4double      fVoxelHalfLengthX, fVoxelHalfLengthY, fVoxelHalfLengthZ;    // Number of segmentation of voxel phantom
+};
+
+#endif
+

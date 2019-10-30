@@ -33,8 +33,8 @@
 // \  -
 // \  -
 
-#include "TETDetectorConstruction.hh"
-#include "TETModelImport.hh"
+#include "VoxelDetectorConstruction.hh"
+#include "ImportVoxelPhantom.hh"
 #include "TETPhysicsList.hh"
 #include "TETActionInitialization.hh"
 
@@ -134,19 +134,19 @@ int main(int argc,char** argv)
 
 	// Set a class to import phantom data
 	//
-	TETModelImport* tetData = new TETModelImport(phantomName, ui);
+	ImportVoxelPhantom* voxData = new ImportVoxelPhantom(phantomName);
 
 	// Set mandatory initialisation classes
 	//
 	// detector construction
-	runManager->SetUserInitialization(new TETDetectorConstruction(tetData));
+	runManager->SetUserInitialization(new VoxelDetectorConstruction(voxData));
 	// physics list
 	G4PhysListFactory factory;
 //	G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BIC_LIV");
 //	runManager->SetUserInitialization(physList);
 	runManager->SetUserInitialization(new TETPhysicsList());
 	// user action initialisation
-	runManager->SetUserInitialization(new TETActionInitialization(tetData, output, initTimer));
+	runManager->SetUserInitialization(new TETActionInitialization(voxData, output, initTimer));
     
 #ifdef G4VIS_USE
 	// Visualization manager

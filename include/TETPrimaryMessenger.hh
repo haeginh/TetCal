@@ -50,9 +50,6 @@ private:
 	TETPrimaryGeneratorAction* fPrimary;
 	G4UIdirectory*             fExternalDir;
 	G4UIcmdWithAString*        fBeamDirCmd;
-	G4UIdirectory*             fInternalDir;
-	G4UIcmdWithAString*        fSourceOrganCmd;
-	G4UIcmdWithAString*        fSurfaceSourceCmd;
 };
 
 #endif

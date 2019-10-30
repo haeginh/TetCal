@@ -49,7 +49,7 @@ private:
     G4double xHalf, yHalf, zHalf;
     G4double beamArea;
 };
-
+/*
 class    TETModelImport;
 typedef  std::pair<G4double, G4int> VOLPICK;
 class InternalSource: public SourceGenerator
@@ -71,7 +71,7 @@ private:
     TETModelImport*       tetData;
     std::vector<VOLPICK>  tetPick;
 };
-
+*/
 /*class SurfaceSource: public SourceGenerator
 {
 public:

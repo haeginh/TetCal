@@ -23,54 +23,65 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETParameterisation.hh
-// \file   MRCP_GEANT4/External/include/TETParameterisation.hh
+// TETRun.cc
+// \file   MRCP_GEANT4/External/src/TETRun.cc
 // \author Haegin Han
 //
 
-#ifndef TETParameterisation_h
-#define TETParameterisation_h 1
+#include "../include/VoxelRun.hh"
 
-#include "TETModelImport.hh"
-
-#include "globals.hh"
-#include "G4VPVParameterisation.hh"
-#include "G4VSolid.hh"
-#include "G4Material.hh"
-#include "G4VisAttributes.hh"
-
-#include <map>
-
-class G4VPhysicalVolume;
-
-// *********************************************************************
-// This class defines the phantom geometry by using G4PVParameterisation
-// class.
-// -- ComputeSolid: return the G4Tet* for each element
-// -- ComputeMaterial: return the G4Material* corresponding to each organ,
-//                     and set the colours for visualization purposes
-// *********************************************************************
-
-class TETParameterisation : public G4VPVParameterisation
+TETRun::TETRun(ImportVoxelPhantom* voxData)
+:G4Run()
 {
-  public:
-    TETParameterisation(TETModelImport* tetData);
-    virtual ~TETParameterisation();
-    
-    virtual G4VSolid* ComputeSolid(
-    		       const G4int copyNo, G4VPhysicalVolume* );
-    
-    virtual void ComputeTransformation(
-                   const G4int,G4VPhysicalVolume*) const;
+	fCollID
+	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/eDep");
+}
 
-    virtual G4Material* ComputeMaterial(const G4int copyNo,
-                                        G4VPhysicalVolume* phy,
-                                        const G4VTouchable*);
+TETRun::~TETRun()
+{
+	edepMap.clear();
+}
 
-  private:
-    TETModelImport*                    tetData;
-    std::map<G4int, G4VisAttributes*>  visAttMap;
-    G4bool                             isforVis;
-};
+void TETRun::RecordEvent(const G4Event* event)
+{
+	// Hits collections
+	//
+	G4HCofThisEvent* HCE = event->GetHCofThisEvent();
+	if(!HCE) return;
 
-#endif
+	G4THitsMap<G4double>* evtMap =
+			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID));
+
+	// sum up the energy deposition and the square of it
+	auto doseMap = *evtMap->GetMap();
+	for(auto itr:doseMap){
+		edepMap[itr.first].first += *itr.second;
+		edepMap[itr.first].second += (*itr.second)*(*itr.second);
+	}
+	return;
+}
+
+void TETRun::Merge(const G4Run* run)
+{
+	const TETRun* localRun = static_cast<const TETRun*>(run);
+	// merge the data from each thread
+	EDEPMAP localMap = localRun->edepMap;
+
+	primary = localRun->primary;
+	dir = localRun->dir;
+	primaryE = localRun->primaryE;
+	beamArea = localRun->beamArea;
+	isExternal = localRun->isExternal;
+	for(auto itr : localMap){
+		edepMap[itr.first].first  += itr.second.first;
+		edepMap[itr.first].second += itr.second.second;
+	}
+
+	G4Run::Merge(run);
+}
+
+
+
+
+
+

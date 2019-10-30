@@ -28,12 +28,13 @@
 // \author Haegin Han
 //
 
-#include "TETRunAction.hh"
+#include "../include/VoxelRunAction.hh"
+
 #include "G4Timer.hh"
 #include <iostream>
 
-TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
-:tetData(_tetData), fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0),
+VoxelRunAction::VoxelRunAction(ImportVoxelPhantom* _voxData, G4String _output, G4Timer* _init)
+:voxData(_voxData), fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0),
  primaryEnergy(-1.), beamArea(-1.), isExternal(true)
 {
 	if(!isMaster) return;
@@ -41,27 +42,30 @@ TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* 
 	runTimer = new G4Timer;
 	std::ofstream ofs(outputFile);
 
-	massMap = tetData->GetMassMap();
+	for(G4int i=0;i<voxData->GetVoxelMaterialSize();i++) {
+
+		massMap[i]=1;//voxData->GetOrganMass(i);
+	}
 
 	ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
 	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
 	for(auto itr : massMap)
-		ofs<<std::to_string(itr.first)+"_"+tetData->GetMaterial(itr.first)->GetName()<<"\t"<<itr.second/g<<"\t";
+		ofs<<std::to_string(itr.first)<<"\t"<<itr.second/g<<"\t";
 	ofs.close();
 }
 
-TETRunAction::~TETRunAction()
+VoxelRunAction::~VoxelRunAction()
 {}
 
-G4Run* TETRunAction::GenerateRun()
+G4Run* VoxelRunAction::GenerateRun()
 {
 	// generate run
-	fRun = new TETRun(tetData);
+	fRun = new TETRun(voxData);
 	return fRun;
 }
 
 
-void TETRunAction::BeginOfRunAction(const G4Run* aRun)
+void VoxelRunAction::BeginOfRunAction(const G4Run* aRun)
 {
 	// print the progress at the interval of 10%
 	numOfEvent=aRun->GetNumberOfEventToBeProcessed();
@@ -96,7 +100,7 @@ void TETRunAction::BeginOfRunAction(const G4Run* aRun)
 
 }
 
-void TETRunAction::EndOfRunAction(const G4Run* aRun)
+void VoxelRunAction::EndOfRunAction(const G4Run* aRun)
 {
 	// print the result only in the Master
 	if(!isMaster) return;
@@ -132,7 +136,7 @@ void TETRunAction::EndOfRunAction(const G4Run* aRun)
 	initTimer->Start();
 }
 
-void TETRunAction::SetDoses()
+void VoxelRunAction::SetDoses()
 {
 	doseValues.clear(); doseErrors.clear();
 	EDEPMAP edepMap = *fRun->GetEdepMap();
@@ -147,7 +151,7 @@ void TETRunAction::SetDoses()
 	}
 }
 
-void TETRunAction::PrintResultExternal(std::ostream &out)
+void VoxelRunAction::PrintResultExternal(std::ostream &out)
 {
 	// Print run result
 	//
@@ -170,7 +174,7 @@ void TETRunAction::PrintResultExternal(std::ostream &out)
 	G4int i=0;
 
 	for(auto itr : massMap){
-		out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
+		out << setw(25) << itr.first<< "| ";
 		out	<< setw(15) << fixed      << itr.second/g;
 		out	<< setw(15) << scientific << doseValues[i]/(joule/kg)*beamArea/cm2;
 		out	<< setw(15) << fixed      << doseErrors[i++] << G4endl;
@@ -179,7 +183,7 @@ void TETRunAction::PrintResultExternal(std::ostream &out)
 	out << "=====================================================================" << G4endl << G4endl;
 }
 
-void TETRunAction::PrintResultInternal(std::ostream &out)
+void VoxelRunAction::PrintResultInternal(std::ostream &out)
 {
 	// Print run result
 	//
@@ -201,7 +205,7 @@ void TETRunAction::PrintResultInternal(std::ostream &out)
 
 	G4int i=0;
 	for(auto itr : massMap){
-		out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
+		out << setw(25) <<itr.first<< "| ";
 		out	<< setw(15) << fixed      << itr.second/g;
 		out	<< setw(15) << scientific << doseValues[i]/primaryEnergy/(1./kg);
 		out	<< setw(15) << fixed      << doseErrors[i++] << G4endl;
@@ -210,7 +214,7 @@ void TETRunAction::PrintResultInternal(std::ostream &out)
 	out << "=====================================================================" << G4endl << G4endl;
 }
 
-void TETRunAction::PrintLineExternal(std::ostream &out)
+void VoxelRunAction::PrintLineExternal(std::ostream &out)
 {
 	// Print run result
 	//
@@ -226,7 +230,7 @@ void TETRunAction::PrintLineExternal(std::ostream &out)
 	out<<G4endl;
 }
 
-void TETRunAction::PrintLineInternal(std::ostream &out)
+void VoxelRunAction::PrintLineInternal(std::ostream &out)
 {
 	// Print run result
 	//
