@@ -45,7 +45,7 @@ TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* 
 	else	                        massMap = tetData->GetMassMap();
 
 	ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
-	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\tRBM\t\tBS\t\t";
+	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\tRBM_homo\t\tBS_homo\t\tRBM_DRF\t\tBS_DRF\t\t";
 	for(auto itr : massMap)
 		if(tetData->DoseWasOrganized())	ofs<<std::to_string(itr.first)+"_"+tetData->GetDoseName(itr.first)<<"\t"<<itr.second/g<<"\t";
 		else                            ofs<<std::to_string(itr.first)+"_"+tetData->GetMaterial(itr.first)->GetName()<<"\t"<<itr.second/g<<"\t";
@@ -138,7 +138,7 @@ void TETRunAction::SetDoses()
 {
 	doseValues.clear(); doseErrors.clear();
 	EDEPMAP edepMap = *fRun->GetEdepMap();
-	for(G4int i=-2;i<0;i++){
+	for(G4int i=-4;i<0;i++){
 		G4double meanDose = edepMap[i].first / numOfEvent;
 		G4double squareDoese = edepMap[i].second;
 		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
@@ -183,9 +183,11 @@ void TETRunAction::PrintResultExternal(std::ostream &out)
 	out.precision(3);
 
 	G4int i=0;
-	for(i=0;i<2;i++){
-		if(i==0) out << setw(27) << "RBM| ";
-		if(i==1) out << setw(27) << "BS| ";
+	for(i=0;i<4;i++){
+		if(i==0) out << setw(27) << "RBM_homo| ";
+		if(i==1) out << setw(27) << "BS_homo| ";
+		if(i==2) out << setw(27) << "RBM_DRF| ";
+		if(i==3) out << setw(27) << "BS_DRF| ";
 		out << setw(30) << scientific << doseValues[i]/(joule/kg)*beamArea/cm2<< setw(15) << fixed << doseErrors[i] << G4endl;
 	}
 
@@ -221,9 +223,11 @@ void TETRunAction::PrintResultInternal(std::ostream &out)
 	out.precision(3);
 
 	G4int i=0;
-	for(i=0;i<2;i++){
-		if(i==0) out << setw(27) << "RBM| ";
-		if(i==1) out << setw(27) << "BS| ";
+	for(i=0;i<4;i++){
+		if(i==0) out << setw(27) << "RBM_homo| ";
+		if(i==1) out << setw(27) << "BS_homo| ";
+		if(i==2) out << setw(27) << "RBM_DRF| ";
+		if(i==3) out << setw(27) << "BS_DRF| ";
 		out << setw(30) << scientific << doseValues[i]/primaryEnergy/(1./kg)<< setw(15) << fixed << doseErrors[i] << G4endl;
 	}
 

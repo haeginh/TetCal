@@ -31,6 +31,7 @@
 #include "TETDetectorConstruction.hh"
 
 #include "G4VisAttributes.hh"
+#include "TETDRFDose.hh"
 
 TETDetectorConstruction::TETDetectorConstruction(TETModelImport* _tetData)
 :worldPhysical(0), container_logic(0), tetData(_tetData), tetLogic(0)
@@ -118,6 +119,9 @@ void TETDetectorConstruction::ConstructSDandField()
 
 	// scorer for energy depositon in each organ
 	MFDet->RegisterPrimitive(new TETPSEnergyDeposit("eDep", tetData));
+
+	// DRF scorer
+	MFDet->RegisterPrimitive(new TETDRFDose("DRF", tetData));
 
 	// attach the detector to logical volume for parameterised geometry (phantom geometry)
 	SetSensitiveDetector(tetLogic, MFDet);

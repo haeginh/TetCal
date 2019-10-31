@@ -44,6 +44,7 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	G4String nodeFile     =  phantomName + ".node";
 	G4String materialFile =  phantomName + ".material";
 	G4String doseFile     =  phantomName + ".dose";
+	G4String DRFfile      =  phantomName + ".DRF";
 	G4String boneFile     =  phantomName + ".RBMnBS";
 
 	// read dose file (*.dose) -if there is any
@@ -52,6 +53,8 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	DataRead(eleFile, nodeFile);
 	// read material file (*.material)
 	MaterialRead(materialFile);
+	// read DRF file (*.DRF)
+	DRFRead(DRFfile);
 	// read bone file (*.RBMnBS)
 	RBMBSRead(boneFile);
 	// read colour data file (colour.dat) if this is interactive mode
@@ -261,6 +264,38 @@ void TETModelImport::MaterialRead(G4String materialFile)
 				doseMassMap[doseID] += massMap[od.first];
 		}
 	}
+}
+
+void TETModelImport::DRFRead(G4String DRFfile){
+
+	std::ifstream ifp;
+	ifp.open(DRFfile.c_str());
+
+	if(!ifp.is_open()) {
+		G4cerr << DRFfile << " not found!!" << G4endl;
+		return;
+	}
+
+	G4int idx;
+    G4double drf;
+    G4String dump;
+    while(!ifp.eof()){
+    	getline(ifp, dump);
+    	std::stringstream ss(dump);
+    	ss>>idx;
+    	RBMDRF[idx]={};
+    	BSDRF[idx]={};
+    	for (int j=0; j<25; j++) {
+    		ifp >> drf;
+    		RBMDRF[idx].push_back(drf);
+    	}
+    	for (int j=0; j<25; j++) {
+    		ifp >> drf;
+    		BSDRF[idx].push_back(drf);
+    	}
+    }
+    ifp.close();
+
 }
 
 void TETModelImport::RBMBSRead(G4String bonefile){

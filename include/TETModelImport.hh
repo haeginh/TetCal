@@ -88,12 +88,16 @@ public:
 	G4ThreeVector GetPhantomBoxMax()         { return boundingBox_Max; }
 	std::map<G4int, G4double> GetRBMmap()    { return rbmRatio;}
 	std::map<G4int, G4double> GetBSmap()     { return bsRatio;}
+	std::map<G4int, std::vector<G4double>> GetRBMDRF() {return RBMDRF;}
+	std::map<G4int, std::vector<G4double>> GetBSDRF()  {return BSDRF;}
+
 private:
 
 	// private methods
 	void DoseRead(G4String);
 	void DataRead(G4String, G4String);
 	void MaterialRead(G4String);
+	void DRFRead(G4String);
 	void RBMBSRead(G4String);
 	void ColourRead();
 	void PrintMaterialInfomation();
@@ -117,6 +121,8 @@ private:
 	std::map<G4int, G4double>  volumeMap;
 	std::map<G4int, G4double>  massMap;
 	std::map<G4int, G4Colour>  colourMap;
+	std::map<G4int, std::vector<G4double>> RBMDRF;
+	std::map<G4int, std::vector<G4double>> BSDRF;
 	std::map<G4int, G4double>  rbmRatio;
 	std::map<G4int, G4double>  bsRatio;
 

@@ -35,6 +35,8 @@ TETRun::TETRun(TETModelImport* tetData)
 {
 	fCollID
 	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/eDep");
+	fCollID_DRF
+	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/DRF");
 
 	organ2dose = tetData->GetDoseMap();
 
@@ -64,9 +66,13 @@ void TETRun::RecordEvent(const G4Event* event)
 
 	G4THitsMap<G4double>* evtMap =
 			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID));
+	G4THitsMap<G4double>* evtMap_DRF =
+			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID_DRF));
+
 
 	// sum up the energy deposition and the square of it
 	auto doseMap = *evtMap->GetMap();
+	auto doseMap_DRF = *evtMap_DRF->GetMap();
 	if(!doseOrganized){
 		for(auto itr:doseMap){
 			edepMap[itr.first].first += *itr.second;
@@ -81,8 +87,10 @@ void TETRun::RecordEvent(const G4Event* event)
 			if(doseMap.find(bs.first)==doseMap.end()) continue;
 			bsDose += *doseMap[bs.first] * bs.second;
 		}
-		edepMap[-2].first+=rbmDose; edepMap[-2].second+=rbmDose*rbmDose;
-		edepMap[-1].first+=bsDose; edepMap[-1].second+=bsDose*bsDose;
+		edepMap[-4].first+=rbmDose; edepMap[-4].second+=rbmDose*rbmDose;
+		edepMap[-3].first+=bsDose; edepMap[-3].second+=bsDose*bsDose;
+		edepMap[-2].first+=*doseMap_DRF[0];edepMap[-2].second+=(*doseMap_DRF[0])*(*doseMap_DRF[0]);
+		edepMap[-1].first+=*doseMap_DRF[1];edepMap[-1].second+=(*doseMap_DRF[1])*(*doseMap_DRF[1]);
 		return;
 	}
 
@@ -94,17 +102,20 @@ void TETRun::RecordEvent(const G4Event* event)
 	}
 	for(auto rbm:rbmFactor){
 		if(doseMap.find(rbm.first)==doseMap.end()) continue;
-		edepSum[-2] += *doseMap[rbm.first] * rbm.second;
+		edepSum[-4] += *doseMap[rbm.first] * rbm.second;
 	}
 	for(auto bs:bsFactor){
 		if(doseMap.find(bs.first)==doseMap.end()) continue;
-		edepSum[-1] += *doseMap[bs.first] * bs.second;
+		edepSum[-3] += *doseMap[bs.first] * bs.second;
 	}
 
 	for(auto edep:edepSum){
 		edepMap[edep.first].first += edep.second;                 //sum
 		edepMap[edep.first].second += edep.second * edep.second;  //square sum
 	}
+	edepMap[-2].first+=*doseMap_DRF[0];edepMap[-2].second+=(*doseMap_DRF[0])*(*doseMap_DRF[0]);
+	edepMap[-1].first+=*doseMap_DRF[1];edepMap[-1].second+=(*doseMap_DRF[1])*(*doseMap_DRF[1]);
+	return;
 }
 
 void TETRun::Merge(const G4Run* run)
