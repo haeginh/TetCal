@@ -47,6 +47,7 @@ TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* 
 	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
 	for(auto itr : massMap)
 		ofs<<std::to_string(itr.first)+"_"+tetData->GetMaterial(itr.first)->GetName()<<"\t"<<itr.second/g<<"\t";
+	ofs<<G4endl;
 	ofs.close();
 }
 
