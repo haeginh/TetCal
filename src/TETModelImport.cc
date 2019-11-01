@@ -303,7 +303,7 @@ void TETModelImport::RBMBSRead(G4String bonefile){
 	std::ifstream ifs(bonefile);
 	if(!ifs.is_open()) {
 		// exception for the case when there is no *.material file
-		G4Exception("TETModelImport::RBMBSRead","",JustWarning,
+		G4Exception("TETModelImport::RBMBSRead","",FatalErrorInArgument,
 				G4String("      There is no " + bonefile ).c_str());
 		return;
 	}
@@ -313,6 +313,7 @@ void TETModelImport::RBMBSRead(G4String bonefile){
 		rbmRatio[idx]=rbm;
 		bsRatio[idx]=bs;
 	}
+	ifs.close();
 }
 
 void TETModelImport::ColourRead()

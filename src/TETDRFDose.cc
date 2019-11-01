@@ -114,7 +114,7 @@ G4double TETDRFDose::GetRBMdose(G4double energy, G4double cellFlux, G4int organI
 					* log10(NextRBMDRF/RBMDRF)
 					/ log10((energyBin)[eIdx+1]/(energyBin)[eIdx]);
 
-	G4double RBMDose = exp10(DRF) * 1e6 * cellFlux * RBM; //Convert to Gy
+	G4double RBMDose = exp10(DRF) * 1e6 * cellFlux * RBM * (joule/kg); //Convert to Gy
 
     return RBMDose;
 }
@@ -132,7 +132,7 @@ G4double TETDRFDose::GetBSdose(G4double energy, G4double cellFlux, G4int organID
 					* log10(NextBSDRF/BSDRF)
 					/ log10((energyBin)[eIdx+1]/(energyBin)[eIdx]);
 
-	G4double BSDose = exp10(DRF) * 1e6 * cellFlux * BS; //Convert to Gy
+	G4double BSDose = exp10(DRF) * 1e6 * cellFlux * BS * (joule/kg); //Convert to Gy
 
     return BSDose;
 }
