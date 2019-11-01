@@ -142,7 +142,7 @@ int main(int argc,char** argv)
 	runManager->SetUserInitialization(new TETDetectorConstruction(tetData));
 	// physics list
 	G4PhysListFactory factory;
-	G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BERT_HP_LIV");
+	G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BERT_LIV");
 	runManager->SetUserInitialization(physList);
 //	runManager->SetUserInitialization(new TETPhysicsList());
 	// user action initialisation
