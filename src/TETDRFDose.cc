@@ -71,13 +71,9 @@ G4bool TETDRFDose::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 	if (stepLength==0.) return FALSE;
 	G4int index = GetIndex(aStep);
 	if (rbmRatio.find(index)==rbmRatio.end()) return FALSE;
-	G4cout<<1<<std::flush;
 	G4double CellFlux = stepLength / phantomData->GetVolume(index);
-	G4cout<<2<<std::flush;
 	G4double energy=aStep->GetPreStepPoint()->GetKineticEnergy();
-	G4cout<<3<<std::flush;
 	G4double RBMdose = GetRBMdose(energy, CellFlux, index);
-	G4cout<<4<<std::flush;
 	G4double BSdose = GetBSdose(energy, CellFlux, index);
 
 	if(std::isnan(RBMdose)) RBMdose=0;

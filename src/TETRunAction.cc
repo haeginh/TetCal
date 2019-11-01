@@ -49,6 +49,7 @@ TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* 
 	for(auto itr : massMap)
 		if(tetData->DoseWasOrganized())	ofs<<std::to_string(itr.first)+"_"+tetData->GetDoseName(itr.first)<<"\t"<<itr.second/g<<"\t";
 		else                            ofs<<std::to_string(itr.first)+"_"+tetData->GetMaterial(itr.first)->GetName()<<"\t"<<itr.second/g<<"\t";
+	ofs<<G4endl;
 	ofs.close();
 }
 
@@ -183,14 +184,16 @@ void TETRunAction::PrintResultExternal(std::ostream &out)
 	out.precision(3);
 
 	G4int i=0;
-	for(i=0;i<4;i++){
+	for(i=0;i<2;i++){
 		if(i==0) out << setw(27) << "RBM_homo| ";
 		if(i==1) out << setw(27) << "BS_homo| ";
-		if(i==2) out << setw(27) << "RBM_DRF| ";
-		if(i==3) out << setw(27) << "BS_DRF| ";
 		out << setw(30) << scientific << doseValues[i]/(joule/kg)*beamArea/cm2<< setw(15) << fixed << doseErrors[i] << G4endl;
 	}
-
+	for(;i<4;i++){
+		if(i==2) out << setw(27) << "RBM_DRF| ";
+		if(i==3) out << setw(27) << "BS_DRF| ";
+		out << setw(30) << scientific << doseValues[i]*beamArea/cm2<< setw(15) << fixed << doseErrors[i] << G4endl;
+	}
 	for(auto itr : massMap){
 		if(tetData->DoseWasOrganized()) out << setw(25) << tetData->GetDoseName(itr.first)<< "| ";
 		else                            out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
@@ -223,12 +226,15 @@ void TETRunAction::PrintResultInternal(std::ostream &out)
 	out.precision(3);
 
 	G4int i=0;
-	for(i=0;i<4;i++){
+	for(i=0;i<2;i++){
 		if(i==0) out << setw(27) << "RBM_homo| ";
 		if(i==1) out << setw(27) << "BS_homo| ";
+		out << setw(30) << scientific << doseValues[i]/primaryEnergy/(1./kg)<< setw(15) << fixed << doseErrors[i] << G4endl;
+	}
+	for(;i<4;i++){
 		if(i==2) out << setw(27) << "RBM_DRF| ";
 		if(i==3) out << setw(27) << "BS_DRF| ";
-		out << setw(30) << scientific << doseValues[i]/primaryEnergy/(1./kg)<< setw(15) << fixed << doseErrors[i] << G4endl;
+		out << setw(30) << scientific << doseValues[i]/primaryEnergy/(1./joule)<< setw(15) << fixed << doseErrors[i] << G4endl;
 	}
 
 	for(auto itr : massMap){
@@ -253,6 +259,10 @@ void TETRunAction::PrintLineExternal(std::ostream &out)
 		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
 
 	for(size_t i=0;i<doseValues.size();i++){
+		if(i==2||i==3){
+			out << doseValues[i]*1e12 * beamArea/cm2 <<"\t" << doseErrors[i] << "\t";
+			continue;
+		}
 		out << doseValues[i]*1e12/(joule/kg) * beamArea/cm2 <<"\t" << doseErrors[i] << "\t";
 	}
 	out<<G4endl;
@@ -269,6 +279,9 @@ void TETRunAction::PrintLineInternal(std::ostream &out)
 		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
 
 	for(size_t i=0;i<doseValues.size();i++){
+		if(i==2||i==3){
+			out << doseValues[i]/primaryEnergy/(1./joule) <<"\t" << doseErrors[i] << "\t";
+		}
 		out << doseValues[i]/primaryEnergy/(1./kg) <<"\t" << doseErrors[i] << "\t";
 	}
 	out<<G4endl;

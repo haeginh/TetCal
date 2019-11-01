@@ -272,7 +272,8 @@ void TETModelImport::DRFRead(G4String DRFfile){
 	ifp.open(DRFfile.c_str());
 
 	if(!ifp.is_open()) {
-		G4cerr << DRFfile << " not found!!" << G4endl;
+		G4Exception("TETModelImport::DRFRead","",FatalErrorInArgument,
+				G4String("      There is no " + DRFfile ).c_str());
 		return;
 	}
 
@@ -286,11 +287,11 @@ void TETModelImport::DRFRead(G4String DRFfile){
     	RBMDRF[idx]={};
     	BSDRF[idx]={};
     	for (int j=0; j<25; j++) {
-    		ifp >> drf;
+    		ss >> drf;
     		RBMDRF[idx].push_back(drf);
     	}
     	for (int j=0; j<25; j++) {
-    		ifp >> drf;
+    		ss >> drf;
     		BSDRF[idx].push_back(drf);
     	}
     }

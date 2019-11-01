@@ -73,6 +73,10 @@ void TETRun::RecordEvent(const G4Event* event)
 	// sum up the energy deposition and the square of it
 	auto doseMap = *evtMap->GetMap();
 	auto doseMap_DRF = *evtMap_DRF->GetMap();
+	for(auto itr:doseMap_DRF){
+		edepMap[itr.first-2].first += *itr.second;
+		edepMap[itr.first-2].second += (*itr.second)*(*itr.second);
+	}
 	if(!doseOrganized){
 		for(auto itr:doseMap){
 			edepMap[itr.first].first += *itr.second;
@@ -89,8 +93,7 @@ void TETRun::RecordEvent(const G4Event* event)
 		}
 		edepMap[-4].first+=rbmDose; edepMap[-4].second+=rbmDose*rbmDose;
 		edepMap[-3].first+=bsDose; edepMap[-3].second+=bsDose*bsDose;
-		edepMap[-2].first+=*doseMap_DRF[0];edepMap[-2].second+=(*doseMap_DRF[0])*(*doseMap_DRF[0]);
-		edepMap[-1].first+=*doseMap_DRF[1];edepMap[-1].second+=(*doseMap_DRF[1])*(*doseMap_DRF[1]);
+
 		return;
 	}
 
@@ -113,8 +116,6 @@ void TETRun::RecordEvent(const G4Event* event)
 		edepMap[edep.first].first += edep.second;                 //sum
 		edepMap[edep.first].second += edep.second * edep.second;  //square sum
 	}
-	edepMap[-2].first+=*doseMap_DRF[0];edepMap[-2].second+=(*doseMap_DRF[0])*(*doseMap_DRF[0]);
-	edepMap[-1].first+=*doseMap_DRF[1];edepMap[-1].second+=(*doseMap_DRF[1])*(*doseMap_DRF[1]);
 	return;
 }
 
