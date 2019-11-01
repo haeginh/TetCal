@@ -42,9 +42,10 @@ public:
 	G4double GetOrganVolume(G4int idx) {return organVolume[idx];}
 	G4double GetOrganMass(G4int idx) {return organVolume[idx] * materialMap[idx]->GetDensity();}
 	G4int GetMaterialIndex(G4int idx) {return materialIndex[idx];}
+	std::map<G4int, G4double> GetMassMap() {return massMap;}
 	G4int GetVoxelMaterialSize() {return (G4int) materialMap.size();}
 	G4int GetVoxelData(G4int idx, G4int idy, G4int idz) {return voxelData[idx][idy][idz];}
-
+	G4String GetOrganName(G4int idx) {return organNameMap[idx];}
 
 private:
 	std::map<G4int, G4double> organVolume;
@@ -53,6 +54,7 @@ private:
 	std::vector<G4int> materialIndex;
 	std::map<G4int, G4Material* > materialMap;
 	std::map<G4int, G4double> densityMap;
+	std::map<G4int, G4double> massMap;
 	std::map<G4int, G4String> organNameMap;
 
 	G4ThreeVector voxelSize;

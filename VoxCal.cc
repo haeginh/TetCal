@@ -142,9 +142,9 @@ int main(int argc,char** argv)
 	runManager->SetUserInitialization(new VoxelDetectorConstruction(voxData));
 	// physics list
 	G4PhysListFactory factory;
-//	G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BERT_HP_LIV");
-//	runManager->SetUserInitialization(physList);
-	runManager->SetUserInitialization(new TETPhysicsList());
+	G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BERT_HP_LIV");
+	runManager->SetUserInitialization(physList);
+//	runManager->SetUserInitialization(new TETPhysicsList());
 	// user action initialisation
 	runManager->SetUserInitialization(new TETActionInitialization(voxData, output, initTimer));
     

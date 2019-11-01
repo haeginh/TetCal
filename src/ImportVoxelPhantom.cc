@@ -52,11 +52,11 @@ void ImportVoxelPhantom::ImportPhantomInput(G4String inputFile){
 			  voxelResolution.push_back(fNz);
 			  ifp >> read_data;
 			  ifp >> read_data;
-			  voxelSize.setX(std::atof(read_data));
+			  voxelSize.setX(std::atof(read_data)*mm);
 			  ifp >> read_data;
-			  voxelSize.setY(std::atof(read_data));
+			  voxelSize.setY(std::atof(read_data)*mm);
 			  ifp >> read_data;
-			  voxelSize.setZ(std::atof(read_data));
+			  voxelSize.setZ(std::atof(read_data)*mm);
 
 			  phantomSize.setX(fNx*voxelSize.x());
 			  phantomSize.setY(fNy*voxelSize.y());
@@ -131,7 +131,7 @@ void ImportVoxelPhantom::ImportPhantomVoxelMaterial(G4String materialFile){
 		G4int matID = std::atoi(token);                 //ex) m'10'
 		materialIndex.push_back(matID);
 		organNameMap[matID]= MaterialName;
-		densityMap[matID] = density;
+		densityMap[matID] = density* g/cm3;
 
 		for(G4int i=0 ;  ; i++)
 		{
@@ -151,7 +151,7 @@ void ImportVoxelPhantom::ImportPhantomVoxelMaterial(G4String materialFile){
 
 	for(G4int i=0;i<(G4int)materialIndex.size();i++){
 		G4int idx = materialIndex[i];
-		G4Material* mat = new G4Material(organNameMap[idx], densityMap[idx] * g/cm3, G4int(materialIndexMap[idx].size()), kStateSolid, NTP_Temperature, STP_Pressure);
+		G4Material* mat = new G4Material(organNameMap[idx], densityMap[idx], G4int(materialIndexMap[idx].size()), kStateSolid, NTP_Temperature, STP_Pressure);
 		for(G4int j=0;j<G4int(materialIndexMap[idx].size());j++){
 			if(materialIndexMap[idx][j].first==1) mat->AddElement(elH, materialIndexMap[idx][j].second);
             else mat->AddElement(nistManager->FindOrBuildElement(materialIndexMap[idx][j].first), materialIndexMap[idx][j].second);
@@ -159,7 +159,6 @@ void ImportVoxelPhantom::ImportPhantomVoxelMaterial(G4String materialFile){
 		G4cout<<idx<<": "<<mat->GetName()<<" density: "<<mat->GetDensity()/(g/cm3)<<G4endl;
 		materialMap[idx]=mat;
 	}
-
 	ifp.close();
 }
 
@@ -168,5 +167,9 @@ void ImportVoxelPhantom::ImportPhantomVoxelMaterial(G4String materialFile){
 void ImportVoxelPhantom::ImportPhantomVoxelVolume(){
 	for(auto iter:materialIndex)
 		organVolume[iter] = numVoxel[iter] *  voxelSize[0] * voxelSize[1] * voxelSize[2];
+
+	for(auto mat:organVolume)
+		massMap[mat.first] = mat.second * densityMap[mat.first];
+
 }
 

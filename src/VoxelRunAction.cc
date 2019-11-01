@@ -42,15 +42,14 @@ VoxelRunAction::VoxelRunAction(ImportVoxelPhantom* _voxData, G4String _output, G
 	runTimer = new G4Timer;
 	std::ofstream ofs(outputFile);
 
-	for(G4int i=0;i<voxData->GetVoxelMaterialSize();i++) {
+	massMap=voxData->GetMassMap();
 
-		massMap[i]=1;//voxData->GetOrganMass(i);
-	}
 
 	ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
 	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
 	for(auto itr : massMap)
-		ofs<<std::to_string(itr.first)<<"\t"<<itr.second/g<<"\t";
+		ofs<<std::to_string(itr.first)+"_"+voxData->GetOrganName(itr.first)<<"\t"<<itr.second/g<<"\t";
+	ofs<<G4endl;
 	ofs.close();
 }
 
@@ -174,7 +173,7 @@ void VoxelRunAction::PrintResultExternal(std::ostream &out)
 	G4int i=0;
 
 	for(auto itr : massMap){
-		out << setw(25) << itr.first<< "| ";
+		out << setw(25) << to_string(itr.first)+"_"+voxData->GetOrganName(itr.first)<< "| ";
 		out	<< setw(15) << fixed      << itr.second/g;
 		out	<< setw(15) << scientific << doseValues[i]/(joule/kg)*beamArea/cm2;
 		out	<< setw(15) << fixed      << doseErrors[i++] << G4endl;
@@ -205,7 +204,7 @@ void VoxelRunAction::PrintResultInternal(std::ostream &out)
 
 	G4int i=0;
 	for(auto itr : massMap){
-		out << setw(25) <<itr.first<< "| ";
+		out << setw(25) <<to_string(itr.first)+"_"+voxData->GetOrganName(itr.first)<< "| ";
 		out	<< setw(15) << fixed      << itr.second/g;
 		out	<< setw(15) << scientific << doseValues[i]/primaryEnergy/(1./kg);
 		out	<< setw(15) << fixed      << doseErrors[i++] << G4endl;
