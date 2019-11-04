@@ -73,10 +73,12 @@ void TETRun::RecordEvent(const G4Event* event)
 	// sum up the energy deposition and the square of it
 	auto doseMap = *evtMap->GetMap();
 	auto doseMap_DRF = *evtMap_DRF->GetMap();
+//	G4cout<<2222<<std::flush;
 	for(auto itr:doseMap_DRF){
 		edepMap[itr.first-2].first += *itr.second;
 		edepMap[itr.first-2].second += (*itr.second)*(*itr.second);
 	}
+//	G4cout<<3333<<std::flush;
 	if(!doseOrganized){
 		for(auto itr:doseMap){
 			edepMap[itr.first].first += *itr.second;
