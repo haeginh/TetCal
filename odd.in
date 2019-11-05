@@ -10,6 +10,6 @@
 # Set the nps
 #/gun/particle gamma
 
-/odd/organ 1
+/odd/organ "77 81 85 89 93 97"
 /odd/dir front
 /run/beamOn 300000
