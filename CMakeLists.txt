@@ -33,8 +33,8 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(VoxCalHP VoxCal.cc ${sources} ${headers})
-target_link_libraries(VoxCalHP ${Geant4_LIBRARIES})
+add_executable(VoxCal VoxCal.cc ${sources} ${headers})
+target_link_libraries(VoxCal ${Geant4_LIBRARIES})
 
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
