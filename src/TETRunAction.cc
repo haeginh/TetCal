@@ -159,7 +159,7 @@ void TETRunAction::PrintResult(std::ostream &out)
 	out<<tetData->GetNumSkinTet()<<"  4  1"<<G4endl;
 	auto eleVec = tetData->GetSkinEle();
 	for(G4int i=0;i<tetData->GetNumSkinTet();i++){
-		G4cout<<i<<" "<<eleVec[i][0]<<" "<<eleVec[i][1]<<" "<<eleVec[i][2]<<" "<<eleVec[i][3]<<" "<<doseValues[i]/(joule/kg)<<G4endl;
+		out<<i<<" "<<eleVec[i][0]<<" "<<eleVec[i][1]<<" "<<eleVec[i][2]<<" "<<eleVec[i][3]<<" "<<doseValues[i]/(joule/kg)<<G4endl;
 	}
 }
 
