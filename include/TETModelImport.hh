@@ -80,6 +80,7 @@ public:
 	G4ThreeVector GetPhantomSize()           { return phantomSize; }
 	G4ThreeVector GetPhantomBoxMin()         { return boundingBox_Min; }
 	G4ThreeVector GetPhantomBoxMax()         { return boundingBox_Max; }
+
 private:
 
 	// private methods
@@ -108,6 +109,10 @@ private:
 	std::map<G4int, G4Material*>                             materialMap;
 	std::map<G4int, G4double>                                densityMap;
 	std::map<G4int, G4String>                                organNameMap;
+
+	//Skin Extract
+	std::map<G4int, G4int> skin2whole;
+
 };
 
 #endif

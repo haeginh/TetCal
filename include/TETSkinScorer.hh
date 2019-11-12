@@ -23,23 +23,35 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETPSEnergyDeposit.cc
-// \file   MRCP_GEANT4/External/src/TETPSEnergyDeposit.cc
+// TETPSEnergyDeposit.hh
+// \file   MRCP_GEANT4/External/include/TETPSEnergyDeposit.hh
 // \author Haegin Han
 //
 
-#include "TETPSEnergyDeposit.hh"
+#ifndef TETPSEnergyDeposit_h
+#define TETPSEnergyDeposit_h 1
 
-TETPSEnergyDeposit::TETPSEnergyDeposit(G4String name, TETModelImport* _tetData)
-  :G4PSEnergyDeposit(name), tetData(_tetData)
-{}
+#include "G4PSEnergyDeposit.hh"
+#include "TETModelImport.hh"
 
-TETPSEnergyDeposit::~TETPSEnergyDeposit()
-{}
+// *********************************************************************
+// This is the scorer based on G4PSEnergyDeposit class.
+// -- GetIndex: Return the organ ID instead of copy number automatically
+//              given by Parameterisation geometry.
+// *********************************************************************
 
-G4int TETPSEnergyDeposit::GetIndex(G4Step* aStep)
+class TETSkinScorer : public G4PSEnergyDeposit
 {
-	// return the organ ID (= material index)
-	G4int copyNo = aStep->GetPreStepPoint()->GetTouchable()->GetCopyNumber();
-	return tetData->GetMaterialIndex(copyNo);
-}
+   public:
+      TETSkinScorer(G4String name,TETModelImport* _tetData);
+      virtual ~TETSkinScorer();
+
+  protected:
+      virtual G4int GetIndex(G4Step*);
+
+  private:
+      TETModelImport* tetData;
+};
+
+#endif
+
