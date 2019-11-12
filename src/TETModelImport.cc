@@ -178,7 +178,7 @@ void TETModelImport::ExtractSkin(G4int skinID)
 		wholeV2skinV[v] = skinVID++;
 	}
 
-	for(auto w2s:wholeV2skinV){
+	for(auto w2s:wholeE2skinE){
 		G4int a = wholeV2skinV[eleVector[w2s.first][0]];
 		G4int b = wholeV2skinV[eleVector[w2s.first][1]];
 		G4int c = wholeV2skinV[eleVector[w2s.first][2]];
