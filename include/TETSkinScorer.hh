@@ -43,7 +43,7 @@
 class TETSkinScorer : public G4PSEnergyDeposit
 {
    public:
-      TETSkinScorer(G4String name,TETModelImport* _tetData);
+      TETSkinScorer(G4String name,TETModelImport* _tetData, G4int skinID);
       virtual ~TETSkinScorer();
 
   protected:
@@ -51,6 +51,7 @@ class TETSkinScorer : public G4PSEnergyDeposit
 
   private:
       TETModelImport* tetData;
+      G4int skinID;
 };
 
 #endif

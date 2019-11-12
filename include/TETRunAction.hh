@@ -67,10 +67,8 @@ public:
 	virtual void EndOfRunAction(const G4Run*);
 
 	void SetDoses();
-	void PrintResultExternal(std::ostream &out);
-	void PrintResultInternal(std::ostream &out);
-	void PrintLineExternal(std::ostream &out);
-	void PrintLineInternal(std::ostream &out);
+	void PrintResult(std::ostream &out);
+	void PrintErrors(std::ostream &out);
 
 private:
 	TETModelImport* tetData;
@@ -88,7 +86,6 @@ private:
 	G4int    prevNPS;
 	G4bool   isExternal;
 	G4bool   sameToPrev;
-	std::map<G4int, G4double> massMap;
 	std::vector<G4double>     doseValues;
 	std::vector<G4double>     doseErrors;
 	G4double effectiveDose, effectiveError;

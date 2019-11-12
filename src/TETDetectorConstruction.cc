@@ -117,7 +117,7 @@ void TETDetectorConstruction::ConstructSDandField()
 	pSDman->AddNewDetector( MFDet );
 
 	// scorer for energy depositon in each organ
-	MFDet->RegisterPrimitive(new TETPSEnergyDeposit("eDep", tetData));
+	MFDet->RegisterPrimitive(new TETSkinScorer("eDep", tetData, 126));
 
 	// attach the detector to logical volume for parameterised geometry (phantom geometry)
 	SetSensitiveDetector(tetLogic, MFDet);

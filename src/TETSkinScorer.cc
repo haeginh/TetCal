@@ -30,8 +30,8 @@
 
 #include "../include/TETSkinScorer.hh"
 
-TETSkinScorer::TETSkinScorer(G4String name, TETModelImport* _tetData)
-  :G4PSEnergyDeposit(name), tetData(_tetData)
+TETSkinScorer::TETSkinScorer(G4String name, TETModelImport* _tetData, G4int _skinID)
+  :G4PSEnergyDeposit(name), tetData(_tetData), skinID(_skinID)
 {}
 
 TETSkinScorer::~TETSkinScorer()
@@ -40,6 +40,8 @@ TETSkinScorer::~TETSkinScorer()
 G4int TETSkinScorer::GetIndex(G4Step* aStep)
 {
 	// return the organ ID (= material index)
-	G4int copyNo = aStep->GetPreStepPoint()->GetTouchable()->GetCopyNumber();
-	return tetData->GetMaterialIndex(copyNo);
+	G4int copyNum = aStep->GetPreStepPoint()->GetTouchable()->GetCopyNumber();
+	if(tetData->GetMaterialIndex(copyNum)!=skinID) return -1;
+	return tetData->Convert2skinE(copyNum);
 }
+

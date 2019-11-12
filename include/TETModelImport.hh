@@ -80,11 +80,16 @@ public:
 	G4ThreeVector GetPhantomSize()           { return phantomSize; }
 	G4ThreeVector GetPhantomBoxMin()         { return boundingBox_Min; }
 	G4ThreeVector GetPhantomBoxMax()         { return boundingBox_Max; }
-
+	G4int         GetNumSkinTet()            { return wholeE2skinE.size(); }
+	std::vector<G4ThreeVector>GetSkinNodes() { return skinNodeVec;}
+	std::vector<std::vector<G4int>>GetSkinEle(){return skinEleVec;}
+	G4int         Convert2skinE(G4int wholeE){ return wholeE2skinE[wholeE]; }
+	G4int         Convert2wholeE(G4int skinE){ return skinE2wholeE[skinE]; }
 private:
 
 	// private methods
 	void DataRead(G4String, G4String);
+	void ExtractSkin(G4int skinID);
 	void MaterialRead(G4String);
 	void ColourRead();
 	void PrintMaterialInfomation();
@@ -111,8 +116,10 @@ private:
 	std::map<G4int, G4String>                                organNameMap;
 
 	//Skin Extract
-	std::map<G4int, G4int> skin2whole;
-
+	std::vector<G4ThreeVector> skinNodeVec;
+	std::vector<std::vector<G4int>> skinEleVec;
+	std::map<G4int, G4int> wholeE2skinE;
+	std::map<G4int, G4int> skinE2wholeE;
 };
 
 #endif

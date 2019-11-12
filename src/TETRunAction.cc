@@ -39,15 +39,12 @@ TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* 
 	if(!isMaster) return;
 
 	runTimer = new G4Timer;
-	std::ofstream ofs(outputFile);
-
-	massMap = tetData->GetMassMap();
-
-	ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
-	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
-	for(auto itr : massMap)
-		ofs<<std::to_string(itr.first)+"_"+tetData->GetMaterial(itr.first)->GetName()<<"\t"<<itr.second/g<<"\t";
-	ofs<<G4endl;
+	std::ofstream ofs(outputFile+".node");
+	auto skinNodes = tetData->GetSkinNodes();
+	ofs<<skinNodes.size()<<"  3  0  0"<<G4endl;
+	for(size_t i=0;i<skinNodes.size();i++){
+		ofs<<i<<" "<<skinNodes[i].getX()/cm<<" "<<skinNodes[i].getY()/cm<<" "<<skinNodes[i].getZ()/cm<<G4endl;
+	}
 	ofs.close();
 }
 
@@ -119,16 +116,23 @@ void TETRunAction::EndOfRunAction(const G4Run* aRun)
 
 	// set doses
 	SetDoses();
-
+/*
 	// print by G4cout
 	if(isExternal) PrintResultExternal(G4cout);
 	else           PrintResultInternal(G4cout);
-
+*/
 	// print by std::ofstream
-	std::ofstream ofs(outputFile.c_str(), std::ios::app);
-	if(isExternal)PrintLineExternal(ofs);
-	else          PrintLineInternal(ofs);
+	G4String outName = outputFile + "_" + std::to_string(aRun->GetRunID())+".ele";
+	std::ofstream ofs(outName);
+	PrintResult(ofs);
 	ofs.close();
+	G4String errorName = outputFile + "_" + std::to_string(aRun->GetRunID())+".txt";
+	std::ofstream ofs2(errorName);
+	PrintErrors(ofs2);
+	ofs2.close();
+/*	if(isExternal)PrintLineExternal(ofs);
+	else          PrintLineInternal(ofs);
+	ofs.close();*/
 
 	initTimer->Start();
 }
@@ -138,108 +142,29 @@ void TETRunAction::SetDoses()
 	doseValues.clear(); doseErrors.clear();
 	EDEPMAP edepMap = *fRun->GetEdepMap();
 
-	for(auto itr : massMap){
-		G4double meanDose    = edepMap[itr.first].first  / itr.second / numOfEvent;
-		G4double squareDoese = edepMap[itr.first].second / (itr.second*itr.second);
+	for(G4int i=0;i<tetData->GetNumSkinTet();i++)
+	{
+		G4double mass = tetData->GetTetrahedron(tetData->Convert2wholeE(i))->GetCubicVolume()
+				        *tetData->GetMaterial(126)->GetDensity();
+		G4double meanDose    = edepMap[i].first  / mass / numOfEvent;
+		G4double squareDoese = edepMap[i].second / (mass*mass);
 		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
 		G4double relativeE   = sqrt(variance)/meanDose;
 		doseValues.push_back(meanDose);
 		doseErrors.push_back(relativeE);
 	}
 }
-
-void TETRunAction::PrintResultExternal(std::ostream &out)
+void TETRunAction::PrintResult(std::ostream &out)
 {
-	// Print run result
-	//
-	using namespace std;
-	EDEPMAP edepMap = *fRun->GetEdepMap();
-
-	out << G4endl
-	    << "=====================================================================" << G4endl
-	    << " Run #" << runID << " / Number of event processed : "<< numOfEvent     << G4endl
-	    << "=====================================================================" << G4endl
-		<< " Init time: " << initTimer->GetRealElapsed() << " s / Run time: "<< runTimer->GetRealElapsed()<<" s"<< G4endl
-	    << "=====================================================================" << G4endl
-	    << setw(27) << "organ ID| "
-		<< setw(15) << "Organ Mass (g)"
-		<< setw(15) << "Dose (Gy*cm2)"
-		<< setw(15) << "Relative Error" << G4endl;
-
-	out.precision(3);
-
-	G4int i=0;
-
-	for(auto itr : massMap){
-		out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
-		out	<< setw(15) << fixed      << itr.second/g;
-		out	<< setw(15) << scientific << doseValues[i]/(joule/kg)*beamArea/cm2;
-		out	<< setw(15) << fixed      << doseErrors[i++] << G4endl;
+	out<<tetData->GetNumSkinTet()<<"  4  1"<<G4endl;
+	auto eleVec = tetData->GetSkinEle();
+	for(G4int i=0;i<tetData->GetNumSkinTet();i++){
+		G4cout<<i<<" "<<eleVec[i][0]<<" "<<eleVec[i][1]<<" "<<eleVec[i][2]<<" "<<eleVec[i][3]<<" "<<doseValues[i]/(joule/kg)<<G4endl;
 	}
-
-	out << "=====================================================================" << G4endl << G4endl;
 }
 
-void TETRunAction::PrintResultInternal(std::ostream &out)
-{
-	// Print run result
-	//
-	using namespace std;
-	EDEPMAP edepMap = *fRun->GetEdepMap();
-
-	out << G4endl
-	    << "=====================================================================" << G4endl
-	    << " Run #" << runID << " / Number of event processed : "<< numOfEvent     << G4endl
-	    << "=====================================================================" << G4endl
-		<< " Init time: " << initTimer->GetRealElapsed() << " s / Run time: "<< runTimer->GetRealElapsed()<<" s"<< G4endl
-	    << "=====================================================================" << G4endl
-	    << setw(27) << "organ ID| "
-		<< setw(15) << "Organ Mass (g)"
-		<< setw(15) << "SAF (kg-1)"
-		<< setw(15) << "Relative Error" << G4endl;
-
-	out.precision(3);
-
-	G4int i=0;
-	for(auto itr : massMap){
-		out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
-		out	<< setw(15) << fixed      << itr.second/g;
-		out	<< setw(15) << scientific << doseValues[i]/primaryEnergy/(1./kg);
-		out	<< setw(15) << fixed      << doseErrors[i++] << G4endl;
+void TETRunAction::PrintErrors(std::ostream &out){
+	for(G4int i=0;i<tetData->GetNumSkinTet();i++){
+		out<<i<<"\t"<<doseValues[i]/(joule/kg)<<"\t"<<doseErrors[i]<<G4endl;
 	}
-
-	out << "=====================================================================" << G4endl << G4endl;
 }
-
-void TETRunAction::PrintLineExternal(std::ostream &out)
-{
-	// Print run result
-	//
-	using namespace std;
-	EDEPMAP edepMap = *fRun->GetEdepMap();
-
-	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
-		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
-
-	for(size_t i=0;i<doseValues.size();i++){
-		out << doseValues[i]*1e12/(joule/kg) * beamArea/cm2 <<"\t" << doseErrors[i] << "\t";
-	}
-	out<<G4endl;
-}
-
-void TETRunAction::PrintLineInternal(std::ostream &out)
-{
-	// Print run result
-	//
-	using namespace std;
-	EDEPMAP edepMap = *fRun->GetEdepMap();
-
-	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
-		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
-
-	for(size_t i=0;i<doseValues.size();i++){
-		out << doseValues[i]/primaryEnergy/(1./kg) <<"\t" << doseErrors[i] << "\t";
-	}
-	out<<G4endl;
-}
-

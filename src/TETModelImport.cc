@@ -29,6 +29,7 @@
 //
 
 #include "TETModelImport.hh"
+#include <set>
 
 TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 {
@@ -47,6 +48,8 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 
 	// read phantom data files (*. ele, *.node)
 	DataRead(eleFile, nodeFile);
+	G4int skinID = 126;
+	ExtractSkin(skinID);
 	// read material file (*.material)
 	MaterialRead(materialFile);
 	// read colour data file (colour.dat) if this is interactive mode
@@ -155,6 +158,39 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 		}
 	}
 	ifpEle.close();
+}
+
+void TETModelImport::ExtractSkin(G4int skinID)
+{
+	G4int skinEleID(0);
+	std::set<G4int> skinVset;
+	for(size_t i=0;i<materialVector.size();i++){
+		if(materialVector[i]!=skinID) continue;
+		skinE2wholeE[skinEleID]=i;
+		wholeE2skinE[i] = skinEleID++;
+		for(int v=0;v<4;v++) skinVset.insert(eleVector[i][v]);
+	}
+
+	G4int skinVID(0);
+	std::map<G4int, G4int> wholeV2skinV;
+	for(auto v:skinVset){
+		skinNodeVec.push_back(vertexVector[v]);
+		wholeV2skinV[v] = skinVID++;
+	}
+
+	for(auto w2s:wholeV2skinV){
+		G4int a = wholeV2skinV[eleVector[w2s.first][0]];
+		G4int b = wholeV2skinV[eleVector[w2s.first][1]];
+		G4int c = wholeV2skinV[eleVector[w2s.first][2]];
+		G4int d = wholeV2skinV[eleVector[w2s.first][3]];
+
+		skinEleVec.push_back({a, b, c, d});
+	}
+
+	G4cout<<"*************************************************"<<G4endl;
+	G4cout<<"elements# for skin: "<<wholeE2skinE.size()<<G4endl;
+	G4cout<<"vertice# for skin: "<<wholeV2skinV.size()<<G4endl;
+	G4cout<<"*************************************************"<<G4endl;
 }
 
 void TETModelImport::MaterialRead(G4String materialFile)

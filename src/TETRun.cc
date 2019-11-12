@@ -55,6 +55,7 @@ void TETRun::RecordEvent(const G4Event* event)
 	// sum up the energy deposition and the square of it
 	auto doseMap = *evtMap->GetMap();
 	for(auto itr:doseMap){
+		if(itr.first<0) continue;
 		edepMap[itr.first].first += *itr.second;
 		edepMap[itr.first].second += (*itr.second)*(*itr.second);
 	}
