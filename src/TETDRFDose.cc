@@ -52,6 +52,7 @@ TETDRFDose::TETDRFDose(G4String name,TETModelImport* _PhantomData)
 	bsDRF = phantomData->GetBSDRF();
 	rbmRatio = phantomData->GetRBMmap();
 	bsRatio = phantomData->GetBSmap();
+
 }
 
 TETDRFDose::~TETDRFDose()
@@ -70,6 +71,7 @@ G4bool TETDRFDose::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 	G4double stepLength = aStep->GetStepLength();
 	if (stepLength==0.) return FALSE;
 	G4int index = GetIndex(aStep);
+//	if (index>40) return FALSE;
 	if (rbmDRF.find(index)==rbmDRF.end()) return FALSE;
 	//G4cout<<1111<<std::flush;
 	G4double CellFlux = stepLength / phantomData->GetVolume(index);

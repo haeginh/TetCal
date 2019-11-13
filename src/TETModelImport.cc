@@ -282,6 +282,7 @@ void TETModelImport::DRFRead(G4String DRFfile){
     G4String dump;
     while(!ifp.eof()){
     	getline(ifp, dump);
+    	if(dump.empty()) break;
     	std::stringstream ss(dump);
     	ss>>idx;
     	RBMDRF[idx]={};
@@ -296,6 +297,38 @@ void TETModelImport::DRFRead(G4String DRFfile){
     	}
     }
     ifp.close();
+/*
+	std::ifstream ifp;
+	ifp.open(DRFfile.c_str());
+
+	if(!ifp.is_open()) {
+		G4cerr << DRFfile << " not found!!" << G4endl;
+		return;
+	}
+
+	G4int ID;
+    G4double DRF;
+
+    for (int i=0; i<57; i++) {
+    	for (int j=0; j<25; j++) {
+    		RBMDRF[i].push_back(0);
+    		BSDRF[i].push_back(0);
+    	}
+    }
+
+    for (int i=0; i<23; i++) {
+    	ifp >> ID;
+    	for (int j=0; j<25; j++) {
+    		ifp >> DRF;
+    		RBMDRF[ID][j]=DRF;
+    	}
+
+    	for (int j=0; j<25; j++) {
+    		ifp >> DRF;
+    		BSDRF[ID][j]=DRF;
+    	}
+	}
+    ifp.close();*/
 
 }
 
