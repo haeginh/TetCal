@@ -30,7 +30,7 @@
 
 #include "../include/VoxelRun.hh"
 
-TETRun::TETRun(ImportVoxelPhantom* voxData)
+TETRun::TETRun(VOXModelImport* voxData)
 :G4Run()
 {
 	fCollID

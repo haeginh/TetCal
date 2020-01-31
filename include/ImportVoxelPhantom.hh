@@ -23,13 +23,13 @@
 #include "G4NistManager.hh"
 #include "G4Element.hh"
 
-class ImportVoxelPhantom {
+class VOXModelImport {
 public:
-	ImportVoxelPhantom(G4String _phantomFile);
-	virtual ~ImportVoxelPhantom();
+	VOXModelImport(G4String _phantomFile);
+	virtual ~VOXModelImport();
 
 
-	void ImportPhantomInput(G4String);
+	void ImportPhantomInfo(G4String);
 	void ImportPhantomVoxelData(G4String);
 	void ImportPhantomVoxelMaterial(G4String);
 	void ImportPhantomVoxelVolume();
@@ -41,7 +41,7 @@ public:
 	G4Material* GetVoxelMaterial(G4int idx) {return materialMap[idx];}
 	G4double GetOrganVolume(G4int idx) {return organVolume[idx];}
 	G4double GetOrganMass(G4int idx) {return organVolume[idx] * materialMap[idx]->GetDensity();}
-	G4int GetMaterialIndex(G4int idx) {return materialIndex[idx];}
+	G4int GetMaterialIndex(G4int idx) {return organID[idx];}
 	std::map<G4int, G4double> GetMassMap() {return massMap;}
 	G4int GetVoxelMaterialSize() {return (G4int) materialMap.size();}
 	G4int GetVoxelData(G4int idx, G4int idy, G4int idz) {return voxelData[idx][idy][idz];}
@@ -51,7 +51,7 @@ private:
 	std::map<G4int, G4double> organVolume;
 	std::map<G4int, G4int> numVoxel;
 	std::map<G4int, std::vector<std::pair<G4int, G4double> > > materialIndexMap;
-	std::vector<G4int> materialIndex;
+	std::vector<G4int> organID;
 	std::map<G4int, G4Material* > materialMap;
 	std::map<G4int, G4double> densityMap;
 	std::map<G4int, G4double> massMap;

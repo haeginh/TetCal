@@ -33,7 +33,7 @@
 #include "G4Timer.hh"
 #include <iostream>
 
-VoxelRunAction::VoxelRunAction(ImportVoxelPhantom* _voxData, G4String _output, G4Timer* _init)
+VoxelRunAction::VoxelRunAction(VOXModelImport* _voxData, G4String _output, G4Timer* _init)
 :voxData(_voxData), fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0),
  primaryEnergy(-1.), beamArea(-1.), isExternal(true)
 {

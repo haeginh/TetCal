@@ -33,7 +33,7 @@
 #include "TETPrimaryGeneratorAction.hh"
 #include <fstream>
 
-TETPrimaryGeneratorAction::TETPrimaryGeneratorAction(ImportVoxelPhantom* _voxData)
+TETPrimaryGeneratorAction::TETPrimaryGeneratorAction(VOXModelImport* _voxData)
 :voxData(_voxData), fSourceGenerator(0)
 {
 	fParticleGun = new G4ParticleGun(1);

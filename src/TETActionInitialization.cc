@@ -30,7 +30,7 @@
 
 #include "TETActionInitialization.hh"
 
-TETActionInitialization::TETActionInitialization(ImportVoxelPhantom* _voxData, G4String _output, G4Timer* _init)
+TETActionInitialization::TETActionInitialization(VOXModelImport* _voxData, G4String _output, G4Timer* _init)
  : G4VUserActionInitialization(), voxData(_voxData), output(_output), initTimer(_init)
 {}
 

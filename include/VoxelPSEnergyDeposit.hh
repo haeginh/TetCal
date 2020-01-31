@@ -43,14 +43,14 @@
 class VoxelPSEnergyDeposit : public G4PSEnergyDeposit
 {
    public:
-      VoxelPSEnergyDeposit(G4String name,ImportVoxelPhantom* _voxData);
+      VoxelPSEnergyDeposit(G4String name,VOXModelImport* _voxData);
       virtual ~VoxelPSEnergyDeposit();
 
   protected:
       virtual G4int GetIndex(G4Step*);
 
   private:
-      ImportVoxelPhantom* voxData;
+      VOXModelImport* voxData;
 };
 
 #endif

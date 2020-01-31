@@ -47,7 +47,7 @@
 #include "G4Colour.hh"
 #include "G4SystemOfUnits.hh"
 
-VoxelDetectorConstruction::VoxelDetectorConstruction(ImportVoxelPhantom* _voxelPhantom)
+VoxelDetectorConstruction::VoxelDetectorConstruction(VOXModelImport* _voxelPhantom)
 :fpWorldPhysical(0), logicVoxel(0), voxelPhantom(_voxelPhantom)
 {
 

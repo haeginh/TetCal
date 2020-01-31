@@ -134,7 +134,7 @@ int main(int argc,char** argv)
 
 	// Set a class to import phantom data
 	//
-	ImportVoxelPhantom* voxData = new ImportVoxelPhantom(phantomName);
+	VOXModelImport* voxData = new VOXModelImport(phantomName);
 
 	// Set mandatory initialisation classes
 	//

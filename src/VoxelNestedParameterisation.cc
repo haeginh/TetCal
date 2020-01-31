@@ -41,7 +41,7 @@
 #include "G4Material.hh"
 
 
-VoxelNestedParameterisation::VoxelNestedParameterisation(ImportVoxelPhantom* _voxelPhantom)												
+VoxelNestedParameterisation::VoxelNestedParameterisation(VOXModelImport* _voxelPhantom)												
 :voxelPhantom(_voxelPhantom)
 {
 	blankAtt = new G4VisAttributes(G4VisAttributes::Invisible);

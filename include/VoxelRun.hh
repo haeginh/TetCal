@@ -54,7 +54,7 @@ typedef std::map<G4int, std::pair<G4double, G4double>> EDEPMAP;
 class TETRun : public G4Run 
 {
 public:
-	TETRun(ImportVoxelPhantom* voxData);
+	TETRun(VOXModelImport* voxData);
 	virtual ~TETRun();
 
 	virtual void RecordEvent(const G4Event*);

@@ -54,7 +54,7 @@ class VoxelDetectorConstruction : public G4VUserDetectorConstruction {
 
 public:
 
-	VoxelDetectorConstruction(ImportVoxelPhantom* );
+	VoxelDetectorConstruction(VOXModelImport* );
 	virtual ~VoxelDetectorConstruction();
 
 	virtual G4VPhysicalVolume* Construct();
@@ -63,7 +63,7 @@ public:
 private:
 	G4VisAttributes* blankAtt;
 
-	ImportVoxelPhantom* voxelPhantom;
+	VOXModelImport* voxelPhantom;
 
 	// world & container logical and physical volumes
 	G4VPhysicalVolume* fpWorldPhysical;

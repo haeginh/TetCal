@@ -70,7 +70,7 @@ class VoxelNestedParameterisation : public G4VNestedParameterisation
 {
   public:
 
-	VoxelNestedParameterisation(ImportVoxelPhantom* );
+	VoxelNestedParameterisation(VOXModelImport* );
    ~VoxelNestedParameterisation();
 
     G4Material* ComputeMaterial(G4VPhysicalVolume *currentVol,
@@ -129,7 +129,7 @@ class VoxelNestedParameterisation : public G4VNestedParameterisation
     void MaterialColourDefinition();
 
   private:
-    ImportVoxelPhantom* voxelPhantom;
+    VOXModelImport* voxelPhantom;
 
     G4VisAttributes* blankAtt;
     G4double         fVoxelHalfLengthX, fVoxelHalfLengthY, fVoxelHalfLengthZ;

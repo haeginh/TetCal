@@ -58,7 +58,7 @@
 class VoxelRunAction : public G4UserRunAction
 {
 public:
-	VoxelRunAction(ImportVoxelPhantom* voxData, G4String output, G4Timer* initTimer);
+	VoxelRunAction(VOXModelImport* voxData, G4String output, G4Timer* initTimer);
 	virtual ~VoxelRunAction();
 
 public:
@@ -73,7 +73,7 @@ public:
 	void PrintLineInternal(std::ostream &out);
 
 private:
-	ImportVoxelPhantom* voxData;
+	VOXModelImport* voxData;
 	TETRun*         fRun;
 	G4int           numOfEvent;
 	G4int           runID;

@@ -30,7 +30,7 @@
 
 #include "VoxelPSEnergyDeposit.hh"
 
-VoxelPSEnergyDeposit::VoxelPSEnergyDeposit(G4String name, ImportVoxelPhantom* _voxData)
+VoxelPSEnergyDeposit::VoxelPSEnergyDeposit(G4String name, VOXModelImport* _voxData)
   :G4PSEnergyDeposit(name), voxData(_voxData)
 {}
 

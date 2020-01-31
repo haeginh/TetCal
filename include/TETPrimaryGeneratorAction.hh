@@ -47,12 +47,12 @@
 // -- GeneratePrimaries: Generate primaries by G4GeneralParticleSource
 //                       class.
 // *********************************************************************
-class ImportVoxelPhantom;
+class VOXModelImport;
 
 class TETPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
   public:
-	TETPrimaryGeneratorAction(ImportVoxelPhantom* tetData);
+	TETPrimaryGeneratorAction(VOXModelImport* tetData);
 	virtual ~TETPrimaryGeneratorAction();
 
     //GENERAL
@@ -67,7 +67,7 @@ class TETPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4String        GetSourceName() const {return sourceName;}
 
   private:
-    ImportVoxelPhantom*      voxData;
+    VOXModelImport*      voxData;
     G4ParticleGun*       fParticleGun;
     TETPrimaryMessenger* fMessenger;
     SourceGenerator*       fSourceGenerator;

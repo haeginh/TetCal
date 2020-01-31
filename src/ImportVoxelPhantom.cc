@@ -9,7 +9,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 
-ImportVoxelPhantom::ImportVoxelPhantom(G4String phantomFile)
+VOXModelImport::VOXModelImport(G4String phantomFile)
 :Filename(phantomFile) {
 
 	G4String InformFile = "Phantom_information";
@@ -19,17 +19,17 @@ ImportVoxelPhantom::ImportVoxelPhantom(G4String phantomFile)
 	G4String RBMBSfile = "./phantoms/"+Filename+"_RBMnBS";
 
 
-	ImportPhantomInput(InformFile);
+	ImportPhantomInfo(InformFile);
 	ImportPhantomVoxelMaterial(materialFile);
 	ImportPhantomVoxelData(voxelFile);
 	ImportPhantomVoxelVolume();
 }
 
-ImportVoxelPhantom::~ImportVoxelPhantom() {
+VOXModelImport::~VOXModelImport() {
 }
 
 
-void ImportVoxelPhantom::ImportPhantomInput(G4String inputFile){
+void VOXModelImport::ImportPhantomInfo(G4String inputFile){
 
 	std::ifstream ifp;
 	ifp.open(inputFile.c_str());
@@ -68,7 +68,7 @@ void ImportVoxelPhantom::ImportPhantomInput(G4String inputFile){
 	ifp.close();
 }
 
-void ImportVoxelPhantom::ImportPhantomVoxelData(G4String voxelFile){
+void VOXModelImport::ImportPhantomVoxelData(G4String voxelFile){
 
 	std::ifstream ifp;
 	ifp.open(voxelFile.c_str());
@@ -103,7 +103,7 @@ void ImportVoxelPhantom::ImportPhantomVoxelData(G4String voxelFile){
 
 }
 
-void ImportVoxelPhantom::ImportPhantomVoxelMaterial(G4String materialFile){
+void VOXModelImport::ImportPhantomVoxelMaterial(G4String materialFile){
 
 	std::ifstream ifp;
 	ifp.open(materialFile.c_str());
@@ -129,7 +129,7 @@ void ImportVoxelPhantom::ImportPhantomVoxelMaterial(G4String materialFile){
 		 ifp >> read_data;
 		token = std::strtok(read_data,"m");
 		G4int matID = std::atoi(token);                 //ex) m'10'
-		materialIndex.push_back(matID);
+		organID.push_back(matID);
 		organNameMap[matID]= MaterialName;
 		densityMap[matID] = density* g/cm3;
 
@@ -149,8 +149,8 @@ void ImportVoxelPhantom::ImportPhantomVoxelMaterial(G4String materialFile){
     G4Element *elH = new G4Element("TS_H_of_Water", "H", 1., 1.01*g/mole);
     G4NistManager* nistManager = G4NistManager::Instance();
 
-	for(G4int i=0;i<(G4int)materialIndex.size();i++){
-		G4int idx = materialIndex[i];
+	for(G4int i=0;i<(G4int)organID.size();i++){
+		G4int idx = organID[i];
 		G4Material* mat = new G4Material(organNameMap[idx], densityMap[idx], G4int(materialIndexMap[idx].size()), kStateSolid, NTP_Temperature, STP_Pressure);
 		for(G4int j=0;j<G4int(materialIndexMap[idx].size());j++){
 			if(materialIndexMap[idx][j].first==1) mat->AddElement(elH, materialIndexMap[idx][j].second);
@@ -164,8 +164,8 @@ void ImportVoxelPhantom::ImportPhantomVoxelMaterial(G4String materialFile){
 
 
 
-void ImportVoxelPhantom::ImportPhantomVoxelVolume(){
-	for(auto iter:materialIndex)
+void VOXModelImport::ImportPhantomVoxelVolume(){
+	for(auto iter:organID)
 		organVolume[iter] = numVoxel[iter] *  voxelSize[0] * voxelSize[1] * voxelSize[2];
 
 	for(auto mat:organVolume)

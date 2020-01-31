@@ -36,7 +36,7 @@
 #include "TETPrimaryGeneratorAction.hh"
 #include "VoxelRunAction.hh"
 
-class ImportVoxelPhantom;
+class VOXModelImport;
 
 // *********************************************************************
 // This UserActionInitialization class initializes UserAction classes
@@ -50,7 +50,7 @@ class ImportVoxelPhantom;
 class TETActionInitialization : public G4VUserActionInitialization
 {
 public:
-	TETActionInitialization(ImportVoxelPhantom* voxData,
+	TETActionInitialization(VOXModelImport* voxData,
 			                G4String        outputFileName,
 							G4Timer*        initTimer);
 	virtual ~TETActionInitialization();
@@ -59,7 +59,7 @@ public:
 	virtual void Build() const;
 
 private:
-	ImportVoxelPhantom* voxData;
+	VOXModelImport* voxData;
 	G4String output;
 	G4Timer* initTimer;
 };
