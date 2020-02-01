@@ -85,8 +85,8 @@ void TETRunAction::BeginOfRunAction(const G4Run* aRun)
 		runTimer->Start();
 	}
 
-	const TETPrimaryGeneratorAction* primary =
-			dynamic_cast<const TETPrimaryGeneratorAction*>(G4RunManager::GetRunManager()
+	const PrimaryGeneratorAction_general* primary =
+			dynamic_cast<const PrimaryGeneratorAction_general*>(G4RunManager::GetRunManager()
 			->GetUserPrimaryGeneratorAction());
 	if(!primary) return;
 	primaryParticle = primary->GetParticleGun()->GetParticleDefinition()->GetParticleName();

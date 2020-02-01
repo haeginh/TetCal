@@ -105,7 +105,7 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 	G4int numVertex;
 	G4double xPos, yPos, zPos;
 	G4double xMin(DBL_MAX), yMin(DBL_MAX), zMin(DBL_MAX);
-	G4double xMax(DBL_MIN), yMax(DBL_MIN), zMax(DBL_MIN);
+	G4double xMax(-DBL_MAX), yMax(-DBL_MAX), zMax(-DBL_MAX);
 
 	ifpNode >> numVertex >> tempInt >> tempInt >> tempInt;
 

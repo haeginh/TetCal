@@ -27,15 +27,15 @@
 // \author Haegin Han
 //
 
-#include "TETPrimaryGeneratorAction.hh"
 #include "TETRunAction.hh"
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithAString.hh"
 #include "G4RunManager.hh"
 #include <sstream>
 #include <vector>
+#include "../include/PrimaryGeneratorAction_general.hh"
 
-TETPrimaryMessenger::TETPrimaryMessenger(TETPrimaryGeneratorAction* _primary)
+TETPrimaryMessenger::TETPrimaryMessenger(PrimaryGeneratorAction_general* _primary)
 :G4UImessenger(), fPrimary(_primary)
 {
 	fExternalDir = new G4UIdirectory("/external/");

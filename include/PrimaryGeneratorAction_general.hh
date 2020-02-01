@@ -49,11 +49,11 @@
 // *********************************************************************
 class TETModelImport;
 
-class TETPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
+class PrimaryGeneratorAction_general : public G4VUserPrimaryGeneratorAction
 {
   public:
-	TETPrimaryGeneratorAction(TETModelImport* tetData);
-	virtual ~TETPrimaryGeneratorAction();
+	PrimaryGeneratorAction_general(TETModelImport* tetData);
+	virtual ~PrimaryGeneratorAction_general();
 
     //GENERAL
   public:

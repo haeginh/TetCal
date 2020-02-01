@@ -33,9 +33,11 @@
 
 #include "G4VUserActionInitialization.hh"
 #include "G4String.hh"
+
+#include "PrimaryGeneratorAction_general.hh"
+#include "PrimaryGeneratorAction_gps.hh"
 #include "TETRunAction.hh"
 #include "TETSteppingAction.hh"
-#include "TETPrimaryGeneratorAction.hh"
 
 class TETModelImport;
 

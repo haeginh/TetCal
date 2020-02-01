@@ -40,8 +40,8 @@
 #include "G4UserRunAction.hh"
 #include "G4SystemOfUnits.hh"
 
+#include "PrimaryGeneratorAction_general.hh"
 #include "TETRun.hh"
-#include "TETPrimaryGeneratorAction.hh"
 #include "TETModelImport.hh"
 
 // *********************************************************************

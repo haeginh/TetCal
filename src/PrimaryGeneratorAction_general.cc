@@ -30,10 +30,10 @@
 // \
 
 
-#include "TETPrimaryGeneratorAction.hh"
 #include <fstream>
+#include "../include/PrimaryGeneratorAction_general.hh"
 
-TETPrimaryGeneratorAction::TETPrimaryGeneratorAction(TETModelImport* _tetData)
+PrimaryGeneratorAction_general::PrimaryGeneratorAction_general(TETModelImport* _tetData)
 :tetData(_tetData), fSourceGenerator(0)
 {
 	fParticleGun = new G4ParticleGun(1);
@@ -43,7 +43,7 @@ TETPrimaryGeneratorAction::TETPrimaryGeneratorAction(TETModelImport* _tetData)
 
 }
 
-TETPrimaryGeneratorAction::~TETPrimaryGeneratorAction()
+PrimaryGeneratorAction_general::~PrimaryGeneratorAction_general()
 {
 	delete fParticleGun;
 	delete fMessenger;
@@ -51,7 +51,7 @@ TETPrimaryGeneratorAction::~TETPrimaryGeneratorAction()
 	delete fInternal;
 }
 
-void TETPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
+void PrimaryGeneratorAction_general::GeneratePrimaries(G4Event* anEvent)
 {
 
 	G4ThreeVector direction, position;

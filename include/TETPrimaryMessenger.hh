@@ -36,18 +36,18 @@
 
 class G4UIdirectory;
 class G4UIcmdWithAString;
-class TETPrimaryGeneratorAction;
+class PrimaryGeneratorAction_general;
 
 class TETPrimaryMessenger: public G4UImessenger
 {
 public:
-	TETPrimaryMessenger(TETPrimaryGeneratorAction* primary);
+	TETPrimaryMessenger(PrimaryGeneratorAction_general* primary);
 	virtual ~TETPrimaryMessenger();
 
 	virtual void SetNewValue(G4UIcommand*, G4String);
 
 private:
-	TETPrimaryGeneratorAction* fPrimary;
+	PrimaryGeneratorAction_general* fPrimary;
 	G4UIdirectory*             fExternalDir;
 	G4UIcmdWithAString*        fBeamDirCmd;
 	G4UIdirectory*             fInternalDir;
