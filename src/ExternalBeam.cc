@@ -16,9 +16,10 @@ ExternalBeam::ExternalBeam()
 :beamDir(AP), xHalf(-1), yHalf(-1), zHalf(-1), beamArea(-1)
 {
 	G4Box* phantomBox = (G4Box*) G4LogicalVolumeStore::GetInstance()->GetVolume("phantomLogical")->GetSolid();
-	xHalf=phantomBox->GetXHalfLength();
-	yHalf=phantomBox->GetYHalfLength();
-	zHalf=phantomBox->GetZHalfLength();
+	xHalf=10*cm;
+	yHalf=10*cm;
+	zHalf=10*cm;
+	height = 71.5*cm;
 }
 
 ExternalBeam::~ExternalBeam()
@@ -45,7 +46,7 @@ void ExternalBeam::SetBeamDirection(BEAMDIR _dir){
 		break;
 	case ROT:
 		beamDirName = "ROT";
-		beamArea = 10000*cm2*pi;
+		beamArea = 100*cm2*pi;
 		break;
 	case ISO:
 		beamDirName = "ISO";
@@ -63,31 +64,31 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 		direction  = G4ThreeVector(0, 1, 0);
 		position.setX(-xHalf+2*xHalf*G4UniformRand());
 		position.setY(-200.*cm);
-		position.setZ(-zHalf+2*zHalf*G4UniformRand());
+		position.setZ(-zHalf+2*zHalf*G4UniformRand()+height);
 		break;
 	case PA:
 		direction  = G4ThreeVector(0, -1, 0);
 		position.setX(-xHalf+2*xHalf*G4UniformRand());
 		position.setY(200.*cm);
-		position.setZ(-zHalf+2*zHalf*G4UniformRand());
+		position.setZ(-zHalf+2*zHalf*G4UniformRand()+height);
 		break;
 	case LLAT:
 		direction  = G4ThreeVector(-1, 0, 0);
 		position.setX(200*cm);
 		position.setY(-yHalf+2*yHalf*G4UniformRand());
-		position.setZ(-zHalf+2*zHalf*G4UniformRand());
+		position.setZ(-zHalf+2*zHalf*G4UniformRand()+height);
 		break;
 	case RLAT:
 		direction  = G4ThreeVector(1, 0, 0);
 		position.setX(-200*cm);
 		position.setY(-yHalf+2*yHalf*G4UniformRand());
-		position.setZ(-zHalf+2*zHalf*G4UniformRand());
+		position.setZ(-zHalf+2*zHalf*G4UniformRand()+height);
 		break;
 	case ROT:
 		radius = 100*sqrt(G4UniformRand())*cm;
 		rand = G4UniformRand();
 		p1 = radius*cos(rand*2*pi);
-		p2 = radius*sin(rand*2*pi);
+		p2 = radius*sin(rand*2*pi)+71.5*cm;
 		theta = G4UniformRand()*2*pi;
 		direction  = G4ThreeVector(-1, 0, 0);
 		position  = G4ThreeVector(100.*cm, p1, p2);

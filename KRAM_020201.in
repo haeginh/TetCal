@@ -1,0 +1,74 @@
+/run/numberOfThreads 96
+/run/initialize
+
+/gun/particle gamma
+/external/dir PA
+/gun/energy  0.6  MeV
+/run/beamOn  100000000
+/gun/energy  0.8  MeV
+/run/beamOn  100000000
+
+/gun/particle e-
+/external/dir AP
+/gun/energy  0.015  MeV
+/run/beamOn  2000000000
+/gun/energy  0.02  MeV
+/run/beamOn  2000000000
+/gun/energy  0.03  MeV
+/run/beamOn  2000000000
+/gun/energy  0.04  MeV
+/run/beamOn  2000000000
+/gun/energy  0.05  MeV
+/run/beamOn  2000000000
+/gun/energy  0.06  MeV
+/run/beamOn  2000000000
+/gun/energy  0.08  MeV
+/run/beamOn  2000000000
+/gun/energy  0.1  MeV
+/run/beamOn  2000000000
+/gun/energy  0.15  MeV
+/run/beamOn  2000000000
+/gun/energy  0.2  MeV
+/run/beamOn  2000000000
+/gun/energy  0.3  MeV
+/run/beamOn  2000000000
+/gun/energy  0.4  MeV
+/run/beamOn  2000000000
+/gun/energy  0.5  MeV
+/run/beamOn  2000000000
+/gun/energy  0.6  MeV
+/run/beamOn  2000000000
+/gun/energy  0.8  MeV
+/run/beamOn  2000000000
+
+/external/dir PA
+/gun/energy  2  MeV
+/run/beamOn  2000000000
+/gun/energy  3  MeV
+/run/beamOn  2000000000
+/gun/energy  10  MeV
+/run/beamOn  2000000000
+
+/external/dir ISO
+/gun/energy  0.05  MeV
+/run/beamOn  2000000000
+/gun/energy  0.06  MeV
+/run/beamOn  2000000000
+/gun/energy  0.08  MeV
+/run/beamOn  2000000000
+/gun/energy  0.1  MeV
+/run/beamOn  2000000000
+/gun/energy  0.15  MeV
+/run/beamOn  2000000000
+/gun/energy  0.2  MeV
+/run/beamOn  2000000000
+/gun/energy  0.3  MeV
+/run/beamOn  2000000000
+/gun/energy  0.4  MeV
+/run/beamOn  2000000000
+/gun/energy  0.5  MeV
+/run/beamOn  2000000000
+/gun/energy  0.6  MeV
+/run/beamOn  2000000000
+
+
