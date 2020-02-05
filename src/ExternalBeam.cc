@@ -50,7 +50,7 @@ void ExternalBeam::SetBeamDirection(BEAMDIR _dir){
 		break;
 	case ISO:
 		beamDirName = "ISO";
-		beamArea = 10000*cm2*pi;
+		beamArea = 900*cm2*pi;
 		break;
 	}
 }
@@ -85,29 +85,33 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 		position.setZ(-zHalf+2*zHalf*G4UniformRand()+height);
 		break;
 	case ROT:
-		radius = 100*sqrt(G4UniformRand())*cm;
+		radius = 15*sqrt(G4UniformRand())*cm;
 		rand = G4UniformRand();
 		p1 = radius*cos(rand*2*pi);
-		p2 = radius*sin(rand*2*pi)+71.5*cm;
+		p2 = radius*sin(rand*2*pi);
 		theta = G4UniformRand()*2*pi;
 		direction  = G4ThreeVector(-1, 0, 0);
 		position  = G4ThreeVector(100.*cm, p1, p2);
 		direction  = direction.rotateZ(theta);
-		position = position.rotateZ(theta);
+		position = position.rotateZ(theta) + G4ThreeVector(0., 0., height);
 		break;
 	case ISO:
-		radius = 100*sqrt(G4UniformRand())*cm;
+//		radius = 100*sqrt(G4UniformRand())*cm;
+		radius = 30*sqrt(G4UniformRand())*cm;
 		rand = G4UniformRand();
 		p1 = radius*cos(rand*2*pi);
 		p2 = radius*sin(rand*2*pi);
 		theta = G4UniformRand()*2*pi;
 		phi = acos(G4UniformRand()*2.-1.);
 		direction = G4ThreeVector(0, 0, -1.);
+//		position = G4ThreeVector(p1, p2, 200.*cm);
 		position = G4ThreeVector(p1, p2, 200.*cm);
-		direction = direction.rotateY(phi);
-		position = position.rotateY(phi);
-		direction = direction.rotateZ(theta);
-		position = position.rotateZ(theta);
+		direction.rotateY(phi);
+		position.rotateY(phi);
+		direction.rotateZ(theta);
+//		position = position.rotateZ(theta);
+		position.rotateZ(theta);
+		position += G4ThreeVector(0., 0., height);
 		break;
 	}
 }
