@@ -38,10 +38,12 @@ void ExternalBeam::SetBeamDirection(BEAMDIR _dir){
 		break;
 	case LLAT:
 		beamDirName = "LLAT";
+		yHalf=15*cm;
 		beamArea = yHalf*zHalf*4.;
 		break;
 	case RLAT:
 		beamDirName = "RLAT";
+		yHalf=15*cm;
 		beamArea = yHalf*zHalf*4.;
 		break;
 	case ROT:
@@ -50,7 +52,7 @@ void ExternalBeam::SetBeamDirection(BEAMDIR _dir){
 		break;
 	case ISO:
 		beamDirName = "ISO";
-		beamArea = 10000*cm2*pi;
+		beamArea = 900*cm2*pi;
 		break;
 	}
 }
@@ -75,13 +77,15 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 	case LLAT:
 		direction  = G4ThreeVector(-1, 0, 0);
 		position.setX(200*cm);
-		position.setY(-yHalf+2*yHalf*G4UniformRand()-5*cm);
+		yHalf=15*cm;
+		position.setY(-yHalf+2*yHalf*G4UniformRand());
 		position.setZ(-zHalf+2*zHalf*G4UniformRand()+height);
 		break;
 	case RLAT:
 		direction  = G4ThreeVector(1, 0, 0);
 		position.setX(-200*cm);
-		position.setY(-yHalf+2*yHalf*G4UniformRand()-5*cm);
+		yHalf=15*cm;
+		position.setY(-yHalf+2*yHalf*G4UniformRand());
 		position.setZ(-zHalf+2*zHalf*G4UniformRand()+height);
 		break;
 	case ROT:
@@ -96,7 +100,7 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 		position = position.rotateZ(theta);
 		break;
 	case ISO:
-		radius = 100*sqrt(G4UniformRand())*cm;
+		radius = 30*sqrt(G4UniformRand())*cm;
 		rand = G4UniformRand();
 		p1 = radius*cos(rand*2*pi);
 		p2 = radius*sin(rand*2*pi);
