@@ -48,7 +48,7 @@ void ExternalBeam::SetBeamDirection(BEAMDIR _dir){
 		break;
 	case ROT:
 		beamDirName = "ROT";
-		beamArea = 100*cm2*pi;
+		beamArea = 400*cm2*pi;
 		break;
 	case ISO:
 		beamDirName = "ISO";
@@ -89,7 +89,7 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 		position.setZ(-zHalf+2*zHalf*G4UniformRand()+height);
 		break;
 	case ROT:
-		radius = 100*sqrt(G4UniformRand())*cm;
+		radius = 20*sqrt(G4UniformRand())*cm;
 		rand = G4UniformRand();
 		p1 = radius*cos(rand*2*pi);
 		p2 = radius*sin(rand*2*pi)+71.5*cm;
