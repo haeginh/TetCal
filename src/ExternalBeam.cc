@@ -75,13 +75,13 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 	case LLAT:
 		direction  = G4ThreeVector(-1, 0, 0);
 		position.setX(200*cm);
-		position.setY(-yHalf+2*yHalf*G4UniformRand());
+		position.setY(-yHalf+2*yHalf*G4UniformRand()-5*cm);
 		position.setZ(-zHalf+2*zHalf*G4UniformRand()+height);
 		break;
 	case RLAT:
 		direction  = G4ThreeVector(1, 0, 0);
 		position.setX(-200*cm);
-		position.setY(-yHalf+2*yHalf*G4UniformRand());
+		position.setY(-yHalf+2*yHalf*G4UniformRand()-5*cm);
 		position.setZ(-zHalf+2*zHalf*G4UniformRand()+height);
 		break;
 	case ROT:
