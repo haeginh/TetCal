@@ -111,7 +111,7 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 		direction = direction.rotateY(phi);
 		position = position.rotateY(phi);
 		direction = direction.rotateZ(theta);
-		position = position.rotateZ(theta);
+		position = position.rotateZ(theta) + G4ThreeVector(0., 0., height);
 		break;
 	}
 }
