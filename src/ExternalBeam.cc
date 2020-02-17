@@ -52,7 +52,7 @@ void ExternalBeam::SetBeamDirection(BEAMDIR _dir){
 		break;
 	case ISO:
 		beamDirName = "ISO";
-		beamArea = 900*cm2*pi;
+		beamArea = 10000*cm2*pi;
 		break;
 	}
 }
@@ -100,7 +100,7 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 		position = position.rotateZ(theta);
 		break;
 	case ISO:
-		radius = 30*sqrt(G4UniformRand())*cm;
+		radius = 100*sqrt(G4UniformRand())*cm;
 		rand = G4UniformRand();
 		p1 = radius*cos(rand*2*pi);
 		p2 = radius*sin(rand*2*pi);
@@ -111,7 +111,7 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 		direction = direction.rotateY(phi);
 		position = position.rotateY(phi);
 		direction = direction.rotateZ(theta);
-		position = position.rotateZ(theta) + G4ThreeVector(0., 0., height);
+		position = position.rotateZ(theta);// + G4ThreeVector(0., 0., height);
 		break;
 	}
 }
