@@ -80,14 +80,30 @@ public:
 	G4ThreeVector GetPhantomSize()           { return phantomSize; }
 	G4ThreeVector GetPhantomBoxMin()         { return boundingBox_Min; }
 	G4ThreeVector GetPhantomBoxMax()         { return boundingBox_Max; }
+	std::map<G4int, G4double> GetRBMratio()  { return rbmRatio;}
+	std::map<G4int, G4double> GetBSratio()   { return bsRatio;}
+	G4double GetRBMDRF(G4int idx, G4int eIdx){ return rbmDRF[idx][eIdx];}
+	G4double GetBSDRF (G4int idx, G4int eIdx){ return bsDRF[idx][eIdx];}
 private:
 
 	// private methods
 	void DataRead(G4String, G4String);
 	void MaterialRead(G4String);
 	void RBMBSRead(G4String);
-	void ColourRead();
+	void DRFRead(G4String);
+	void ColourRead(G4String);
 	void PrintMaterialInfomation();
+
+	G4int GetID(G4String str) {
+		G4String strCut = str.substr(2,str.size()-2);
+		size_t pos = 0;
+		G4String token;
+		while ((pos = strCut.find("_")) != std::string::npos) {
+			token = strCut.substr(0, pos);
+			break;
+		}
+		return atoi(token.c_str());
+	}
 
 	G4String phantomName;
 
@@ -103,6 +119,10 @@ private:
 	std::map<G4int, G4double>  volumeMap;
 	std::map<G4int, G4double>  massMap;
 	std::map<G4int, G4Colour>  colourMap;
+	std::map<G4int, G4double>  rbmRatio;
+	std::map<G4int, G4double>  bsRatio;
+	std::map<G4int, std::vector<G4double>> rbmDRF;
+	std::map<G4int, std::vector<G4double>> bsDRF;
 
 	std::map<G4int, std::vector<std::pair<G4int, G4double>>> materialIndexMap;
 	std::vector<G4int>                                       materialIndex;

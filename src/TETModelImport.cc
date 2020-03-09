@@ -42,14 +42,22 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	G4String eleFile      =  phantomName + ".ele";
 	G4String nodeFile     =  phantomName + ".node";
 	G4String materialFile =  phantomName + ".material";
+	G4String doseFile     =  phantomName + ".dose";
+	G4String boneFile     =  phantomName + ".RBMnBS";
+	G4String drfFile      =  phantomName + ".DRF";
+	G4String mtlFile      =  phantomName + ".mtl";
 
 
 	// read phantom data files (*. ele, *.node)
 	DataRead(eleFile, nodeFile);
 	// read material file (*.material)
 	MaterialRead(materialFile);
+	// read bone file (*.RBMnBS)
+	RBMBSRead(boneFile);
+	// read bone file (*.DRF)
+	DRFRead(drfFile);
 	// read colour data file (colour.dat) if this is interactive mode
-	if(ui) ColourRead();
+	if(ui) ColourRead(mtlFile);
 	// print the summary of phantom information
 	PrintMaterialInfomation();
 }
@@ -224,27 +232,73 @@ void TETModelImport::MaterialRead(G4String materialFile)
 
 }
 
-void TETModelImport::ColourRead()
+void TETModelImport::DRFRead(G4String DRFfile){
+	std::ifstream ifp;
+	ifp.open(DRFfile.c_str());
+
+	if(!ifp.is_open()) {
+		G4cerr << DRFfile << " not found!!" << G4endl;
+		return;
+	}
+
+	G4int ID;
+    G4double DRF;
+
+    for (int i=0; i<57; i++) {
+    	for (int j=0; j<25; j++) {
+    		rbmDRF[i].push_back(0);
+    		bsDRF[i].push_back(0);
+    	}
+    }
+
+    for (int i=0; i<23; i++) {
+    	ifp >> ID;
+    	for (int j=0; j<25; j++) {
+    		ifp >> DRF;
+    		rbmDRF[ID][j]=DRF;
+    	}
+
+    	for (int j=0; j<25; j++) {
+    		ifp >> DRF;
+    		bsDRF[ID][j]=DRF;
+    	}
+	}
+    ifp.close();
+}
+
+void TETModelImport::ColourRead(G4String mtlFile)
 {
 	// Read colour data file (colour.dat)
 	//
 	std::ifstream ifpColour;
 
-	ifpColour.open("colour.dat");
+	ifpColour.open(mtlFile);
 	if(!ifpColour.is_open()) {
 		// exception for the case when there is no colour.dat file
 		G4Exception("TETModelImport::DataRead","",FatalErrorInArgument,
-				G4String("Colour data file was not found ").c_str());
+				G4String(mtlFile + " file was not found ").c_str());
 	}
 
-	G4cout << "  Opening colour data file 'colour.dat'" <<G4endl;
+	G4cout << "  Opening colour data file "+mtlFile <<G4endl;
 
 	G4int organID;
-	G4double red, green, blue, alpha;
-	while( ifpColour >> organID >> red >> green >> blue >> alpha )
-		colourMap[organID] = G4Colour(red, green, blue, alpha);
-
+	G4ThreeVector rgb;
+	G4String dump;
+	while( ifpColour >> dump ){
+		if(dump=="newmtl"){
+			ifpColour>>dump;
+			organID=GetID(dump);
+		}
+		else if(dump=="Kd"){
+			ifpColour>>rgb;
+			colourMap[organID] = G4Colour(rgb.getX(), rgb.getY(), rgb.getZ(), 0.);
+		}
+	}
 	ifpColour.close();
+	colourMap[160].SetAlpha(0.1);
+	colourMap[140].SetAlpha(0.1);
+	colourMap[141].SetAlpha(0.1);
+	colourMap[142].SetAlpha(0.1);
 }
 
 void TETModelImport::PrintMaterialInfomation()

@@ -69,7 +69,6 @@ TETPhysicsList::TETPhysicsList()
   // Gamma-Nuclear Physics
   RegisterPhysics( new GammaPhysics("gamma"));
 
-
   // EM physics
   RegisterPhysics(new G4EmLivermorePhysics());
 

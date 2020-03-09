@@ -41,12 +41,23 @@ TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* 
 	runTimer = new G4Timer;
 	std::ofstream ofs(outputFile);
 
-	auto tetMassMap = tetData->GetMassMap();
-	massMap[100] = tetMassMap[134]+tetMassMap[135]+tetMassMap[136]+tetMassMap[137];
-	massMap[200] = tetMassMap[134]+tetMassMap[135];
+	if(tetData->DoseWasOrganized()){
+		massMap = tetData->GetDoseMassMap();
+		for(auto itr:massMap) nameMap[itr.first] = tetData->GetDoseName(itr.first);
+	}
+	else{
+		massMap = tetData->GetMassMap();
+		for(auto itr:massMap) nameMap[itr.first] = tetData->GetMaterial(itr.first)->GetName();
+	}
+
+//	nameMap[-6] = "RBM(DRF)_test"; nameMap[-5] = "BS(DRF)_test";
+	nameMap[-4] = "RBM(DRF)"; nameMap[-3] = "BS(DRF)";
+	nameMap[-2] = "RBM"     ; nameMap[-1] = "BS"     ;
 
 	ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
-	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\twhole L\t\tsens L\t\t"<<G4endl;
+	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
+	for(auto name:nameMap) ofs<<std::to_string(name.first)+"_"+name.second<<"\t"<<massMap[name.first]/g<<"\t";
+	ofs<<"eff. dose (DRF)"<<"\t\t"<< "eff. dose"<<G4endl;
 	ofs.close();
 }
 
@@ -107,6 +118,7 @@ void TETRunAction::EndOfRunAction(const G4Run* aRun)
 
 	// set doses
 	SetDoses();
+	SetEffectiveDose();
 
 	// print by G4cout
 	if(isExternal) PrintResultExternal(G4cout);
@@ -123,22 +135,71 @@ void TETRunAction::EndOfRunAction(const G4Run* aRun)
 
 void TETRunAction::SetDoses()
 {
-	doseValues.clear(); doseErrors.clear();
+	doses.clear();
 	EDEPMAP edepMap = *fRun->GetEdepMap();
 
-	for(G4int i=100;i<300;i+=100){
-		G4double meanDose    = edepMap[i].first  / massMap[i] / numOfEvent;
-		G4double squareDoese = edepMap[i].second / (massMap[i]*massMap[i]);
+	for(G4int i=-4;i<0;i++){
+		G4double meanDose = edepMap[i].first / numOfEvent;
+		G4double squareDoese = edepMap[i].second;
 		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
 		G4double relativeE   = sqrt(variance)/meanDose;
-		doseValues.push_back(meanDose);
-		doseErrors.push_back(relativeE);
+		doses[i] = std::make_pair(meanDose, relativeE);
+	}
+	doses[-1].first *= 1e12;
+	doses[-2].first *= 1e12;
+
+	for(auto itr : massMap){
+		if(itr.first<0) continue;
+		G4double meanDose    = edepMap[itr.first].first  / itr.second / numOfEvent;
+		G4double squareDoese = edepMap[itr.first].second / (itr.second*itr.second);
+		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
+		G4double relativeE   = sqrt(variance)/meanDose;
+		doses[itr.first] = std::make_pair(meanDose*1e12, relativeE);
 	}
 }
 
 void TETRunAction::SetEffectiveDose()
 {
+	G4int group1_RBM = -2;
+	G4int group1_RBM_DRF = -4;
+	G4int group4_BS = -1;
+	G4int group4_BS_DRF = -3;
+	G4int ET1(21), ET2(22);
+	std::vector<G4int> group1 = {2, 4, 5, 7};
+	std::vector<G4int> group2 = {8};
+	std::vector<G4int> group3 = {9, 11, 13, 14};
+	std::vector<G4int> group4 = {16, 17, 19};
+	std::vector<G4int> remainder = {20, 25, 26, 27, 28, 38, 30, 31, 32, 33, 35, 36}; //muscle replaced by RST
 
+	std::vector<std::pair<G4double, G4double>> effDoseComp;
+	effDoseComp.push_back(doses[group1_RBM]);
+	for(G4int idx:group1)	effDoseComp.push_back(doses[idx]);
+	for(G4int idx:group2)	effDoseComp.push_back(doses[idx]);
+	for(G4int idx:group3)	effDoseComp.push_back(doses[idx]);
+	for(G4int idx:group4)	effDoseComp.push_back(doses[idx]);
+	effDoseComp.push_back(doses[group4_BS]);
+	for(G4int idx:remainder)	effDoseComp.push_back(doses[idx]);
+	effDoseComp.push_back(doses[ET1]); effDoseComp.push_back(doses[ET2]);
+
+	std::vector<G4double> ratios;
+    for(size_t i=0;i<group1.size()+1;i++) ratios.push_back(0.12);
+    for(size_t i=0;i<group2.size();i++) ratios.push_back(0.08);
+    for(size_t i=0;i<group3.size();i++) ratios.push_back(0.04);
+    for(size_t i=0;i<group4.size()+1;i++) ratios.push_back(0.01);
+    for(size_t i=0;i<remainder.size();i++) ratios.push_back(0.12/(G4double)(remainder.size()+1));
+    ratios.push_back(0.12/(G4double)(remainder.size()+1)*0.001);
+    ratios.push_back(0.12/(G4double)(remainder.size()+1)*0.999);
+
+    std::vector<std::pair<G4double, G4double>> effDoseComp_DRF(effDoseComp);
+	effDoseComp_DRF[0] = doses[group1_RBM_DRF];
+	effDoseComp_DRF[13] = doses[group4_BS_DRF];
+
+	G4double sum(0.);
+	for(auto r:ratios) sum += r;
+	G4cout<<"Sum of the ratios -->"<<sum<<G4endl;
+
+	effective = PropagateError(effDoseComp, ratios);
+	effective_DRF = PropagateError(effDoseComp_DRF, ratios);
 }
 
 void TETRunAction::PrintResultExternal(std::ostream &out)
@@ -149,26 +210,43 @@ void TETRunAction::PrintResultExternal(std::ostream &out)
 	EDEPMAP edepMap = *fRun->GetEdepMap();
 
 	out << G4endl
-	    << "=====================================================================" << G4endl
+	    << "=======================================================================" << G4endl
 	    << " Run #" << runID << " / Number of event processed : "<< numOfEvent     << G4endl
-	    << "=====================================================================" << G4endl
+	    << "=======================================================================" << G4endl
 		<< " Init time: " << initTimer->GetRealElapsed() << " s / Run time: "<< runTimer->GetRealElapsed()<<" s"<< G4endl
-	    << "=====================================================================" << G4endl
+	    << "=======================================================================" << G4endl
 	    << setw(27) << "organ ID| "
 		<< setw(15) << "Organ Mass (g)"
-		<< setw(15) << "Dose (Gy*cm2)"
+		<< setw(15) << "Dose (pGy*cm2)"
 		<< setw(15) << "Relative Error" << G4endl;
 
 	out.precision(3);
 
-	for(G4int i=0;i<2;i++){
-		out << setw(25) << i<< "| ";
-		out	<< setw(15) << fixed      << massMap[(i+1)*100]/g;
-		out	<< setw(15) << scientific << doseValues[i]/(joule/kg)*beamArea/cm2;
-		out	<< setw(15) << fixed      << doseErrors[i] << G4endl;
+//	for(G4int i=-4;i<0;i++){
+//		out << setw(25) << nameMap[i] << "| ";
+//		out << setw(30) << scientific << doses[i].first/(joule/kg)*beamArea/cm2<< setw(15) << fixed << doses[i].second << G4endl;
+//	}
+
+	for(auto itr : massMap){
+		if(tetData->DoseWasOrganized()||itr.first<0) out << setw(25) << nameMap[itr.first]<< "| ";
+		else                            out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
+		out	<< setw(15) << fixed      << itr.second/g;
+		out	<< setw(15) << scientific << doses[itr.first].first/(joule/kg)*beamArea/cm2;
+		out	<< setw(15) << fixed      << doses[itr.first].second << G4endl;
 	}
 
-	out << "=====================================================================" << G4endl << G4endl;
+	//effective dose
+	out << setw(25) << "eff. dose (DRF)" << "| ";
+	out	<< setw(15) << " "                ;
+	out	<< setw(15) << scientific << effective_DRF.first/(joule/kg)*beamArea/cm2;
+	out	<< setw(15) << fixed      << effective_DRF.second << G4endl;
+
+	out << setw(25) << "eff. dose" << "| ";
+	out	<< setw(15) << " "                ;
+	out	<< setw(15) << scientific << effective.first/(joule/kg)*beamArea/cm2;
+	out	<< setw(15) << fixed      << effective.second << G4endl;
+
+	out << "=======================================================================" << G4endl << G4endl;
 }
 
 void TETRunAction::PrintResultInternal(std::ostream &out)
@@ -178,7 +256,44 @@ void TETRunAction::PrintResultInternal(std::ostream &out)
 	using namespace std;
 	EDEPMAP edepMap = *fRun->GetEdepMap();
 
+	out << G4endl
+	    << "=======================================================================" << G4endl
+	    << " Run #" << runID << " / Number of event processed : "<< numOfEvent     << G4endl
+	    << "=======================================================================" << G4endl
+		<< " Init time: " << initTimer->GetRealElapsed() << " s / Run time: "<< runTimer->GetRealElapsed()<<" s"<< G4endl
+	    << "=======================================================================" << G4endl
+	    << setw(27) << "organ ID| "
+		<< setw(15) << "Organ Mass (g)"
+		<< setw(15) << "SAF (kg-1)"
+		<< setw(15) << "Relative Error" << G4endl;
 
+	out.precision(3);
+
+	for(G4int i=-4;i<0;i++){
+		out << setw(27) << nameMap[i] << "| ";
+		out << setw(30) << scientific << doses[i].first/primaryEnergy/(1./kg)<< setw(15) << fixed << doses[i].second << G4endl;
+	}
+
+	for(auto itr : massMap){
+		if(tetData->DoseWasOrganized()) out << setw(25) << tetData->GetDoseName(itr.first)<< "| ";
+		else                            out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
+		out	<< setw(15) << fixed      << itr.second/g;
+		out	<< setw(15) << scientific << doses[itr.first].first/primaryEnergy/(1./kg);
+		out	<< setw(15) << fixed      << doses[itr.first].second << G4endl;
+	}
+
+	//effective dose
+	out << setw(25) << "eff. dose (DRF)" << "| ";
+	out	<< setw(15) << " "                ;
+	out	<< setw(15) << scientific << effective_DRF.first/primaryEnergy/(1./kg);
+	out	<< setw(15) << fixed      << effective_DRF.second << G4endl;
+
+	out << setw(25) << "eff. dose" << "| ";
+	out	<< setw(15) << " "                ;
+	out	<< setw(15) << scientific << effective.first/primaryEnergy/(1./kg);
+	out	<< setw(15) << fixed      << effective.second << G4endl;
+
+	out << "=======================================================================" << G4endl << G4endl;
 }
 
 void TETRunAction::PrintLineExternal(std::ostream &out)
@@ -191,34 +306,42 @@ void TETRunAction::PrintLineExternal(std::ostream &out)
 	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
 		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
 
-	for(G4int i=0;i<2;i++){
-		out << doseValues[i]*1e12/(joule/kg) * beamArea/cm2 <<"\t" << doseErrors[i] << "\t";
+	for(auto itr:doses){
+		out << itr.second.first/(joule/kg) * beamArea/cm2 <<"\t" << itr.second.second << "\t";
 	}
+	out<<effective_DRF.first/(joule/kg) * beamArea/cm2<< "\t" <<effective_DRF.second <<"\t";
+	out<<effective.first/(joule/kg) * beamArea/cm2<< "\t" <<effective.second ;
 	out<<G4endl;
 }
 
 void TETRunAction::PrintLineInternal(std::ostream &out)
 {
 
+	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
+		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
+
+	for(auto itr:doses){
+		out << itr.second.first/primaryEnergy/(1./kg) <<"\t" << itr.second.second << "\t";
+	}
+	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
+		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
+
+	for(auto itr:doses){
+		out << itr.second.first/primaryEnergy/(1./kg) <<"\t" << itr.second.second << "\t";
+	}
+	out<<G4endl;
 }
 
-std::pair<G4double, G4double> PropagateError(std::vector<G4double> doses,
-										     std::vector<G4double> errors,
+std::pair<G4double, G4double> TETRunAction::PropagateError(std::vector<std::pair<G4double, G4double>> doseVec,
 											 std::vector<G4double> ratio)
 {
 	typedef std::pair<G4double, G4double> VALUE;
 
-	if(doses.size()!=errors.size()){
-		G4Exception("TETRunAction::PropagateError","",JustWarning,
-				G4String("      wrong input " ).c_str());
-		return VALUE(0, 0);
-	}
-
 	//normalize the ratio
-	if(doses.size()!=ratio.size()){
+	if(doseVec.size()!=ratio.size()){
 		G4Exception("TETRunAction::PropagateError","",JustWarning,
 				G4String("      uniform ratio was applied " ).c_str());
-		std::vector<G4double> uniform(doses.size(),1./(G4int)doses.size());
+		std::vector<G4double> uniform(doseVec.size(),1./(G4int)doseVec.size());
 		ratio = uniform;
 	}else{
 		G4double sum(0.);
@@ -228,12 +351,16 @@ std::pair<G4double, G4double> PropagateError(std::vector<G4double> doses,
 
 	//set mean dose
 	G4double value(0.);
-	for(size_t i=0;i<doses.size();i++) value += doses[i]*ratio[i];
+	for(size_t i=0;i<doseVec.size();i++) value += doseVec[i].first*ratio[i];
 
 	//set error
 	G4double error(0.);
-	for(size_t i=0;i<doses.size();i++) error += pow(doses[i]*errors[i]*ratio[i],2);
+	for(size_t i=0;i<doseVec.size();i++){
+		if(std::isnan(doseVec[i].second)) continue;
+		error += pow(doseVec[i].first*doseVec[i].second*ratio[i],2);
+	}
 	error = sqrt(error);
+	error /= value;
 
 	return VALUE(value, error);
 }
