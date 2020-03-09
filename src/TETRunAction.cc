@@ -30,6 +30,9 @@
 
 #include "TETRunAction.hh"
 #include "G4Timer.hh"
+#include "G4Proton.hh"
+#include "G4Alpha.hh"
+#include "G4Neutron.hh"
 #include <iostream>
 
 TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
@@ -123,7 +126,8 @@ void TETRunAction::EndOfRunAction(const G4Run* aRun)
 	beamArea        = fRun->GetBeamArea();
 	isExternal      = fRun->GetIsExternal();
 
-
+	G4ParticleDefinition* particle = G4ParticleTable::GetParticleTable()->FindParticle(primaryParticle);
+	weight = GetRadiationWeighting(particle, primaryEnergy);
 	// Print the run result by G4cout and std::ofstream
 	//
 
@@ -166,6 +170,8 @@ void TETRunAction::SetDoses()
 		G4double relativeE   = sqrt(variance)/meanDose;
 		doses[itr.first] = std::make_pair(meanDose*1e12, relativeE);
 	}
+
+	for(auto itr:doses) itr.second.first *= weight;
 }
 
 void TETRunAction::SetEffectiveDose()
@@ -378,3 +384,31 @@ std::pair<G4double, G4double> TETRunAction::PropagateError(std::vector<std::pair
 
 	return VALUE(value, error);
 }
+
+G4double TETRunAction::GetRadiationWeighting(G4ParticleDefinition* _particle, G4double _energy)
+{
+	G4double weightingFactor = 1.0; // for Gamma and Electron, Note that Muons need to be considered later.
+
+	if(_particle == G4Proton::Proton()) { //charged pions need to be considered later.
+		weightingFactor = 2.0;
+	}
+	else if(_particle == G4Alpha::Alpha()) { // fission fragments and heavy ions need to be considered later.
+		weightingFactor = 20.0;
+	}
+	else if(_particle == G4Neutron::Neutron()) { //neutron
+		if( _energy < 1.0) {// under 1 MeV
+			weightingFactor = 2.5 + 18.2*exp(-(pow((log(_energy)),2))/6);
+		}
+		else if(_energy <= 50) { // From 1 MeV to 50 MeV
+			weightingFactor = 5.0 + 17.0*exp(-(pow((log(2.0*_energy)),2))/6);
+		}
+		else {// more than 50 MeV
+			weightingFactor = 2.5 + 3.25*exp(-(pow((log(0.04*_energy)),2))/6);
+		}
+	}
+
+	return weightingFactor;
+
+}
+
+
