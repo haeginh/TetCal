@@ -179,7 +179,7 @@ void TETRunAction::SetEffectiveDose()
 	std::vector<G4int> group2 = {8};
 	std::vector<G4int> group3 = {9, 11, 13, 14};
 	std::vector<G4int> group4 = {16, 17, 19};
-	std::vector<G4int> remainder = {20, 25, 26, 27, 28, 38, 30, 31, 32, 33, 35, 36}; //muscle replaced by RST
+	std::vector<G4int> remainder = {20, 25, 26, 27, 28, 29, 30, 31, 32, 33, 35, 36};
 
 	std::vector<std::pair<G4double, G4double>> effDoseComp;
 	effDoseComp.push_back(doses[group1_RBM]);
