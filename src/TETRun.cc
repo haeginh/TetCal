@@ -35,12 +35,14 @@ TETRun::TETRun(TETModelImport* tetData)
 {
 	fCollID
 	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/eDep");
+	fCollID_DRF
+	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/DRF");
 
 	organ2dose = tetData->GetDoseMap();
 
 	auto massMap  = tetData->GetMassMap();
-	auto rbmRatio = tetData->GetRBMmap();
-	auto bsRatio  = tetData->GetBSmap();
+	auto rbmRatio = tetData->GetRBMratio();
+	auto bsRatio  = tetData->GetBSratio();
 
 	for(auto rbm:rbmRatio)
 		rbmFactor[rbm.first] = rbm.second / massMap[rbm.first];
@@ -62,10 +64,18 @@ void TETRun::RecordEvent(const G4Event* event)
 	G4HCofThisEvent* HCE = event->GetHCofThisEvent();
 	if(!HCE) return;
 
+	//RBM doses
+	G4THitsMap<G4double>* evtMap_DRF =
+			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID_DRF));
+	auto doseMap_RBM = *evtMap_DRF->GetMap();
+	for(auto itr:doseMap_RBM){
+		edepMap[-4+itr.first].first  += *itr.second;
+		edepMap[-4+itr.first].second += (*itr.second)*(*itr.second);
+	}
+
+	//other doses
 	G4THitsMap<G4double>* evtMap =
 			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID));
-
-	// sum up the energy deposition and the square of it
 	auto doseMap = *evtMap->GetMap();
 	if(!doseOrganized){
 		for(auto itr:doseMap){
@@ -100,7 +110,7 @@ void TETRun::RecordEvent(const G4Event* event)
 		if(doseMap.find(bs.first)==doseMap.end()) continue;
 		edepSum[-1] += *doseMap[bs.first] * bs.second;
 	}
-
+	//organize
 	for(auto edep:edepSum){
 		edepMap[edep.first].first += edep.second;                 //sum
 		edepMap[edep.first].second += edep.second * edep.second;  //square sum
@@ -118,6 +128,7 @@ void TETRun::Merge(const G4Run* run)
 	primaryE = localRun->primaryE;
 	beamArea = localRun->beamArea;
 	isExternal = localRun->isExternal;
+
 	for(auto itr : localMap){
 		edepMap[itr.first].first  += itr.second.first;
 		edepMap[itr.first].second += itr.second.second;
@@ -125,9 +136,4 @@ void TETRun::Merge(const G4Run* run)
 
 	G4Run::Merge(run);
 }
-
-
-
-
-
 

@@ -81,6 +81,7 @@ public:
 private:
     EDEPMAP edepMap;
     G4int   fCollID;
+    G4int   fCollID_DRF;
     G4String primary;
     G4String dir;
     G4double primaryE;

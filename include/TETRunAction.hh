@@ -73,8 +73,7 @@ public:
 	void PrintLineExternal(std::ostream &out);
 	void PrintLineInternal(std::ostream &out);
 
-	std::pair<G4double, G4double> PropagateError(std::vector<G4double> doses,
-												 std::vector<G4double> errors,
+	std::pair<G4double, G4double> PropagateError(std::vector<std::pair<G4double, G4double>> doses,
 												 std::vector<G4double> ratio);
 
 private:
@@ -94,9 +93,9 @@ private:
 	G4bool   isExternal;
 	G4bool   sameToPrev;
 	std::map<G4int, G4double> massMap;
-	std::vector<G4double>     doseValues;
-	std::vector<G4double>     doseErrors;
-	G4double effectiveDose, effectiveError;
+	std::map<G4int, std::pair<G4double,G4double>> doses;
+	std::map<G4int, G4String> nameMap;
+	std::pair<G4double, G4double> effective, effective_DRF;
 };
 
 #endif
