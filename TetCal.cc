@@ -61,8 +61,8 @@
 #include "G4VModularPhysicsList.hh"
 
 void PrintUsage(){
-	G4cerr<< "Usage: ./External -m [MACRO] -o [OUTPUT] -f (option for MRCP-AF phantom)"  <<G4endl;
-	G4cerr<< "Example: ./External -m run.mac -o run.out (-f)" <<G4endl;
+	G4cerr<< "Usage: ./TetCal -m [MACRO] -o [OUTPUT] -p [phantom name]"  <<G4endl;
+	G4cerr<< "Example: ./TetCal -m sample.in -o run.out -p ./phantoms/00M" <<G4endl;
 }
 
 int main(int argc,char** argv) 

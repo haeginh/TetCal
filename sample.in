@@ -8,18 +8,14 @@
 /run/initialize
 
 # Set the nps
-/external/dir AP
 /gun/particle gamma
+/external/dir AP
 /gun/energy 0.1 MeV
-/run/beamOn 100000
+/run/beamOn 1E7
 /gun/energy 1 MeV
-/run/beamOn 100000
 /gun/energy 10 MeV
-/run/beamOn 100000
 /gun/energy 100 MeV
-/run/beamOn 100000
 /gun/energy 1000 MeV
-/run/beamOn 100000
 
 #/internal/source "1 2 3 4"
 #/run/beamOn 10000
