@@ -29,7 +29,7 @@ void InternalSource::SetSource(std::vector<G4int> sources)
 	//Cout
 	std::stringstream ss;
 	ss<<"Set source organs for ";
-	for(auto s:sourceSet) ss<<s<<" ";
+	for(auto source:sourceSet) ss<<source<<" ";
 
 	//Extract source tet IDs
 	for(G4int i=0;i<tetData->GetNumTetrahedron();i++){

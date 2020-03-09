@@ -23,74 +23,49 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETRun.hh
-// \file   MRCP_GEANT4/External/include/TETRun.hh
+// TETActionInitialization.hh
+// \file   MRCP_GEANT4/External/include/TETActionInitialization.hh
 // \author Haegin Han
 //
 
-#ifndef TETRun_h
-#define TETRun_h 1
+#ifndef ActionInitialization_h
+#define ActionInitialization_h 1
 
-#include "G4Run.hh"
-#include "G4Event.hh"
-#include "G4THitsMap.hh"
-#include "G4SDManager.hh"
-#include "TETModelImport.hh"
+#include "G4VUserActionInitialization.hh"
+#include "G4String.hh"
 
-typedef std::map<G4int, std::pair<G4double, G4double>> EDEPMAP;
+#include "PrimaryGeneratorAction.hh"
+#include "RunAction.hh"
+#include "TETSteppingAction.hh"
+
+class TETModelImport;
 
 // *********************************************************************
-// This is G4Run class that sums up energy deposition from each event.
-// The sum of the square of energy deposition was also calculated to
-// produce the relative error of the dose.
-// -- RecordEvent: Sum up the energy deposition and the square of it.
-//                 The sums for each organ were saved as the form of
-//                 std::map.
-// -- Merge: Merge the data calculated in each thread.
+// This UserActionInitialization class initializes UserAction classes
+// -- BuildForMaster: instantiate UserRunAction class to be used by
+//                    G4MTRunManager. This method is not invoked in
+//                    the sequential mode.
+// -- Build: instantiate UserPrimaryGeneratorAction, UserRunAction, and
+//           UserSteppingAction classes.
 // *********************************************************************
 
-//enum BEAMDIR {AP, PA, LLAT, RLAT, ROT, ISO};
-
-class TETRun : public G4Run 
+class ActionInitialization : public G4VUserActionInitialization
 {
 public:
-	TETRun(TETModelImport* tetData);
-	virtual ~TETRun();
+	ActionInitialization(TETModelImport* tetData,
+			                G4String        outputFileName,
+							G4Timer*        initTimer);
+	virtual ~ActionInitialization();
 
-	virtual void RecordEvent(const G4Event*);
-	void ConstructMFD(const G4String& mfdName);
-    virtual void Merge(const G4Run*);
-
-    EDEPMAP* GetEdepMap() {return &edepMap;};
-    G4String GetParticleName() {return primary;}
-    G4String GetBeamDirName()  {return dir;}
-    G4double GetBeamEnergy()   {return primaryE;}
-    G4double GetBeamArea()     {return beamArea;}
-    G4bool   GetIsExternal()   {return isExternal;}
-
-
-    void SetPrimary(G4String _primary, G4String _dir, G4double _primaryE, G4double _beamArea, G4bool _isExternal)
-    {
-    	primary = _primary;
-    	dir = _dir;
-    	primaryE = _primaryE;
-    	beamArea = _beamArea;
-    	isExternal = _isExternal;
-    }
+	virtual void BuildForMaster() const;
+	virtual void Build() const;
 
 private:
-    EDEPMAP edepMap;
-    G4int   fCollID;
-    G4int   fCollID_DRF;
-    G4String primary;
-    G4String dir;
-    G4double primaryE;
-    G4double beamArea;
-    G4bool   isExternal;
-    std::map<G4int, std::vector<G4int>>   organ2dose;
-	std::map<G4int, G4double>  rbmFactor;
-	std::map<G4int, G4double>  bsFactor;
-	G4bool doseOrganized;
+	TETModelImport* tetData;
+	G4String output;
+	G4Timer* initTimer;
 };
 
 #endif
+
+    

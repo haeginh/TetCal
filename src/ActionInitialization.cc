@@ -23,39 +23,30 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETPhysicsList.hh
-// \file   MRCP_GEANT4/External/include/TETPhysicsList.hh
+// ActionInitialization.cc
+// \file   MRCP_GEANT4/External/src/ActionInitialization.cc
 // \author Haegin Han
 //
 
-#ifndef TETPhysicsList_h
-#define TETPhysicsList_h 1
+#include "ActionInitialization.hh"
 
-#include "G4VModularPhysicsList.hh"
-#include "globals.hh"
-#include "G4SystemOfUnits.hh"
-#include "G4UnitsTable.hh"
-#include "G4EmLivermorePhysics.hh"
-#include "G4DecayPhysics.hh"
-#include "G4RadioactiveDecayPhysics.hh"
+ActionInitialization::ActionInitialization(TETModelImport* _tetData, G4String _output, G4Timer* _init)
+ : G4VUserActionInitialization(), tetData(_tetData), output(_output), initTimer(_init)
+{}
 
-class G4VPhysicsConstructor;
+ActionInitialization::~ActionInitialization()
+{}
 
-// *********************************************************************
-// Please note that only basic physics were registered in this
-// ModularPhysicsList, and rather precise models were used for the
-// production of dose coefficients provided in the ICRP Publication.
-// -- SetCuts: cut values were set as default values. This can be
-//             modified according to specific purposes or applications.
-// *********************************************************************
-
-class TETPhysicsList: public G4VModularPhysicsList
+void ActionInitialization::BuildForMaster() const
 {
-public:
-	TETPhysicsList();
-	virtual ~TETPhysicsList();
+	SetUserAction(new RunAction(tetData, output, initTimer));
+}
 
-	virtual void SetCuts();
-};
+void ActionInitialization::Build() const
+{
+	// initialise UserAction classes
+	SetUserAction(new PrimaryGeneratorAction(tetData));
+	SetUserAction(new RunAction(tetData, output, initTimer));
+	SetUserAction(new TETSteppingAction);
+}  
 
-#endif

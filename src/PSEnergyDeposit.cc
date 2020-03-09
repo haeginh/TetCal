@@ -28,16 +28,16 @@
 // \author Haegin Han
 //
 
-#include "TETPSEnergyDeposit.hh"
+#include "../include/PSEnergyDeposit.hh"
 
-TETPSEnergyDeposit::TETPSEnergyDeposit(G4String name, TETModelImport* _tetData)
+PSEnergyDeposit::PSEnergyDeposit(G4String name, TETModelImport* _tetData)
   :G4PSEnergyDeposit(name), tetData(_tetData)
 {}
 
-TETPSEnergyDeposit::~TETPSEnergyDeposit()
+PSEnergyDeposit::~PSEnergyDeposit()
 {}
 
-G4int TETPSEnergyDeposit::GetIndex(G4Step* aStep)
+G4int PSEnergyDeposit::GetIndex(G4Step* aStep)
 {
 	// return the organ ID (= material index)
 	G4int copyNo = aStep->GetPreStepPoint()->GetTouchable()->GetCopyNumber();

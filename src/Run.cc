@@ -28,9 +28,9 @@
 // \author Haegin Han
 //
 
-#include "TETRun.hh"
+#include "../include/Run.hh"
 
-TETRun::TETRun(TETModelImport* tetData)
+Run::Run(TETModelImport* tetData)
 :G4Run()
 {
 	fCollID
@@ -52,12 +52,12 @@ TETRun::TETRun(TETModelImport* tetData)
 	doseOrganized = tetData->DoseWasOrganized();
 }
 
-TETRun::~TETRun()
+Run::~Run()
 {
 	edepMap.clear();
 }
 
-void TETRun::RecordEvent(const G4Event* event)
+void Run::RecordEvent(const G4Event* event)
 {
 	// Hits collections
 	//
@@ -117,9 +117,9 @@ void TETRun::RecordEvent(const G4Event* event)
 	}
 }
 
-void TETRun::Merge(const G4Run* run)
+void Run::Merge(const G4Run* run)
 {
-	const TETRun* localRun = static_cast<const TETRun*>(run);
+	const Run* localRun = static_cast<const Run*>(run);
 	// merge the data from each thread
 	EDEPMAP localMap = localRun->edepMap;
 

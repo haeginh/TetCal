@@ -28,17 +28,17 @@
 // \author Haegin Han
 //
 
-#ifndef TETPrimaryGeneratorAction_h
-#define TETPrimaryGeneratorAction_h 1
+#ifndef PrimaryGeneratorAction_h
+#define PrimaryGeneratorAction_h 1
 
 #include "G4VUserPrimaryGeneratorAction.hh"
-#include "TETPrimaryMessenger.hh"
 #include "globals.hh"
 #include "G4Event.hh"
 #include "G4ParticleGun.hh"
 #include "G4SystemOfUnits.hh"
 #include <vector>
 
+#include "PrimaryMessenger.hh"
 #include "SourceGenerator.hh"
 
 // *********************************************************************
@@ -49,11 +49,11 @@
 // *********************************************************************
 class TETModelImport;
 
-class PrimaryGeneratorAction_general : public G4VUserPrimaryGeneratorAction
+class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
   public:
-	PrimaryGeneratorAction_general(TETModelImport* tetData);
-	virtual ~PrimaryGeneratorAction_general();
+	PrimaryGeneratorAction(TETModelImport* tetData);
+	virtual ~PrimaryGeneratorAction();
 
     //GENERAL
   public:
@@ -72,7 +72,7 @@ class PrimaryGeneratorAction_general : public G4VUserPrimaryGeneratorAction
   private:
     TETModelImport*      tetData;
     G4ParticleGun*       fParticleGun;
-    TETPrimaryMessenger* fMessenger;
+    PrimaryMessenger* fMessenger;
     SourceGenerator*       fSourceGenerator;
     ExternalBeam*       fExternal;
     InternalSource*       fInternal;

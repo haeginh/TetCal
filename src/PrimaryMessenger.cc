@@ -27,15 +27,15 @@
 // \author Haegin Han
 //
 
-#include "TETPrimaryGeneratorAction.hh"
-#include "TETRunAction.hh"
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithAString.hh"
 #include "G4RunManager.hh"
 #include <sstream>
 #include <vector>
+#include "../include/PrimaryGeneratorAction.hh"
+#include "../include/RunAction.hh"
 
-TETPrimaryMessenger::TETPrimaryMessenger(TETPrimaryGeneratorAction* _primary)
+PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
 :G4UImessenger(), fPrimary(_primary)
 {
 	fExternalDir = new G4UIdirectory("/external/");
@@ -47,14 +47,14 @@ TETPrimaryMessenger::TETPrimaryMessenger(TETPrimaryGeneratorAction* _primary)
 	fSurfaceSourceCmd = new G4UIcmdWithAString("/internal/surface", this);
 }
 
-TETPrimaryMessenger::~TETPrimaryMessenger() {
+PrimaryMessenger::~PrimaryMessenger() {
 	delete fExternalDir;
 	delete fBeamDirCmd;
 	delete fInternalDir;
 	delete fSourceOrganCmd;
 }
 
-void TETPrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
+void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
 	if(command == fBeamDirCmd){
 		fPrimary->SetExternalBeam();

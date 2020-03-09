@@ -23,48 +23,72 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETActionInitialization.hh
-// \file   MRCP_GEANT4/External/include/TETActionInitialization.hh
-// \author Haegin Han
+/// \file hadronic/Hadr03/src/PhysicsList.cc
+/// \brief Implementation of the PhysicsList class
 //
+// $Id: PhysicsList.cc 70268 2013-05-28 14:17:50Z maire $
 
-#ifndef TETActionInitialization_h
-#define TETActionInitialization_h 1
 
-#include "G4VUserActionInitialization.hh"
-#include "G4String.hh"
-#include "TETRunAction.hh"
-#include "TETSteppingAction.hh"
-#include "TETPrimaryGeneratorAction.hh"
+#include "../include/PhysicsList.hh"
 
-class TETModelImport;
+#include "G4SystemOfUnits.hh"
+#include "G4UnitsTable.hh"
 
-// *********************************************************************
-// This UserActionInitialization class initializes UserAction classes
-// -- BuildForMaster: instantiate UserRunAction class to be used by
-//                    G4MTRunManager. This method is not invoked in
-//                    the sequential mode.
-// -- Build: instantiate UserPrimaryGeneratorAction, UserRunAction, and
-//           UserSteppingAction classes.
-// *********************************************************************
+#include "HadronElasticPhysicsHP.hh"
+#include "G4HadronPhysicsFTFP_BERT_HP.hh"
+#include "G4IonPhysics.hh"
+//#include "G4IonINCLXXPhysics.hh"
+#include "GammaPhysics.hh"
 
-class TETActionInitialization : public G4VUserActionInitialization
+#include "G4EmLivermorePhysics.hh"
+#include "G4DecayPhysics.hh"
+#include "G4RadioactiveDecayPhysics.hh"
+
+
+PhysicsList::PhysicsList()
+:G4VModularPhysicsList()
 {
-public:
-	TETActionInitialization(TETModelImport* tetData,
-			                G4String        outputFileName,
-							G4Timer*        initTimer);
-	virtual ~TETActionInitialization();
+  G4int verb = 0;
+  SetVerboseLevel(verb);
 
-	virtual void BuildForMaster() const;
-	virtual void Build() const;
+  //add new units
+  //
+  new G4UnitDefinition( "millielectronVolt", "meV", "Energy", 1.e-3*eV);
+  new G4UnitDefinition( "mm2/g",  "mm2/g", "Surface/Mass", mm2/g);
+  new G4UnitDefinition( "um2/mg", "um2/mg","Surface/Mass", um*um/mg);
 
-private:
-	TETModelImport* tetData;
-	G4String output;
-	G4Timer* initTimer;
-};
+  // Hadron Elastic scattering
+  RegisterPhysics( new HadronElasticPhysicsHP(verb) );
 
-#endif
+  // Hadron Inelastic Physics
+  RegisterPhysics( new G4HadronPhysicsFTFP_BERT_HP(verb));
 
-    
+  // Ion Physics
+  RegisterPhysics( new G4IonPhysics(verb));
+
+  // Gamma-Nuclear Physics
+  RegisterPhysics( new GammaPhysics("gamma"));
+
+  // EM physics
+  RegisterPhysics(new G4EmLivermorePhysics());
+
+  // Decay
+  RegisterPhysics(new G4DecayPhysics());
+
+  // Radioactive decay
+  RegisterPhysics(new G4RadioactiveDecayPhysics());
+}
+
+
+PhysicsList::~PhysicsList()
+{ }
+
+
+void PhysicsList::SetCuts()
+{
+  SetCutValue(1*mm, "proton");
+  SetCutValue(1*mm, "e-");
+  SetCutValue(1*mm, "e+");
+  SetCutValue(1*mm, "gamma");
+}
+

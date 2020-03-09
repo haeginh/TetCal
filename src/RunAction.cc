@@ -28,14 +28,14 @@
 // \author Haegin Han
 //
 
-#include "TETRunAction.hh"
 #include "G4Timer.hh"
 #include "G4Proton.hh"
 #include "G4Alpha.hh"
 #include "G4Neutron.hh"
 #include <iostream>
+#include "../include/RunAction.hh"
 
-TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
+RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
 :tetData(_tetData), fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0),
  primaryEnergy(-1.), beamArea(-1.), isExternal(true)
 {
@@ -64,18 +64,18 @@ TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* 
 	ofs.close();
 }
 
-TETRunAction::~TETRunAction()
+RunAction::~RunAction()
 {}
 
-G4Run* TETRunAction::GenerateRun()
+G4Run* RunAction::GenerateRun()
 {
 	// generate run
-	fRun = new TETRun(tetData);
+	fRun = new Run(tetData);
 	return fRun;
 }
 
 
-void TETRunAction::BeginOfRunAction(const G4Run* aRun)
+void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
 	// print the progress at the interval of 10%
 	numOfEvent=aRun->GetNumberOfEventToBeProcessed();
@@ -97,8 +97,8 @@ void TETRunAction::BeginOfRunAction(const G4Run* aRun)
 		runTimer->Start();
 	}
 
-	const TETPrimaryGeneratorAction* primary =
-			dynamic_cast<const TETPrimaryGeneratorAction*>(G4RunManager::GetRunManager()
+	const PrimaryGeneratorAction* primary =
+			dynamic_cast<const PrimaryGeneratorAction*>(G4RunManager::GetRunManager()
 			->GetUserPrimaryGeneratorAction());
 	if(!primary) return;
 	primaryParticle = primary->GetParticleGun()->GetParticleDefinition()->GetParticleName();
@@ -110,7 +110,7 @@ void TETRunAction::BeginOfRunAction(const G4Run* aRun)
 
 }
 
-void TETRunAction::EndOfRunAction(const G4Run* aRun)
+void RunAction::EndOfRunAction(const G4Run* aRun)
 {
 	// print the result only in the Master
 	if(!isMaster) return;
@@ -148,7 +148,7 @@ void TETRunAction::EndOfRunAction(const G4Run* aRun)
 	initTimer->Start();
 }
 
-void TETRunAction::SetDoses()
+void RunAction::SetDoses()
 {
 	doses.clear();
 	EDEPMAP edepMap = *fRun->GetEdepMap();
@@ -174,7 +174,7 @@ void TETRunAction::SetDoses()
 	for(auto itr:doses) itr.second.first *= weight;
 }
 
-void TETRunAction::SetEffectiveDose()
+void RunAction::SetEffectiveDose()
 {
 	G4int group1_RBM = -2;
 	G4int group1_RBM_DRF = -4;
@@ -218,7 +218,7 @@ void TETRunAction::SetEffectiveDose()
 	effective_DRF = PropagateError(effDoseComp_DRF, ratios);
 }
 
-void TETRunAction::PrintResultExternal(std::ostream &out)
+void RunAction::PrintResultExternal(std::ostream &out)
 {
 	// Print run result
 	//
@@ -265,7 +265,7 @@ void TETRunAction::PrintResultExternal(std::ostream &out)
 	out << "=======================================================================" << G4endl << G4endl;
 }
 
-void TETRunAction::PrintResultInternal(std::ostream &out)
+void RunAction::PrintResultInternal(std::ostream &out)
 {
 	// Print run result
 	//
@@ -312,7 +312,7 @@ void TETRunAction::PrintResultInternal(std::ostream &out)
 	out << "=======================================================================" << G4endl << G4endl;
 }
 
-void TETRunAction::PrintLineExternal(std::ostream &out)
+void RunAction::PrintLineExternal(std::ostream &out)
 {
 	// Print run result
 	//
@@ -330,7 +330,7 @@ void TETRunAction::PrintLineExternal(std::ostream &out)
 	out<<G4endl;
 }
 
-void TETRunAction::PrintLineInternal(std::ostream &out)
+void RunAction::PrintLineInternal(std::ostream &out)
 {
 	// Print run result
 	//
@@ -352,7 +352,7 @@ void TETRunAction::PrintLineInternal(std::ostream &out)
 	out<<G4endl;
 }
 
-std::pair<G4double, G4double> TETRunAction::PropagateError(std::vector<std::pair<G4double, G4double>> doseVec,
+std::pair<G4double, G4double> RunAction::PropagateError(std::vector<std::pair<G4double, G4double>> doseVec,
 											 std::vector<G4double> ratio)
 {
 	typedef std::pair<G4double, G4double> VALUE;
@@ -385,7 +385,7 @@ std::pair<G4double, G4double> TETRunAction::PropagateError(std::vector<std::pair
 	return VALUE(value, error);
 }
 
-G4double TETRunAction::GetRadiationWeighting(G4ParticleDefinition* _particle, G4double _energy)
+G4double RunAction::GetRadiationWeighting(G4ParticleDefinition* _particle, G4double _energy)
 {
 	G4double weightingFactor = 1.0; // for Gamma and Electron, Note that Muons need to be considered later.
 

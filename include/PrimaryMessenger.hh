@@ -23,42 +23,36 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETPrimaryGeneratorAction.cc
-// \file   MRCP_GEANT4/External/src/TETPrimaryGeneratorAction.cc
+// TETPrimaryMessenger.cc
+// \file   MRCP_GEANT4/External/src/TETModelImport.cc
 // \author Haegin Han
-// \update
-// \
+//
 
+#ifndef PRIMARYMESSENGER_HH_
+#define PRIMARYMESSENGER_HH_ 1
 
-#include "TETPrimaryGeneratorAction.hh"
-#include <fstream>
+#include "globals.hh"
+#include "G4UImessenger.hh"
 
-TETPrimaryGeneratorAction::TETPrimaryGeneratorAction(TETModelImport* _tetData)
-:tetData(_tetData), fSourceGenerator(0)
+class G4UIdirectory;
+class G4UIcmdWithAString;
+class PrimaryGeneratorAction;
+
+class PrimaryMessenger: public G4UImessenger
 {
-	fParticleGun = new G4ParticleGun(1);
-	fMessenger   = new TETPrimaryMessenger(this);
-	fExternal    = new ExternalBeam();
-	fInternal    = new InternalSource(tetData);
+public:
+	PrimaryMessenger(PrimaryGeneratorAction* primary);
+	virtual ~PrimaryMessenger();
 
-}
+	virtual void SetNewValue(G4UIcommand*, G4String);
 
-TETPrimaryGeneratorAction::~TETPrimaryGeneratorAction()
-{
-	delete fParticleGun;
-	delete fMessenger;
-	delete fExternal;
-	delete fInternal;
-}
+private:
+	PrimaryGeneratorAction* fPrimary;
+	G4UIdirectory*             fExternalDir;
+	G4UIcmdWithAString*        fBeamDirCmd;
+	G4UIdirectory*             fInternalDir;
+	G4UIcmdWithAString*        fSourceOrganCmd;
+	G4UIcmdWithAString*        fSurfaceSourceCmd;
+};
 
-void TETPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
-{
-
-	G4ThreeVector direction, position;
-	fSourceGenerator->GetAprimaryPosDir(position, direction);
-	fParticleGun->SetParticlePosition(position);
-	fParticleGun->SetParticleMomentumDirection(direction);
-	fParticleGun->GeneratePrimaryVertex(anEvent);
-}
-
-
+#endif

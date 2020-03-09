@@ -33,10 +33,10 @@
 // \  -
 // \  -
 
+#include "include/ActionInitialization.hh"
+#include "include/PhysicsList.hh"
 #include "TETDetectorConstruction.hh"
 #include "TETModelImport.hh"
-#include "TETPhysicsList.hh"
-#include "TETActionInitialization.hh"
 
 #ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
@@ -144,9 +144,9 @@ int main(int argc,char** argv)
 	G4PhysListFactory factory;
 //	G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BIC_LIV");
 //	runManager->SetUserInitialization(physList);
-	runManager->SetUserInitialization(new TETPhysicsList());
+	runManager->SetUserInitialization(new PhysicsList());
 	// user action initialisation
-	runManager->SetUserInitialization(new TETActionInitialization(tetData, output, initTimer));
+	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer));
     
 #ifdef G4VIS_USE
 	// Visualization manager

@@ -28,8 +28,8 @@
 // \author Haegin Han
 //
 
-#ifndef TETRunAction_h
-#define TETRunAction_h 1
+#ifndef RunAction_h
+#define RunAction_h 1
 
 #include <ostream>
 #include <fstream>
@@ -40,8 +40,8 @@
 #include "G4UserRunAction.hh"
 #include "G4SystemOfUnits.hh"
 
-#include "TETRun.hh"
-#include "TETPrimaryGeneratorAction.hh"
+#include "PrimaryGeneratorAction.hh"
+#include "Run.hh"
 #include "TETModelImport.hh"
 
 // *********************************************************************
@@ -55,11 +55,11 @@
 //  └-- PrintResult: Method to print the result.
 // *********************************************************************
 
-class TETRunAction : public G4UserRunAction
+class RunAction : public G4UserRunAction
 {
 public:
-	TETRunAction(TETModelImport* tetData, G4String output, G4Timer* initTimer);
-	virtual ~TETRunAction();
+	RunAction(TETModelImport* tetData, G4String output, G4Timer* initTimer);
+	virtual ~RunAction();
 
 public:
 	virtual G4Run* GenerateRun();
@@ -79,7 +79,7 @@ public:
 
 private:
 	TETModelImport* tetData;
-	TETRun*         fRun;
+	Run*         fRun;
 	G4int           numOfEvent;
 	G4int           runID;
 	G4String        outputFile;

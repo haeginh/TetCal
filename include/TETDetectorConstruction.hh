@@ -48,10 +48,9 @@
 
 #include "G4SDManager.hh"
 #include "G4MultiFunctionalDetector.hh"
-#include "TETPSEnergyDeposit.hh"
-
 #include "G4SystemOfUnits.hh"
 
+#include "PSEnergyDeposit.hh"
 #include "TETModelImport.hh"
 #include "TETParameterisation.hh"
 

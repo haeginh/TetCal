@@ -23,35 +23,74 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETPSEnergyDeposit.hh
-// \file   MRCP_GEANT4/External/include/TETPSEnergyDeposit.hh
+// TETRun.hh
+// \file   MRCP_GEANT4/External/include/TETRun.hh
 // \author Haegin Han
 //
 
-#ifndef TETPSEnergyDeposit_h
-#define TETPSEnergyDeposit_h 1
+#ifndef Run_h
+#define Run_h 1
 
-#include "G4PSEnergyDeposit.hh"
+#include "G4Run.hh"
+#include "G4Event.hh"
+#include "G4THitsMap.hh"
+#include "G4SDManager.hh"
 #include "TETModelImport.hh"
 
+typedef std::map<G4int, std::pair<G4double, G4double>> EDEPMAP;
+
 // *********************************************************************
-// This is the scorer based on G4PSEnergyDeposit class.
-// -- GetIndex: Return the organ ID instead of copy number automatically
-//              given by Parameterisation geometry.
+// This is G4Run class that sums up energy deposition from each event.
+// The sum of the square of energy deposition was also calculated to
+// produce the relative error of the dose.
+// -- RecordEvent: Sum up the energy deposition and the square of it.
+//                 The sums for each organ were saved as the form of
+//                 std::map.
+// -- Merge: Merge the data calculated in each thread.
 // *********************************************************************
 
-class TETPSEnergyDeposit : public G4PSEnergyDeposit
+//enum BEAMDIR {AP, PA, LLAT, RLAT, ROT, ISO};
+
+class Run : public G4Run 
 {
-   public:
-      TETPSEnergyDeposit(G4String name,TETModelImport* _tetData);
-      virtual ~TETPSEnergyDeposit();
+public:
+	Run(TETModelImport* tetData);
+	virtual ~Run();
 
-  protected:
-      virtual G4int GetIndex(G4Step*);
+	virtual void RecordEvent(const G4Event*);
+	void ConstructMFD(const G4String& mfdName);
+    virtual void Merge(const G4Run*);
 
-  private:
-      TETModelImport* tetData;
+    EDEPMAP* GetEdepMap() {return &edepMap;};
+    G4String GetParticleName() {return primary;}
+    G4String GetBeamDirName()  {return dir;}
+    G4double GetBeamEnergy()   {return primaryE;}
+    G4double GetBeamArea()     {return beamArea;}
+    G4bool   GetIsExternal()   {return isExternal;}
+
+
+    void SetPrimary(G4String _primary, G4String _dir, G4double _primaryE, G4double _beamArea, G4bool _isExternal)
+    {
+    	primary = _primary;
+    	dir = _dir;
+    	primaryE = _primaryE;
+    	beamArea = _beamArea;
+    	isExternal = _isExternal;
+    }
+
+private:
+    EDEPMAP edepMap;
+    G4int   fCollID;
+    G4int   fCollID_DRF;
+    G4String primary;
+    G4String dir;
+    G4double primaryE;
+    G4double beamArea;
+    G4bool   isExternal;
+    std::map<G4int, std::vector<G4int>>   organ2dose;
+	std::map<G4int, G4double>  rbmFactor;
+	std::map<G4int, G4double>  bsFactor;
+	G4bool doseOrganized;
 };
 
 #endif
-
