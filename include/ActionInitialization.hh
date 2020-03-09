@@ -38,7 +38,7 @@
 #include "RunAction.hh"
 #include "TETSteppingAction.hh"
 
-class TETModelImport;
+class VOXModelImport;
 
 // *********************************************************************
 // This UserActionInitialization class initializes UserAction classes
@@ -52,7 +52,7 @@ class TETModelImport;
 class ActionInitialization : public G4VUserActionInitialization
 {
 public:
-	ActionInitialization(TETModelImport* tetData,
+	ActionInitialization(VOXModelImport* tetData,
 			                G4String        outputFileName,
 							G4Timer*        initTimer);
 	virtual ~ActionInitialization();
@@ -61,7 +61,7 @@ public:
 	virtual void Build() const;
 
 private:
-	TETModelImport* tetData;
+	VOXModelImport* tetData;
 	G4String output;
 	G4Timer* initTimer;
 };

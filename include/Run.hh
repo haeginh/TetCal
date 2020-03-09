@@ -35,7 +35,8 @@
 #include "G4Event.hh"
 #include "G4THitsMap.hh"
 #include "G4SDManager.hh"
-#include "TETModelImport.hh"
+
+#include "VOXModelImport.hh"
 
 typedef std::map<G4int, std::pair<G4double, G4double>> EDEPMAP;
 
@@ -54,7 +55,7 @@ typedef std::map<G4int, std::pair<G4double, G4double>> EDEPMAP;
 class Run : public G4Run 
 {
 public:
-	Run(TETModelImport* tetData);
+	Run(VOXModelImport* tetData);
 	virtual ~Run();
 
 	virtual void RecordEvent(const G4Event*);

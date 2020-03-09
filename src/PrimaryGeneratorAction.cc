@@ -34,13 +34,13 @@
 
 #include <fstream>
 
-PrimaryGeneratorAction::PrimaryGeneratorAction(TETModelImport* _tetData)
-:tetData(_tetData), fSourceGenerator(0)
+PrimaryGeneratorAction::PrimaryGeneratorAction(VOXModelImport* _voxData)
+:voxData(_voxData), fSourceGenerator(0)
 {
 	fParticleGun = new G4ParticleGun(1);
 	fMessenger   = new PrimaryMessenger(this);
 	fExternal    = new ExternalBeam();
-	fInternal    = new InternalSource(tetData);
+	fInternal    = new InternalSource(voxData);
 
 }
 

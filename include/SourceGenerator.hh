@@ -50,12 +50,12 @@ private:
     G4double beamArea;
 };
 
-class    TETModelImport;
+class    VOXModelImport;
 typedef  std::pair<G4double, G4int> VOLPICK;
 class InternalSource: public SourceGenerator
 {
 public:
-	InternalSource(TETModelImport* tetData);
+	InternalSource(VOXModelImport* voxData);
 	virtual ~InternalSource();
 
 	void SetSource(std::vector<G4int> sources);
@@ -68,7 +68,7 @@ private:
 
 private:
     std::vector<G4int>    sourceIDs;
-    TETModelImport*       tetData;
+    VOXModelImport*       voxData;
     std::vector<VOLPICK>  tetPick;
 };
 

@@ -23,75 +23,56 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETDetectorConstruction.hh
-// \file   MRCP_GEANT4/External/include/TETDetectorConstruction.hh
-// \author Haegin Han
+// The code was written by :
+//	*Jong Hwi Jeong  jonghwi@hanyang.ac.kr
+//      *Chan Hyeong Kim chkim@hanyang.ac.kr
 //
+// Department of Nuclear Engineering, Hanyang University
+// 17 Haengdang, Seongdong, Seoul 133-791, Korea
+// Tel: +82-2-2220-4057
+// Fax: +82-2-2220-4059
+//
+// ********************************************************************
 
-#ifndef TETDetectorConstruction_h
-#define TETDetectorConstruction_h 1
+#ifndef DETECTORCONSTRUCTION_HH
+#define DETECTORCONSTRUCTION_HH
 
-#include "G4VUserDetectorConstruction.hh"
-
-#include <cmath>
+#include <fstream>
+#include <sstream>
 
 #include "globals.hh"
-
-#include "G4Material.hh"
-#include "G4NistManager.hh"
-
 #include "G4Box.hh"
-#include "G4Tet.hh"
-#include "G4LogicalVolume.hh"
-#include "G4PVPlacement.hh"
-#include "G4PVParameterised.hh"
-
-#include "G4SDManager.hh"
+#include "G4VUserDetectorConstruction.hh"
 #include "G4MultiFunctionalDetector.hh"
-#include "G4SystemOfUnits.hh"
+#include "G4VisAttributes.hh"
 
+#include "VOXNestedParameterisation.hh"
 #include "PSEnergyDeposit.hh"
-#include "TETModelImport.hh"
-#include "TETParameterisation.hh"
+#include "VOXModelImport.hh"
 
-// *********************************************************************
-// This is UserDetectorConstruction class that defines geometry
-// -- Construct: construct Geometry by three methods listed below.
-//  └-- SetupWorldGeometry: Defines the world box (10*10*10 m3) and,
-//                          phantom container which has 10 cm-margins from
-//                          the bounding box of phantom
-//  └-- ConstructPhantom: Define the phantom geometry by using
-//                        G4PVParameterised class
-//  └-- PrintPhantomInformation: Print overall phantom information
-//
-// -- ConstructSDandField: Setup the MultiFunctionalDetector with energy
-//                         deposition scorer, and attach it to phantom
-//                         geometry
-// *********************************************************************
+class VOXDetectorConstruction : public G4VUserDetectorConstruction {
 
-class TETDetectorConstruction : public G4VUserDetectorConstruction
-{
 public:
-	TETDetectorConstruction(TETModelImport* tetData);
-	virtual ~TETDetectorConstruction();
+
+	VOXDetectorConstruction(VOXModelImport* );
+	virtual ~VOXDetectorConstruction();
 
 	virtual G4VPhysicalVolume* Construct();
 	virtual void ConstructSDandField();
 
 private:
-	void SetupWorldGeometry();
-	void ConstructPhantom();
-	void PrintPhantomInformation();
+	G4VisAttributes* blankAtt;
 
-	G4VPhysicalVolume* worldPhysical;
-	G4LogicalVolume*   container_logic;
+	VOXModelImport* voxelPhantom;
 
-	TETModelImport*    tetData;
-	G4ThreeVector      phantomSize;
-	G4ThreeVector      phantomBoxMin, phantomBoxMax;
-	G4int              nOfTetrahedrons;
-
-	G4LogicalVolume*   tetLogic;
+	// world & container logical and physical volumes
+	G4VPhysicalVolume* fpWorldPhysical;
+	G4LogicalVolume* logicVoxel;
+	// Data members
+	G4ThreeVector fphantomSize;   // Size of voxel phantom
+	G4ThreeVector fvoxelSize;     // voxel size
+	G4int         fNx,fNy,fNz;    // Number of segmentation of voxel phantom
+	G4double      fVoxelHalfLengthX, fVoxelHalfLengthY, fVoxelHalfLengthZ;    // Number of segmentation of voxel phantom
 };
 
 #endif

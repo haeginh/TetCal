@@ -42,7 +42,7 @@
 
 #include "PrimaryGeneratorAction.hh"
 #include "Run.hh"
-#include "TETModelImport.hh"
+#include "VOXModelImport.hh"
 
 // *********************************************************************
 // The main function of this UserRunAction class is to produce the result
@@ -58,7 +58,7 @@
 class RunAction : public G4UserRunAction
 {
 public:
-	RunAction(TETModelImport* tetData, G4String output, G4Timer* initTimer);
+	RunAction(VOXModelImport* voxData, G4String output, G4Timer* initTimer);
 	virtual ~RunAction();
 
 public:
@@ -78,7 +78,7 @@ public:
 	G4double GetRadiationWeighting(G4ParticleDefinition* _particle, G4double _energy);
 
 private:
-	TETModelImport* tetData;
+	VOXModelImport* voxData;
 	Run*         fRun;
 	G4int           numOfEvent;
 	G4int           runID;

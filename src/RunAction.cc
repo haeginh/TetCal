@@ -35,8 +35,8 @@
 #include <iostream>
 #include "../include/RunAction.hh"
 
-RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
-:tetData(_tetData), fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0),
+RunAction::RunAction(VOXModelImport* _voxData, G4String _output, G4Timer* _init)
+:voxData(_voxData), fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0),
  primaryEnergy(-1.), beamArea(-1.), isExternal(true)
 {
 	if(!isMaster) return;
@@ -44,13 +44,13 @@ RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
 	runTimer = new G4Timer;
 	std::ofstream ofs(outputFile);
 
-	if(tetData->DoseWasOrganized()){
-		massMap = tetData->GetDoseMassMap();
-		for(auto itr:massMap) nameMap[itr.first] = tetData->GetDoseName(itr.first);
+	if(voxData->DoseWasOrganized()){
+		massMap = voxData->GetDoseMassMap();
+		for(auto itr:massMap) nameMap[itr.first] = voxData->GetDoseName(itr.first);
 	}
 	else{
-		massMap = tetData->GetMassMap();
-		for(auto itr:massMap) nameMap[itr.first] = tetData->GetMaterial(itr.first)->GetName();
+		massMap = voxData->GetMassMap();
+		for(auto itr:massMap) nameMap[itr.first] = voxData->GetVoxelMaterial(itr.first)->GetName();
 	}
 
 //	nameMap[-6] = "RBM(DRF)_test"; nameMap[-5] = "BS(DRF)_test";
@@ -70,7 +70,7 @@ RunAction::~RunAction()
 G4Run* RunAction::GenerateRun()
 {
 	// generate run
-	fRun = new Run(tetData);
+	fRun = new Run(voxData);
 	return fRun;
 }
 
@@ -244,8 +244,8 @@ void RunAction::PrintResultExternal(std::ostream &out)
 //	}
 
 	for(auto itr : massMap){
-		if(tetData->DoseWasOrganized()||itr.first<0) out << setw(25) << nameMap[itr.first]<< "| ";
-		else                            out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
+		if(voxData->DoseWasOrganized()||itr.first<0) out << setw(25) << nameMap[itr.first]<< "| ";
+		else                            out << setw(25) << voxData->GetVoxelMaterial(itr.first)->GetName()<< "| ";
 		out	<< setw(15) << fixed      << itr.second/g;
 		out	<< setw(15) << scientific << doses[itr.first].first/(joule/kg)*beamArea/cm2;
 		out	<< setw(15) << fixed      << doses[itr.first].second << G4endl;
@@ -291,8 +291,8 @@ void RunAction::PrintResultInternal(std::ostream &out)
 	}
 
 	for(auto itr : massMap){
-		if(tetData->DoseWasOrganized()) out << setw(25) << tetData->GetDoseName(itr.first)<< "| ";
-		else                            out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
+		if(voxData->DoseWasOrganized()) out << setw(25) << voxData->GetDoseName(itr.first)<< "| ";
+		else                            out << setw(25) << voxData->GetVoxelMaterial(itr.first)->GetName()<< "| ";
 		out	<< setw(15) << fixed      << itr.second/g;
 		out	<< setw(15) << scientific << doses[itr.first].first/primaryEnergy/(1./kg);
 		out	<< setw(15) << fixed      << doses[itr.first].second << G4endl;

@@ -30,12 +30,13 @@
 
 #include "G4VPrimitiveScorer.hh"
 #include "G4THitsMap.hh"
-#include "TETModelImport.hh"
+
+#include "VOXModelImport.hh"
 
 class DRFScorer : public G4VPrimitiveScorer
 {
    public: // with description
-      DRFScorer(G4String name,TETModelImport*);
+      DRFScorer(G4String name,VOXModelImport*);
       virtual ~DRFScorer();
 
   protected: // with description
@@ -49,7 +50,7 @@ class DRFScorer : public G4VPrimitiveScorer
 
   private:
 
-      TETModelImport* PhantomData;
+      VOXModelImport* PhantomData;
       G4int FindIndexfromEnergyBin(G4double energy);
       G4double GetRBMdose(G4double energy, G4double cellFlux, G4int organID);
       G4double GetBSdose(G4double energy, G4double cellFlux, G4int organID);

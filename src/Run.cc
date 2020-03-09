@@ -30,7 +30,7 @@
 
 #include "../include/Run.hh"
 
-Run::Run(TETModelImport* tetData)
+Run::Run(VOXModelImport* tetData)
 :G4Run()
 {
 	fCollID

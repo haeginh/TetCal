@@ -30,7 +30,7 @@
 
 #include "ActionInitialization.hh"
 
-ActionInitialization::ActionInitialization(TETModelImport* _tetData, G4String _output, G4Timer* _init)
+ActionInitialization::ActionInitialization(VOXModelImport* _tetData, G4String _output, G4Timer* _init)
  : G4VUserActionInitialization(), tetData(_tetData), output(_output), initTimer(_init)
 {}
 

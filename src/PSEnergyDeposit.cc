@@ -30,8 +30,8 @@
 
 #include "../include/PSEnergyDeposit.hh"
 
-PSEnergyDeposit::PSEnergyDeposit(G4String name, TETModelImport* _tetData)
-  :G4PSEnergyDeposit(name), tetData(_tetData)
+PSEnergyDeposit::PSEnergyDeposit(G4String name, VOXModelImport* _voxData)
+  :G4PSEnergyDeposit(name), voxData(_voxData)
 {}
 
 PSEnergyDeposit::~PSEnergyDeposit()
@@ -41,5 +41,5 @@ G4int PSEnergyDeposit::GetIndex(G4Step* aStep)
 {
 	// return the organ ID (= material index)
 	G4int copyNo = aStep->GetPreStepPoint()->GetTouchable()->GetCopyNumber();
-	return tetData->GetMaterialIndex(copyNo);
+	return voxData->GetMaterialIndex(copyNo);
 }

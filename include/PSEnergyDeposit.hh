@@ -32,7 +32,8 @@
 #define PSEnergyDeposit_h 1
 
 #include "G4PSEnergyDeposit.hh"
-#include "TETModelImport.hh"
+
+#include "VOXModelImport.hh"
 
 // *********************************************************************
 // This is the scorer based on G4PSEnergyDeposit class.
@@ -43,14 +44,14 @@
 class PSEnergyDeposit : public G4PSEnergyDeposit
 {
    public:
-      PSEnergyDeposit(G4String name,TETModelImport* _tetData);
+      PSEnergyDeposit(G4String name,VOXModelImport* _voxData);
       virtual ~PSEnergyDeposit();
 
   protected:
       virtual G4int GetIndex(G4Step*);
 
   private:
-      TETModelImport* tetData;
+      VOXModelImport* voxData;
 };
 
 #endif
