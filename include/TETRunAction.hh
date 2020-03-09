@@ -40,8 +40,8 @@
 #include "G4UserRunAction.hh"
 #include "G4SystemOfUnits.hh"
 
-#include "PrimaryGeneratorAction_general.hh"
 #include "TETRun.hh"
+#include "TETPrimaryGeneratorAction.hh"
 #include "TETModelImport.hh"
 
 // *********************************************************************
@@ -93,7 +93,6 @@ private:
 	G4bool   isExternal;
 	G4bool   sameToPrev;
 	std::map<G4int, G4double> massMap;
-
 	std::map<G4int, std::pair<G4double,G4double>> doses;
 	std::map<G4int, G4String> nameMap;
 	std::pair<G4double, G4double> effective, effective_DRF;

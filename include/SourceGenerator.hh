@@ -46,7 +46,7 @@ public:
 private:
     BEAMDIR  beamDir;
     G4String beamDirName;
-    G4double xHalf, yHalf, zHalf, height;
+    G4double xHalf, yHalf, zHalf;
     G4double beamArea;
 };
 

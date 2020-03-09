@@ -77,14 +77,25 @@ void TETRunAction::BeginOfRunAction(const G4Run* aRun)
 	// print the progress at the interval of 10%
 	numOfEvent=aRun->GetNumberOfEventToBeProcessed();
 	G4RunManager::GetRunManager()->SetPrintProgress(int(numOfEvent*0.1));
-
+//		    FILE* file = fopen("/proc/self/status", "r");
+//		    G4String result;
+//		    char line[128];
+//
+//		    while (fgets(line, 128, file) != NULL){
+//		        if (strncmp(line, "VmRSS:", 6) == 0){
+//		            result = G4String(line);
+//		            break;
+//		        }
+//		    }
+//		    G4cout<<result;
+//		    fclose(file);
 	if(isMaster){
 		initTimer->Stop();
 		runTimer->Start();
 	}
 
-	const PrimaryGeneratorAction_general* primary =
-			dynamic_cast<const PrimaryGeneratorAction_general*>(G4RunManager::GetRunManager()
+	const TETPrimaryGeneratorAction* primary =
+			dynamic_cast<const TETPrimaryGeneratorAction*>(G4RunManager::GetRunManager()
 			->GetUserPrimaryGeneratorAction());
 	if(!primary) return;
 	primaryParticle = primary->GetParticleGun()->GetParticleDefinition()->GetParticleName();
@@ -137,7 +148,6 @@ void TETRunAction::SetDoses()
 {
 	doses.clear();
 	EDEPMAP edepMap = *fRun->GetEdepMap();
-
 	for(G4int i=-4;i<0;i++){
 		G4double meanDose = edepMap[i].first / numOfEvent;
 		G4double squareDoese = edepMap[i].second;
@@ -316,6 +326,10 @@ void TETRunAction::PrintLineExternal(std::ostream &out)
 
 void TETRunAction::PrintLineInternal(std::ostream &out)
 {
+	// Print run result
+	//
+	using namespace std;
+	EDEPMAP edepMap = *fRun->GetEdepMap();
 
 	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
 		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";

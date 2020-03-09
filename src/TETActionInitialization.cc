@@ -45,8 +45,7 @@ void TETActionInitialization::BuildForMaster() const
 void TETActionInitialization::Build() const
 {
 	// initialise UserAction classes
-	SetUserAction(new PrimaryGeneratorAction_general(tetData));
-	//SetUserAction(new PrimaryGeneratorAction_gps());
+	SetUserAction(new TETPrimaryGeneratorAction(tetData));
 	SetUserAction(new TETRunAction(tetData, output, initTimer));
 	SetUserAction(new TETSteppingAction);
 }  
