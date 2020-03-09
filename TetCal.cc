@@ -47,13 +47,8 @@
 #include "G4UImanager.hh"
 #include "G4UIterminal.hh"
 
-#ifdef G4UI_USE
 #include "G4VisExecutive.hh"
-#endif
-
-#ifdef G4VIS_USE
 #include "G4UIExecutive.hh"
-#endif
 
 #include "Randomize.hh"
 #include "G4Timer.hh"
@@ -107,12 +102,9 @@ int main(int argc,char** argv)
 	// Detect interactive mode (if no macro file name) and define UI session
 	//
 	if ( !macro.size() ) {
-#ifdef G4UI_USE
 		ui = new G4UIExecutive(argc, argv, "csh");
-#else
 		G4cerr<<"ERROR: Interactive mode is not available. Please provide macro file."<<G4endl;
 		return 1;
-#endif
 	}
 	// default output file name
 	else if ( !output.size() ) output = macro + ".out";
@@ -148,12 +140,10 @@ int main(int argc,char** argv)
 	// user action initialisation
 	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer));
     
-#ifdef G4VIS_USE
 	// Visualization manager
 	//
 	G4VisManager* visManager = new G4VisExecutive;
 	visManager->Initialise();
-#endif
 
 	// Process macro or start UI session
 	//
@@ -166,13 +156,9 @@ int main(int argc,char** argv)
 	}
 	else {
 		// interactive mode
-#ifdef G4VIS_USE
 		UImanager->ApplyCommand("/control/execute init_vis.mac");
-#endif
 		ui->SessionStart();
-#ifdef G4VIS_USE
 		delete visManager;
-#endif
 		delete ui;
 	}
 
