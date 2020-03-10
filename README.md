@@ -12,6 +12,7 @@ External, Internal, Hadronic, dose 정리, effective dose 정리
 * dose 정리 관련
 
 [팬텀이름].dose 라는 파일 내에 아래 형식에 맞게 dose를 정리함 (MCNP의 tally 에 cell 번호 다는 것과 비슷)
+
 [dose ID] [dose 이름] [organ ID list]
 
 * effective dose 정리 관련
