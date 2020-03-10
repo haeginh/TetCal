@@ -12,20 +12,27 @@
 #include <set>
 #include <algorithm>
 #include <fstream>
+#include "G4Box.hh"
+#include "G4LogicalVolumeStore.hh"
 
 #include "../include/VOXModelImport.hh"
 #include "SourceGenerator.hh"
 
 InternalSource::InternalSource(VOXModelImport* _voxData)
 :voxData(_voxData)
-{}
+{
+	G4Box* phantomBox = (G4Box*) G4LogicalVolumeStore::GetInstance()->GetVolume("phantomLogical")->GetSolid();
+	base = G4ThreeVector(-phantomBox->GetXHalfLength(),
+			             -phantomBox->GetYHalfLength(),
+	                     -phantomBox->GetZHalfLength());
+}
 
 InternalSource::~InternalSource()
 {}
 
 void InternalSource::SetSource(std::vector<G4int> sources)
 {
-/*	std::set<G4int>    sourceSet(sources.begin(), sources.end());
+	std::set<G4int>    sourceSet(sources.begin(), sources.end());
 
 	//Cout
 	std::stringstream ss;
@@ -33,65 +40,32 @@ void InternalSource::SetSource(std::vector<G4int> sources)
 	for(auto source:sourceSet) ss<<source<<" ";
 
 	//Extract source tet IDs
-	for(G4int i=0;i<voxData->GetNumTetrahedron();i++){
-		if(sourceSet.find(voxData->GetMaterialIndex(i)) != sourceSet.end())
-			tetPick.push_back(VOLPICK(voxData->GetTetrahedron(i)->GetCubicVolume(), i));
+	for(G4int i=0;i<voxData->GetVoxelResolution(0);i++){
+		for(G4int j=0;j<voxData->GetVoxelResolution(1);j++){
+			for(G4int k=0;k<voxData->GetVoxelResolution(2);k++){
+				if(sourceSet.find(voxData->GetVoxelData(i, j, k))!= sourceSet.end())
+					voxPick.push_back(VOX(i, j, k));
+			}
+		}
 	}
-	ss<<" -> "<<tetPick.size()<<G4endl;
-
-	//Arrange volumes
-	std::sort(tetPick.begin(), tetPick.end());
-	std::reverse(tetPick.begin(), tetPick.end());
-
-	G4double previousVol(0.);
-	for(auto &tp:tetPick) {
-		tp.first += previousVol;
-		previousVol = tp.first;
-	}
-
-	for(auto &tp:tetPick) tp.first /= previousVol;
-
-	G4cout<<ss.str();*/
+	ss<<" -> "<<voxPick.size()<<G4endl;
+	G4cout<<ss.str();
 }
 
 void InternalSource::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &direction)
 {
-/*	G4double rand = G4UniformRand();
-	for(auto tp:tetPick){
-		if(rand>tp.first) continue;
-		position = RandomSamplingInTet(voxData->GetTetrahedron(tp.second)); break;
-	}
-	direction = G4RandomDirection();*/
+	G4int randInx = floor(G4UniformRand() * (G4double)voxPick.size());
+	position = RandomSamplingInAVoxel(voxPick[randInx]);
+	direction = G4RandomDirection();
 }
 
-G4ThreeVector InternalSource::RandomSamplingInTet(G4Tet* tet){
-
-/*	G4double varS = G4UniformRand();
-	G4double varT = G4UniformRand();
-	G4double varU = G4UniformRand();
-
-	if (varS+varT>1.0){
-
-		varS = 1.0 - varS;
-		varT = 1.0 - varT;
-
-	}
-	if (varT+varU>1.0){
-
-		double tmp = varU;
-		varU = 1.0 - varS - varT;
-		varT = 1.0 -tmp;
-	} else if (varS+varT+varU>1.0){
-
-		double tmp = varU;
-		varU = varS + varT + varU - 1.0;
-		varS = 1 - varT - tmp;
-	}
-
-	double a = 1 - varS - varT - varU;
-
-	G4ThreeVector SampledPosition = a*(tet->GetVertices()[0])+varS*(tet->GetVertices()[1])+varT*(tet->GetVertices()[2])+varU*(tet->GetVertices()[3]);
-	return SampledPosition;*/
+G4ThreeVector InternalSource::RandomSamplingInAVoxel(VOX vox){
+	G4int i, j, k;
+	std::tie(i, j, k) = vox;
+	G4ThreeVector sampledPosition = G4ThreeVector((G4UniformRand()+i)*voxData->GetVoxelSize(0),
+												  (G4UniformRand()+j)*voxData->GetVoxelSize(1),
+												  (G4UniformRand()+k)*voxData->GetVoxelSize(2));
+	return (sampledPosition + base);
 }
 
 
