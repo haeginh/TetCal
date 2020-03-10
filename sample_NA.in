@@ -5,13 +5,12 @@
 /run/numberOfThreads  6
 
 # Initialize
+/hadron/phys/thermalScattering 1
 /run/initialize
 
 # Set the nps
-/gun/particle gamma
+/gun/particle alpha
+/gun/particle neutron
 /external/dir AP
 /gun/energy 1 MeV
 /run/beamOn 1000000
-
-
-
