@@ -37,7 +37,6 @@ Run::Run(VOXModelImport* tetData)
 	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/eDep");
 	fCollID_DRF
 	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/DRF");
-
 	organ2dose = tetData->GetDoseMap();
 
 	auto massMap  = tetData->GetMassMap();

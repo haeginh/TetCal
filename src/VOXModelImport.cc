@@ -16,8 +16,8 @@ VOXModelImport::VOXModelImport(G4String phantomFile)
 	ImportPhantomInfo(InformFile);
 	ImportPhantomVoxelMaterial(materialFile);
 	ImportPhantomVoxelData(voxelFile);
-	ImportPhantomVoxelVolume();
 	DoseRead(doseFile);
+	ImportPhantomVoxelVolume();
 	DRFRead(DRFfile);
 	RBMBSRead(RBMBSfile);
 }
@@ -41,7 +41,7 @@ void VOXModelImport::ImportPhantomInfo(G4String inputFile){
 	  while(!ifp.eof())
 	  {
 		  ifp >> read_data;
-		  if( read_data==Filename ) {
+		  if( Filename.find(G4String(read_data))!= std::string::npos ) {
 			  ifp >> read_data;
 			  ifp >> fNx >> fNy >> fNz;
 			  voxelResolution.push_back(fNx);
@@ -86,7 +86,6 @@ void VOXModelImport::ImportPhantomVoxelData(G4String voxelFile){
 		}
 	}
 
-
 	for(int k=0;k<voxelResolution[2];k++){
 		for(int j=0;j<voxelResolution[1];j++){
 			for(int i=0;i<voxelResolution[0];i++){
@@ -95,9 +94,7 @@ void VOXModelImport::ImportPhantomVoxelData(G4String voxelFile){
 			}
 		}
 	}
-
 	ifp.close();
-
 }
 
 void VOXModelImport::ImportPhantomVoxelMaterial(G4String materialFile){
@@ -159,14 +156,22 @@ void VOXModelImport::ImportPhantomVoxelMaterial(G4String materialFile){
 	ifp.close();
 }
 
-
-
 void VOXModelImport::ImportPhantomVoxelVolume(){
 	for(auto iter:organID)
 		organVolume[iter] = numVoxel[iter] *  voxelSize[0] * voxelSize[1] * voxelSize[2];
 
 	for(auto mat:organVolume)
 		massMap[mat.first] = mat.second * densityMap[mat.first];
+
+	if(DoseWasOrganized()){
+		for(auto dm:doseName){
+			doseMassMap[dm.first] = 0;
+		}
+		for(auto od:organ2dose){
+			for(auto doseID:od.second)
+				doseMassMap[doseID] += massMap[od.first];
+		}
+	}
 
 }
 

@@ -40,6 +40,8 @@ PSEnergyDeposit::~PSEnergyDeposit()
 G4int PSEnergyDeposit::GetIndex(G4Step* aStep)
 {
 	// return the organ ID (= material index)
-	G4int copyNo = aStep->GetPreStepPoint()->GetTouchable()->GetCopyNumber();
-	return voxData->GetMaterialIndex(copyNo);
+	G4int iz = aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(0);
+	G4int ix = aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(1);
+	G4int iy = aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(2);
+	return voxData->GetVoxelData(ix,iy,iz);
 }

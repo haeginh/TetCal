@@ -57,8 +57,10 @@ DRFScorer::~DRFScorer()
 
 G4int DRFScorer::GetIndex(G4Step* aStep)
 {
-	G4int copyNo = aStep->GetPreStepPoint()->GetTouchable()->GetCopyNumber();
-	return PhantomData->GetMaterialIndex(copyNo);
+	G4int iz = aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(0);
+	G4int ix = aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(1);
+	G4int iy = aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(2);
+	return PhantomData->GetVoxelData(ix,iy,iz);
 }
 
 G4bool DRFScorer::ProcessHits(G4Step* aStep, G4TouchableHistory*)

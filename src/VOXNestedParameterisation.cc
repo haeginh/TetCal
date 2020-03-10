@@ -75,8 +75,6 @@ ComputeMaterial(G4VPhysicalVolume* physVol, const G4int iz,
 	G4int voxelData = voxelPhantom->GetVoxelData(ix,iy,iz);
 
     return voxelPhantom->GetVoxelMaterial(voxelData);
-
-
 }
 
 unsigned int VOXNestedParameterisation::

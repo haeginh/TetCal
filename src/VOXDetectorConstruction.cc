@@ -46,6 +46,7 @@
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 #include "G4SystemOfUnits.hh"
+#include "DRFScorer.hh"
 
 VOXDetectorConstruction::VOXDetectorConstruction(VOXModelImport* _voxelPhantom)
 :fpWorldPhysical(0), logicVoxel(0), voxelPhantom(_voxelPhantom)
@@ -85,13 +86,13 @@ G4VPhysicalVolume* VOXDetectorConstruction::Construct()
 
 	// Phantom Geometry
 	// 1st - Container for Phantom
-	G4VSolid* solContainer = new G4Box("phantomLogical",
+	G4VSolid* solContainer = new G4Box("phantomSolid",
 						fVoxelHalfLengthX * fNx,
 						fVoxelHalfLengthY * fNy,
 						fVoxelHalfLengthZ * fNz);
 
 	G4LogicalVolume* logContainer = new G4LogicalVolume(solContainer,VACUUM,"phantomLogical");
-	new G4PVPlacement(0, G4ThreeVector(0,0,0), logContainer, "phantomLogical", lv_World, false, 1);
+	new G4PVPlacement(0, G4ThreeVector(0,0,0), logContainer, "phantomPhy", lv_World, false, 1);
 
 
 	// Replication of Water Phantom Volume.
@@ -130,8 +131,8 @@ G4VPhysicalVolume* VOXDetectorConstruction::Construct()
 	new G4PVParameterised("phantom",    // their name
 						  logicVoxel, // their logical volume
 						  logXRep,      // Mother logical volume
-						  kZAxis,       // Are placed along this axis
-						  //kUndefined,	  // Are placed along this axis
+//						  kZAxis,       // Are placed along this axis
+					      kUndefined,	  // Are placed along this axis
 						  fNz,      // Number of cells
 						  param);       // Parameterisation.
 
@@ -153,8 +154,10 @@ void VOXDetectorConstruction::ConstructSDandField()
 	pSDman->AddNewDetector( MFDet );
 
 	G4VPrimitiveScorer* scorer1 = new PSEnergyDeposit("eDep", voxelPhantom);
+	G4VPrimitiveScorer* scorer2 = new DRFScorer("DRF", voxelPhantom);
 
 	MFDet->RegisterPrimitive(scorer1);
+	MFDet->RegisterPrimitive(scorer2);
 
 	SetSensitiveDetector(logicVoxel, MFDet);
 }

@@ -107,7 +107,6 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 	beamArea = primary->GetExternalBeamGenerator()->GetBeamArea();
 	isExternal = primary-> GetSourceGenerator()->IsExternal();
 	fRun->SetPrimary(primaryParticle, primarySourceName, primaryEnergy, beamArea, isExternal);
-
 }
 
 void RunAction::EndOfRunAction(const G4Run* aRun)
@@ -184,7 +183,7 @@ void RunAction::SetEffectiveDose()
 	std::vector<G4int> group1 = {2, 4, 5, 7};
 	std::vector<G4int> group2 = {8};
 	std::vector<G4int> group3 = {9, 11, 13, 14};
-	std::vector<G4int> group4 = {16, 17, 19};
+	std::vector<G4int> group4 = {16, 17, 18};
 	std::vector<G4int> remainder = {20, 25, 26, 27, 28, 29, 30, 31, 32, 33, 35, 36};
 
 	std::vector<std::pair<G4double, G4double>> effDoseComp;

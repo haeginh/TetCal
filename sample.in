@@ -1,5 +1,5 @@
 # Set the verbose
-/run/verbose 0
+/run/verbose 2
 
 # Set the number of threads for multi-threading mode
 /run/numberOfThreads  1
@@ -10,12 +10,15 @@
 # Set the nps
 /gun/particle gamma
 /external/dir AP
-/gun/energy 0.1 MeV
-/run/beamOn 1E7
 /gun/energy 1 MeV
-/gun/energy 10 MeV
-/gun/energy 100 MeV
-/gun/energy 1000 MeV
+/run/beamOn 1000000
+
+
+/hadron/phys/thermalScattering true
+/gun/particle alpha
+/gun/particle neutron
+
+/hadron/phys/thermalScattering false
 
 #/internal/source "1 2 3 4"
 #/run/beamOn 10000

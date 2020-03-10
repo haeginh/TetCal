@@ -29,9 +29,7 @@
 // \update
 // \
 
-
 #include "../include/PrimaryGeneratorAction.hh"
-
 #include <fstream>
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(VOXModelImport* _voxData)
@@ -41,7 +39,6 @@ PrimaryGeneratorAction::PrimaryGeneratorAction(VOXModelImport* _voxData)
 	fMessenger   = new PrimaryMessenger(this);
 	fExternal    = new ExternalBeam();
 	fInternal    = new InternalSource(voxData);
-
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
@@ -54,7 +51,6 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-
 	G4ThreeVector direction, position;
 	fSourceGenerator->GetAprimaryPosDir(position, direction);
 	fParticleGun->SetParticlePosition(position);
