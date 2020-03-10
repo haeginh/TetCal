@@ -133,7 +133,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 
 	// set doses
 	SetDoses();
-	SetEffectiveDose();
+	if(isExternal) SetEffectiveDose();
 
 	// print by G4cout
 	if(isExternal) PrintResultExternal(G4cout);
@@ -159,16 +159,18 @@ void RunAction::SetDoses()
 		G4double relativeE   = sqrt(variance)/meanDose;
 		doses[i] = std::make_pair(meanDose, relativeE);
 	}
-	doses[-1].first *= 1e12;
-	doses[-2].first *= 1e12;
-
+	if(isExternal){
+		doses[-1].first *= 1e12;
+		doses[-2].first *= 1e12;
+	}
 	for(auto itr : massMap){
 		if(itr.first<0) continue;
 		G4double meanDose    = edepMap[itr.first].first  / itr.second / numOfEvent;
 		G4double squareDoese = edepMap[itr.first].second / (itr.second*itr.second);
 		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
 		G4double relativeE   = sqrt(variance)/meanDose;
-		doses[itr.first] = std::make_pair(meanDose*1e12, relativeE);
+		if(isExternal) doses[itr.first] = std::make_pair(meanDose*1e12, relativeE);
+		else           doses[itr.first] = std::make_pair(meanDose, relativeE);
 	}
 
 	for(auto itr:doses) itr.second.first *= weight;
@@ -285,30 +287,13 @@ void RunAction::PrintResultInternal(std::ostream &out)
 
 	out.precision(3);
 
-	for(G4int i=-4;i<0;i++){
-		out << setw(27) << nameMap[i] << "| ";
-		out << setw(30) << scientific << doses[i].first/primaryEnergy/(1./kg)<< setw(15) << fixed << doses[i].second << G4endl;
-	}
-
 	for(auto itr : massMap){
-		if(tetData->DoseWasOrganized()) out << setw(25) << tetData->GetDoseName(itr.first)<< "| ";
+		if(tetData->DoseWasOrganized()||itr.first<0) out << setw(25) << nameMap[itr.first]<< "| ";
 		else                            out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
 		out	<< setw(15) << fixed      << itr.second/g;
 		out	<< setw(15) << scientific << doses[itr.first].first/primaryEnergy/(1./kg);
 		out	<< setw(15) << fixed      << doses[itr.first].second << G4endl;
 	}
-
-	//effective dose
-	out << setw(25) << "eff. dose (DRF)" << "| ";
-	out	<< setw(15) << " "                ;
-	out	<< setw(15) << scientific << effective_DRF.first/primaryEnergy/(1./kg);
-	out	<< setw(15) << fixed      << effective_DRF.second << G4endl;
-
-	out << setw(25) << "eff. dose" << "| ";
-	out	<< setw(15) << " "                ;
-	out	<< setw(15) << scientific << effective.first/primaryEnergy/(1./kg);
-	out	<< setw(15) << fixed      << effective.second << G4endl;
-
 	out << "=======================================================================" << G4endl << G4endl;
 }
 
@@ -337,12 +322,6 @@ void RunAction::PrintLineInternal(std::ostream &out)
 	using namespace std;
 	EDEPMAP edepMap = *fRun->GetEdepMap();
 
-	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
-		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
-
-	for(auto itr:doses){
-		out << itr.second.first/primaryEnergy/(1./kg) <<"\t" << itr.second.second << "\t";
-	}
 	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
 		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
 
