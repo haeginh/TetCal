@@ -62,35 +62,10 @@ public:
     virtual void Merge(const G4Run*);
 
     EDEPMAP* GetEdepMap() {return &edepMap;};
-    G4String GetParticleName() {return primary;}
-    G4String GetBeamDirName()  {return dir;}
-    G4double GetBeamEnergy()   {return primaryE;}
-    G4double GetBeamArea()     {return beamArea;}
-    G4bool   GetIsExternal()   {return isExternal;}
-
-
-    void SetPrimary(G4String _primary, G4String _dir, G4double _primaryE, G4double _beamArea, G4bool _isExternal)
-    {
-    	primary = _primary;
-    	dir = _dir;
-    	primaryE = _primaryE;
-    	beamArea = _beamArea;
-    	isExternal = _isExternal;
-    }
 
 private:
     EDEPMAP edepMap;
     G4int   fCollID;
-    G4int   fCollID_DRF;
-    G4String primary;
-    G4String dir;
-    G4double primaryE;
-    G4double beamArea;
-    G4bool   isExternal;
-    std::map<G4int, std::vector<G4int>>   organ2dose;
-	std::map<G4int, G4double>  rbmFactor;
-	std::map<G4int, G4double>  bsFactor;
-	G4bool doseOrganized;
-};
+ };
 
 #endif

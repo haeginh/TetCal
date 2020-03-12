@@ -101,13 +101,6 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 			dynamic_cast<const PrimaryGeneratorAction*>(G4RunManager::GetRunManager()
 			->GetUserPrimaryGeneratorAction());
 	if(!primary) return;
-	primaryParticle = primary->GetParticleGun()->GetParticleDefinition()->GetParticleName();
-	primarySourceName = primary->GetSourceName();
-	primaryEnergy = primary->GetParticleGun()->GetParticleEnergy();
-	beamArea = primary->GetExternalBeamGenerator()->GetBeamArea();
-	isExternal = primary-> GetSourceGenerator()->IsExternal();
-	fRun->SetPrimary(primaryParticle, primarySourceName, primaryEnergy, beamArea, isExternal);
-
 }
 
 void RunAction::EndOfRunAction(const G4Run* aRun)
@@ -118,13 +111,6 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 
 	// get the run ID
 	runID = aRun->GetRunID();
-
-	//get primary info
-	primaryParticle = fRun->GetParticleName();
-	primarySourceName  = fRun->GetBeamDirName();
-	primaryEnergy   = fRun->GetBeamEnergy();
-	beamArea        = fRun->GetBeamArea();
-	isExternal      = fRun->GetIsExternal();
 
 	G4ParticleDefinition* particle = G4ParticleTable::GetParticleTable()->FindParticle(primaryParticle);
 	weight = GetRadiationWeighting(particle, primaryEnergy);
