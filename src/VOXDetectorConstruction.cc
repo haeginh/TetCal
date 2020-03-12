@@ -78,7 +78,7 @@ G4VPhysicalVolume* VOXDetectorConstruction::Construct()
 
 	G4Material* VACUUM = G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic");
 	// World
-	G4VSolid* sol_World = new G4Box("World", 10*m, 10*m, 10*m);
+	G4VSolid* sol_World = new G4Box("World", 5*m, 5*m, 5*m);
 	//G4Material* AIR = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
 	G4LogicalVolume* lv_World = new G4LogicalVolume(sol_World, VACUUM, "World");
 	fpWorldPhysical =
