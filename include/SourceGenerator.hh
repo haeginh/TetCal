@@ -37,7 +37,7 @@ public:
 	ExternalBeam();
 	virtual ~ExternalBeam();
 
-	void     SetBeamDirection(BEAMDIR _dir);
+	void SetBeamDirection(BEAMDIR _dir);
 	void GetAprimaryPosDir(G4ThreeVector &pos, G4ThreeVector &dir);
 
 	G4String GetBeamDirection() 	  const {return beamDirName;}
@@ -51,7 +51,7 @@ private:
 };
 
 class    VOXModelImport;
-typedef  std::pair<G4double, G4int> VOLPICK;
+typedef  std::tuple<G4int, G4int, G4int> VOX;
 class InternalSource: public SourceGenerator
 {
 public:
@@ -64,12 +64,13 @@ public:
 	std::vector<G4int> GetSource() 	const {return sourceIDs;}
 
 private:
-	G4ThreeVector RandomSamplingInTet(G4Tet* tet);
+	G4ThreeVector RandomSamplingInAVoxel(VOX vox);
 
 private:
     std::vector<G4int>    sourceIDs;
     VOXModelImport*       voxData;
-    std::vector<VOLPICK>  tetPick;
+    std::vector<VOX>      voxPick;
+    G4ThreeVector         base;
 };
 
 /*class SurfaceSource: public SourceGenerator
