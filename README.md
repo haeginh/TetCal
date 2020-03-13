@@ -1,10 +1,20 @@
 # TetCal
-(VoxelVersion과 최대한 동기화)
+(synchronized with VoxelVersion)
 
-* __아직 구현 안된 부분__: surface source
-* __구현된 부분__: External, Internal, Hadronic, dose 정리, effective dose 정리
-* __dose 정리 관련__: [팬텀이름].dose 라는 파일 내에 아래 형식에 맞게 dose를 정리함 (MCNP의 tally 에 cell 번호 다는 것과 비슷)
+* __Under Development__: surface source, visualization
+* __Developed Functions__: External, Internal, Hadronic, dose arrangement (tallyinig), effective dose calculation
+* __Dose Arrangement__: doses can be organized in [phantom name].dose file (similar to tallying cells in MCNP)
 ```
-[dose ID] [dose 이름] [organ ID list]
+[dose ID] [dose name] [organ ID list]
 ```
-* __effective dose 정리 관련__: RunAction.cc 에 SetEffectiveDose() 에 구현되어 있음. 필요시 수정하면 됨
+* __Effective Dose Calculation__: Implemented in SetEffectiveDose() in RunAction.cc. When the organ IDs were changed, please modify the function
+
+*__MACROS__ _(see sample.in)_
+```
+/run/initialize       (required before any run)
+/gun/particle  gamma  (particle)
+/gun/energy    1 MeV  (energy)
+/external/dir  AP     (idealized external irradiation geometries)
+/internal/source "1 2" [or 1] (internal soruce organ IDs, double quotation is required for multiple sources) 
+/run/beamOn    10000  (nps)
+```
