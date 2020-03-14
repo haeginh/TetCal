@@ -39,9 +39,8 @@ PrimaryGeneratorAction::PrimaryGeneratorAction(TETModelImport* _tetData)
 {
 	fParticleGun = new G4ParticleGun(1);
 	fMessenger   = new PrimaryMessenger(this);
-	fExternal    = new ExternalBeam();
-	fInternal    = new InternalSource(tetData);
-
+//	fExternal    = new ExternalBeam();
+//	fInternal    = new InternalSource(tetData);
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
