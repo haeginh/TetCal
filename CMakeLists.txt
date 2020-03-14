@@ -2,7 +2,7 @@
 # Setup the project
 #
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
-project(TetCal)
+project(ODDCal)
 
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
@@ -33,7 +33,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(ODDCal TetCal.cc ${sources} ${headers})
+add_executable(ODDCal ODDCal.cc ${sources} ${headers})
 target_link_libraries(ODDCal ${Geant4_LIBRARIES})
 
 #----------------------------------------------------------------------------
