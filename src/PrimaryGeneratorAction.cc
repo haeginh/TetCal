@@ -37,8 +37,8 @@ PrimaryGeneratorAction::PrimaryGeneratorAction(VOXModelImport* _voxData)
 {
 	fParticleGun = new G4ParticleGun(1);
 	fMessenger   = new PrimaryMessenger(this);
-	fExternal    = new ExternalBeam();
-	fInternal    = new InternalSource(voxData);
+//	fExternal    = new ExternalBeam();
+//	fInternal    = new InternalSource(voxData);
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
