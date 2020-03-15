@@ -31,25 +31,6 @@ private:
 
 enum BEAMDIR {AP, PA, LLAT, RLAT, ROT, ISO};
 
-class ExternalBeam: public SourceGenerator
-{
-public:
-    ExternalBeam();
-    virtual ~ExternalBeam();
-
-    void SetBeamDirection(BEAMDIR _dir);
-    void GetAprimaryPos(G4ThreeVector &pos, G4ThreeVector &dir);
-
-    G4String GetBeamDirection() 	  const {return beamDirName;}
-    G4double GetBeamArea() 	  	      const {return beamArea;}
-
-private:
-    BEAMDIR  beamDir;
-    G4String beamDirName;
-    G4double xHalf, yHalf, zHalf;
-    G4double beamArea;
-};
-
 class    VOXModelImport;
 typedef  std::tuple<G4int, G4int, G4int> VOX;
 class InternalSource: public SourceGenerator
