@@ -66,10 +66,10 @@ class TETModelImport
 {
 public:
 	TETModelImport(G4String phantomName, G4UIExecutive* ui);
-	virtual ~TETModelImport() {};
+    virtual ~TETModelImport() {}
 
 	// get methods
-	G4String      GetPhantomName()           { return phantomName; };
+    G4String      GetPhantomName()           { return phantomName; }
 	G4Material*   GetMaterial(G4int idx)     { return materialMap[idx];}
 	G4int         GetNumTetrahedron()        { return tetVector.size();}
 	G4int         GetMaterialIndex(G4int idx){ return materialVector[idx]; }
@@ -80,6 +80,8 @@ public:
 	G4ThreeVector GetPhantomSize()           { return phantomSize; }
 	G4ThreeVector GetPhantomBoxMin()         { return boundingBox_Min; }
 	G4ThreeVector GetPhantomBoxMax()         { return boundingBox_Max; }
+    std::map<G4int, G4double> GetRBMratio()  { return rbmRatio;}
+
 private:
 
 	// private methods
@@ -87,6 +89,7 @@ private:
 	void MaterialRead(G4String);
 	void ColourRead();
 	void PrintMaterialInfomation();
+    void RBMBSRead(G4String bonefile);
 
 	G4String phantomName;
 
@@ -108,6 +111,8 @@ private:
 	std::map<G4int, G4Material*>                             materialMap;
 	std::map<G4int, G4double>                                densityMap;
 	std::map<G4int, G4String>                                organNameMap;
+
+    std::map<G4int, G4double>  rbmRatio;
 };
 
 #endif

@@ -27,16 +27,31 @@ void InternalSource::SetSource(std::vector<G4int> sources)
 	std::set<G4int>    sourceSet(sources.begin(), sources.end());
 
 	//Cout
-	tetPick.clear();
+    tetPick.clear();
 	std::stringstream ss;
 	ss<<"Set source organs for ";
-	for(auto s:sourceSet) ss<<s<<" ";
+    for(auto s:sourceSet) ss<<s<<" ";
+    if(sources[0] == 0) {ss<<"(RBM)"; sourceSet.erase(0);}
 
 	//Extract source tet IDs
-	for(G4int i=0;i<tetData->GetNumTetrahedron();i++){
-		if(sourceSet.find(tetData->GetMaterialIndex(i)) != sourceSet.end())
-			tetPick.push_back(VOLPICK(tetData->GetTetrahedron(i)->GetCubicVolume(), i));
-	}
+    if(sources[0] == 0){
+        for(G4int i=0;i<tetData->GetNumTetrahedron();i++){
+            if(sourceSet.find(tetData->GetMaterialIndex(i)) != sourceSet.end())
+                tetPick.push_back(VOLPICK(tetData->GetTetrahedron(i)->GetCubicVolume(), i));
+        }
+    }else{
+        auto rbmRatio = tetData->GetRBMratio();
+        for(auto ss:sourceSet){
+            if(rbmRatio.find(ss)==rbmRatio.end()){
+                G4cerr<<ss<<" is not included in RBMnBS file!"<<G4endl; exit(0);
+            }
+        }
+        for(G4int i=0;i<tetData->GetNumTetrahedron();i++){
+            if(sourceSet.find(tetData->GetMaterialIndex(i)) != sourceSet.end())
+                tetPick.push_back(VOLPICK(tetData->GetTetrahedron(i)->GetCubicVolume()
+                                         *rbmRatio[tetData->GetMaterialIndex(i)], i));
+        }
+    }
 	ss<<" -> "<<tetPick.size()<<G4endl;
 
 	//Arrange volumes
@@ -49,7 +64,7 @@ void InternalSource::SetSource(std::vector<G4int> sources)
 		previousVol = tp.first;
 	}
 
-	for(auto &tp:tetPick) tp.first /= previousVol;
+    for(auto &tp:tetPick) tp.first /= previousVol;
 
 	G4cout<<ss.str();
 }

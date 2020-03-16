@@ -41,12 +41,15 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 
 	G4String eleFile      =  phantomName + ".ele";
 	G4String nodeFile     =  phantomName + ".node";
+    G4String boneFile     =  phantomName + ".RBMnBS";
 	G4String materialFile =  phantomName + ".material";
 
 	// read phantom data files (*. ele, *.node)
 	DataRead(eleFile, nodeFile);
 	// read material file (*.material)
 	MaterialRead(materialFile);
+    // read RBMnBS file
+    RBMBSRead(boneFile);
 	// read colour data file (colour.dat) if this is interactive mode
 	if(ui) ColourRead();
 	// print the summary of phantom information
@@ -272,4 +275,19 @@ void TETModelImport::PrintMaterialInfomation()
 			   << std::setw(11) << massMap[idx]/g              // organ mass
 			   << "\t"<<materialMap[idx]->GetName() << G4endl; // organ name
 	}
+}
+
+void TETModelImport::RBMBSRead(G4String bonefile){
+    std::ifstream ifs(bonefile);
+    if(!ifs.is_open()) {
+        // exception for the case when there is no *.material file
+        G4Exception("TETModelImport::RBMBSRead","",JustWarning,
+                G4String("      There is no " + bonefile ).c_str());
+        return;
+    }
+    G4int idx;
+    G4double rbm, bs;
+    while(ifs>>idx>>rbm>>bs){
+        rbmRatio[idx]=rbm;
+    }
 }
