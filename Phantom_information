@@ -1,0 +1,47 @@
+PhantomName  ICRP-AM
+NumberofVoxels   254     127     222
+Voxelsize        2.137   2.137   8.0
+
+PhantomName  ICRP-AF
+NumberofVoxels   299     137     348
+Voxelsize        1.775   1.775   4.84
+
+PhantomName  ICRP-00M
+NumberofVoxels   345     211     716
+Voxelsize        0.663   0.663   0.663
+
+PhantomName  ICRP-00F
+NumberofVoxels   345     211     716
+Voxelsize        0.663   0.663   0.663
+
+PhantomName  ICRP-01M
+NumberofVoxels   393     248     546
+Voxelsize        0.663   0.663   1.4
+
+PhantomName  ICRP-01F
+NumberofVoxels   393     248     546
+Voxelsize        0.663   0.663   1.4
+
+PhantomName  ICRP-05M
+NumberofVoxels   419     230     572
+Voxelsize        0.850   0.850   1.928
+
+PhantomName  ICRP-05F
+NumberofVoxels   419     230     572
+Voxelsize        0.850   0.850   1.928
+
+PhantomName  ICRP-10M
+NumberofVoxels   419     226     576
+Voxelsize        0.990   0.990   2.425
+
+PhantomName  ICRP-10F
+NumberofVoxels   419     226     576
+Voxelsize        0.990   0.990   2.425
+
+PhantomName  ICRP-15M
+NumberofVoxels   407     225     586
+Voxelsize        1.250   1.250   2.832
+
+PhantomName  ICRP-15F
+NumberofVoxels   401     236     571
+Voxelsize        1.200   1.200   2.828
