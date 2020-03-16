@@ -29,7 +29,7 @@
 /control/execute odd.mac
 
 # gonads
-/odd/organ "111 112"
+/odd/organ "111 112 129 130"
 /control/execute odd.mac
 
 # urinary bladder wall
