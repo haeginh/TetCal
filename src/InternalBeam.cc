@@ -34,7 +34,7 @@ void InternalSource::SetSource(std::vector<G4int> sources)
     if(sources[0] == 0) {ss<<"(RBM)"; sourceSet.erase(0);}
 
 	//Extract source tet IDs
-    if(sources[0] == 0){
+    if(sources[0] != 0){
         for(G4int i=0;i<tetData->GetNumTetrahedron();i++){
             if(sourceSet.find(tetData->GetMaterialIndex(i)) != sourceSet.end())
                 tetPick.push_back(VOLPICK(tetData->GetTetrahedron(i)->GetCubicVolume(), i));
