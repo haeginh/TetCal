@@ -23,43 +23,29 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETSteppingAction.hh
-// \file   MRCP_GEANT4/External/include/TETSteppingAction.hh
+// TETActionInitialization.cc
+// \file   MRCP_GEANT4/External/src/TETActionInitialization.cc
 // \author Haegin Han
 //
 
-#ifndef TETSteppingAction_h
-#define TETSteppingAction_h 1
+#include "ActionInitialization.hh"
 
-#include "G4UserSteppingAction.hh"
-#include "globals.hh"
-#include "G4ThreeVector.hh"
-#include "G4Step.hh"
-#include "G4RunManager.hh"
-#include "G4UnitsTable.hh"
+ActionInitialization::ActionInitialization(VOXModelImport* _voxData, G4String _output, G4Timer* _init)
+ : G4VUserActionInitialization(), voxData(_voxData), output(_output), initTimer(_init)
+{}
 
-class G4LogicalVolume;
+ActionInitialization::~ActionInitialization()
+{}
 
-// *********************************************************************
-// With very low probability, because of the internal bug of G4TET, the
-// particles can be stuck in the vertices of tetrahedrons. This
-// UserSteppingAction class was written to slightly move these stuck
-// particles.
-// -- UserSteppingAction: Slightly move the stuck particles.
-// *********************************************************************
-
-class TETSteppingAction : public G4UserSteppingAction
+void ActionInitialization::BuildForMaster() const
 {
-  public:
-    TETSteppingAction();
-    virtual ~TETSteppingAction();
+    SetUserAction(new RunAction(output, initTimer));
+}
 
-    virtual void UserSteppingAction(const G4Step*);
+void ActionInitialization::Build() const
+{
+	// initialise UserAction classes
+    SetUserAction(new TETPrimaryGeneratorAction(voxData));
+    SetUserAction(new RunAction( output, initTimer));
+}  
 
-  private:
-    G4double kCarTolerance;
-    G4int    stepCounter;
-    G4bool   checkFlag;
-};
-
-#endif

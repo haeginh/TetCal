@@ -32,15 +32,17 @@
 #define TETPSEnergyDeposit_h 1
 
 #include "G4PSTrackLength.hh"
+#include "VOXModelImport.hh"
 
 class TETPSTrackLength : public G4PSTrackLength
 {
    public:
-      TETPSTrackLength(G4String name);
+      TETPSTrackLength(G4String name, VOXModelImport* voxData);
       virtual ~TETPSTrackLength();
 
   protected:
       virtual G4int GetIndex(G4Step*);
+      VOXModelImport* voxData;
 };
 
 #endif

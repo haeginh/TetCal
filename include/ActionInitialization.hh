@@ -33,11 +33,10 @@
 
 #include "G4VUserActionInitialization.hh"
 #include "G4String.hh"
-#include "TETRunAction.hh"
-#include "TETSteppingAction.hh"
+#include "RunAction.hh"
 #include "TETPrimaryGeneratorAction.hh"
 
-class TETModelImport;
+class VOXModelImport;
 
 // *********************************************************************
 // This UserActionInitialization class initializes UserAction classes
@@ -48,19 +47,19 @@ class TETModelImport;
 //           UserSteppingAction classes.
 // *********************************************************************
 
-class TETActionInitialization : public G4VUserActionInitialization
+class ActionInitialization : public G4VUserActionInitialization
 {
 public:
-	TETActionInitialization(TETModelImport* tetData,
+    ActionInitialization(VOXModelImport* voxData,
 			                G4String        outputFileName,
 							G4Timer*        initTimer);
-	virtual ~TETActionInitialization();
+    virtual ~ActionInitialization();
 
 	virtual void BuildForMaster() const;
 	virtual void Build() const;
 
 private:
-	TETModelImport* tetData;
+    VOXModelImport* voxData;
 	G4String output;
 	G4Timer* initTimer;
 };

@@ -1,3 +1,4 @@
+
 /*
  * ExternalBeam.hh
  *
@@ -10,47 +11,85 @@
 
 #include "globals.hh"
 #include "G4ThreeVector.hh"
-#include "G4Tet.hh"
 
 #include <vector>
 
 class SourceGenerator
 {
 public:
-	virtual ~SourceGenerator() {};
-	virtual void GetAprimaryPos(G4ThreeVector &pos)
-	{pos = G4ThreeVector(); }
-	void SetExternal() {isExternal = true; isInternal = false;}
-	void SetInternal() {isInternal = true; isExternal = false;}
-	G4bool IsExternal() {return isExternal;}
-	G4bool IsInternal() {return isInternal;}
+    virtual ~SourceGenerator() {}
+    virtual void GetAprimaryPos(G4ThreeVector &pos)
+    {pos = G4ThreeVector();}
+    void SetExternal() {isExternal = true; isInternal = false;}
+    void SetInternal() {isInternal = true; isExternal = false;}
+    G4bool IsExternal() {return isExternal;}
+    G4bool IsInternal() {return isInternal;}
 private:
-	G4bool isExternal = false;
-	G4bool isInternal = false;
+    G4bool isExternal = false;
+    G4bool isInternal = false;
 };
 
-class    TETModelImport;
-typedef  std::pair<G4double, G4int> VOLPICK;
+enum BEAMDIR {AP, PA, LLAT, RLAT, ROT, ISO};
+
+class ExternalBeam: public SourceGenerator
+{
+public:
+    ExternalBeam();
+    virtual ~ExternalBeam();
+
+    void SetBeamDirection(BEAMDIR _dir);
+    void GetAprimaryPos(G4ThreeVector &pos, G4ThreeVector &dir);
+
+    G4String GetBeamDirection() 	  const {return beamDirName;}
+    G4double GetBeamArea() 	  	      const {return beamArea;}
+
+private:
+    BEAMDIR  beamDir;
+    G4String beamDirName;
+    G4double xHalf, yHalf, zHalf;
+    G4double beamArea;
+};
+
+class    VOXModelImport;
+typedef  std::tuple<G4int, G4int, G4int> VOX;
 class InternalSource: public SourceGenerator
 {
 public:
-	InternalSource(TETModelImport* tetData);
-	virtual ~InternalSource();
+    InternalSource(VOXModelImport* voxData);
+    virtual ~InternalSource();
 
-	void SetSource(std::vector<G4int> sources);
-	void GetAprimaryPos(G4ThreeVector &pos);
+    void SetSource(std::vector<G4int> sources);
+    void GetAprimaryPos(G4ThreeVector &pos);
 
-	std::vector<G4int> GetSource() 	const {return sourceIDs;}
+    std::vector<G4int> GetSource() 	const {return sourceIDs;}
 
 private:
-	G4ThreeVector RandomSamplingInTet(G4Tet* tet);
+    G4ThreeVector RandomSamplingInAVoxel(VOX vox);
 
+private:
+    std::vector<G4int>    sourceIDs;
+    VOXModelImport*       voxData;
+    std::map<G4int,std::vector<VOX>>  voxPick;
+    G4ThreeVector         base;
+    G4bool                isRBM;
+    std::vector<std::pair<G4double, G4int>> spPick;
+};
+
+/*class SurfaceSource: public SourceGenerator
+{
+public:
+    SurfaceSource(TETModelImport* tetData);
+    virtual ~SurfaceSource();
+    void SetSource(std::vector<G4int> sources);
+    void GetAprimaryPosDir(G4ThreeVector &pos, G4ThreeVector &dir);
+    std::vector<G4int> GetSource() 	const {return sourceIDs;}
+private:
+    G4ThreeVector RandomSamplingInTriangle(G4Tet* tet);
 private:
     std::vector<G4int>    sourceIDs;
     TETModelImport*       tetData;
     std::vector<VOLPICK>  tetPick;
-};
-
+};*/
 
 
 #endif /* SRC_EXTERNALBEAM_HH_ */

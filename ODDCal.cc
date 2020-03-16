@@ -25,9 +25,9 @@
 //
 // \author        Haegin Han
 
-#include "TETDetectorConstruction.hh"
-#include "TETModelImport.hh"
-#include "TETActionInitialization.hh"
+#include "VOXDetectorConstruction.hh"
+#include "VOXModelImport.hh"
+#include "ActionInitialization.hh"
 
 #ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
@@ -38,13 +38,9 @@
 #include "G4UImanager.hh"
 #include "G4UIterminal.hh"
 
-#ifdef G4UI_USE
 #include "G4VisExecutive.hh"
-#endif
 
-#ifdef G4VIS_USE
 #include "G4UIExecutive.hh"
-#endif
 
 #include "Randomize.hh"
 #include "G4Timer.hh"
@@ -126,26 +122,24 @@ int main(int argc,char** argv)
 
 	// Set a class to import phantom data
 	//
-	TETModelImport* tetData = new TETModelImport(phantomName, ui);
+    VOXModelImport* voxData = new VOXModelImport(phantomName);
 
 	// Set mandatory initialisation classes
 	//
 	// detector construction
-	runManager->SetUserInitialization(new TETDetectorConstruction(tetData));
+    runManager->SetUserInitialization(new VOXDetectorConstruction(voxData));
 	// physics list
 //	G4PhysListFactory factory;
 //	G4VModularPhysicsList* physList = factory.GetReferencePhysList("QBBC");
 	runManager->SetUserInitialization(new PhysicsList());
 //	runManager->SetUserInitialization(new TETPhysicsList());
 	// user action initialisation
-	runManager->SetUserInitialization(new TETActionInitialization(tetData, output, initTimer));
+    runManager->SetUserInitialization(new ActionInitialization(voxData, output, initTimer));
     
-#ifdef G4VIS_USE
 	// Visualization manager
 	//
 	G4VisManager* visManager = new G4VisExecutive;
 	visManager->Initialise();
-#endif
 
 	// Process macro or start UI session
 	//
@@ -158,13 +152,9 @@ int main(int argc,char** argv)
 	}
 	else {
 		// interactive mode
-#ifdef G4VIS_USE
 		UImanager->ApplyCommand("/control/execute init_vis.mac");
-#endif
 		ui->SessionStart();
-#ifdef G4VIS_USE
 		delete visManager;
-#endif
 		delete ui;
 	}
 

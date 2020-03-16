@@ -23,30 +23,56 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETActionInitialization.cc
-// \file   MRCP_GEANT4/External/src/TETActionInitialization.cc
-// \author Haegin Han
+// The code was written by :
+//	*Jong Hwi Jeong  jonghwi@hanyang.ac.kr
+//      *Chan Hyeong Kim chkim@hanyang.ac.kr
 //
+// Department of Nuclear Engineering, Hanyang University
+// 17 Haengdang, Seongdong, Seoul 133-791, Korea
+// Tel: +82-2-2220-4057
+// Fax: +82-2-2220-4059
+//
+// ********************************************************************
 
-#include "TETActionInitialization.hh"
+#ifndef DETECTORCONSTRUCTION_HH
+#define DETECTORCONSTRUCTION_HH
 
-TETActionInitialization::TETActionInitialization(TETModelImport* _tetData, G4String _output, G4Timer* _init)
- : G4VUserActionInitialization(), tetData(_tetData), output(_output), initTimer(_init)
-{}
+#include <fstream>
+#include <sstream>
 
-TETActionInitialization::~TETActionInitialization()
-{}
+#include "globals.hh"
+#include "G4Box.hh"
+#include "G4VUserDetectorConstruction.hh"
+#include "G4MultiFunctionalDetector.hh"
+#include "G4VisAttributes.hh"
 
-void TETActionInitialization::BuildForMaster() const
-{
-	SetUserAction(new TETRunAction(tetData, output, initTimer));
-}
+#include "VOXNestedParameterisation.hh"
+#include "TETPSTrackLength.hh"
+#include "VOXModelImport.hh"
 
-void TETActionInitialization::Build() const
-{
-	// initialise UserAction classes
-	SetUserAction(new TETPrimaryGeneratorAction(tetData));
-	SetUserAction(new TETRunAction(tetData, output, initTimer));
-	SetUserAction(new TETSteppingAction);
-}  
+class VOXDetectorConstruction : public G4VUserDetectorConstruction {
 
+public:
+
+    VOXDetectorConstruction(VOXModelImport* );
+    virtual ~VOXDetectorConstruction();
+
+    virtual G4VPhysicalVolume* Construct();
+    virtual void ConstructSDandField();
+
+private:
+    G4VisAttributes* blankAtt;
+
+    VOXModelImport* voxelPhantom;
+
+    // world & container logical and physical volumes
+    G4VPhysicalVolume* fpWorldPhysical;
+    G4LogicalVolume* logicVoxel;
+    // Data members
+    G4ThreeVector fphantomSize;   // Size of voxel phantom
+    G4ThreeVector fvoxelSize;     // voxel size
+    G4int         fNx,fNy,fNz;    // Number of segmentation of voxel phantom
+    G4double      fVoxelHalfLengthX, fVoxelHalfLengthY, fVoxelHalfLengthZ;    // Number of segmentation of voxel phantom
+};
+
+#endif

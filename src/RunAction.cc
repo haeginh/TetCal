@@ -28,11 +28,11 @@
 // \author Haegin Han
 //
 
-#include "TETRunAction.hh"
+#include "RunAction.hh"
 #include "G4Timer.hh"
 #include <iostream>
 
-TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
+RunAction::RunAction(G4String _output, G4Timer* _init)
 :fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0),
  primaryDir(1., 0, 0)
 {
@@ -46,10 +46,10 @@ TETRunAction::TETRunAction(TETModelImport* _tetData, G4String _output, G4Timer* 
 	ofs<<G4endl;
 }
 
-TETRunAction::~TETRunAction()
+RunAction::~RunAction()
 {}
 
-G4Run* TETRunAction::GenerateRun()
+G4Run* RunAction::GenerateRun()
 {
 	// generate run
 	fRun = new TETRun();
@@ -57,7 +57,7 @@ G4Run* TETRunAction::GenerateRun()
 }
 
 
-void TETRunAction::BeginOfRunAction(const G4Run* aRun)
+void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
 	// print the progress at the interval of 10%
 	numOfEvent=aRun->GetNumberOfEventToBeProcessed();
@@ -89,7 +89,7 @@ void TETRunAction::BeginOfRunAction(const G4Run* aRun)
 
 }
 
-void TETRunAction::EndOfRunAction(const G4Run* aRun)
+void RunAction::EndOfRunAction(const G4Run* aRun)
 {
 	// print the result only in the Master
 	if(!isMaster) return;
@@ -116,7 +116,7 @@ void TETRunAction::EndOfRunAction(const G4Run* aRun)
 	initTimer->Start();
 }
 
-void TETRunAction::PrintResult(std::ostream &out)
+void RunAction::PrintResult(std::ostream &out)
 {
 	// Print run result
 	//
@@ -137,7 +137,7 @@ void TETRunAction::PrintResult(std::ostream &out)
 }
 
 
-void TETRunAction::PrintLine(std::ostream &out)
+void RunAction::PrintLine(std::ostream &out)
 {
 	// Print run result
 	//

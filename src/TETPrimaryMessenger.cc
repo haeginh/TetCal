@@ -28,7 +28,7 @@
 //
 
 #include "TETPrimaryGeneratorAction.hh"
-#include "TETRunAction.hh"
+#include "RunAction.hh"
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithAString.hh"
 #include "G4RunManager.hh"

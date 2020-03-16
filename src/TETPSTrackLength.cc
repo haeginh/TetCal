@@ -30,8 +30,8 @@
 
 #include "TETPSTrackLength.hh"
 
-TETPSTrackLength::TETPSTrackLength(G4String name)
-  :G4PSTrackLength(name)
+TETPSTrackLength::TETPSTrackLength(G4String name, VOXModelImport* _voxData)
+  :G4PSTrackLength(name), voxData(_voxData)
 {}
 
 TETPSTrackLength::~TETPSTrackLength()
@@ -39,5 +39,10 @@ TETPSTrackLength::~TETPSTrackLength()
 
 G4int TETPSTrackLength::GetIndex(G4Step* aStep)
 {
-	return 1;
+    G4int iz = aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(0);
+    G4int ix = aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(1);
+    G4int iy = aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(2);
+    G4int idx =  voxData->GetVoxelData(ix,iy,iz);
+    if(idx==0) return 0;
+    else       return 1;
 }

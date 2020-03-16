@@ -1,3 +1,4 @@
+
 //
 // ********************************************************************
 // * License and Disclaimer                                           *
@@ -29,33 +30,31 @@
 // \update
 // \
 
-
 #include "TETPrimaryGeneratorAction.hh"
 #include "G4Geantino.hh"
 #include <fstream>
 
-TETPrimaryGeneratorAction::TETPrimaryGeneratorAction(TETModelImport* _tetData)
-:tetData(_tetData), fSourceGenerator(0)
+TETPrimaryGeneratorAction::TETPrimaryGeneratorAction(VOXModelImport* _voxData)
+:voxData(_voxData), fSourceGenerator(0)
 {
-	fParticleGun = new G4ParticleGun(1);
-	fParticleGun->SetParticleDefinition(G4Geantino::GeantinoDefinition());
-	fMessenger   = new TETPrimaryMessenger(this);
-	fInternal    = new InternalSource(tetData);
+    fParticleGun = new G4ParticleGun(1);
+    fParticleGun->SetParticleDefinition(G4Geantino::GeantinoDefinition());
+    fMessenger   = new TETPrimaryMessenger(this);
+    fInternal    = new InternalSource(voxData);
 }
 
 TETPrimaryGeneratorAction::~TETPrimaryGeneratorAction()
 {
-	delete fParticleGun;
-	delete fMessenger;
-	delete fInternal;
+    delete fParticleGun;
+    delete fMessenger;
+    delete fInternal;
 }
 
 void TETPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-	G4ThreeVector position;
-	fSourceGenerator->GetAprimaryPos(position);
-	fParticleGun->SetParticlePosition(position);
-	fParticleGun->GeneratePrimaryVertex(anEvent);
+    G4ThreeVector position;
+    fSourceGenerator->GetAprimaryPos(position);
+    fParticleGun->SetParticlePosition(position);
+    fParticleGun->GeneratePrimaryVertex(anEvent);
 }
-
 

@@ -23,54 +23,67 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETParameterisation.hh
-// \file   MRCP_GEANT4/External/include/TETParameterisation.hh
+// TETRunAction.hh
+// \file   MRCP_GEANT4/External/include/TETRunAction.hh
 // \author Haegin Han
 //
 
-#ifndef TETParameterisation_h
-#define TETParameterisation_h 1
+#ifndef TETRunAction_h
+#define TETRunAction_h 1
 
-#include "TETModelImport.hh"
-
-#include "globals.hh"
-#include "G4VPVParameterisation.hh"
-#include "G4VSolid.hh"
-#include "G4Material.hh"
-#include "G4VisAttributes.hh"
-
+#include <ostream>
+#include <fstream>
 #include <map>
 
-class G4VPhysicalVolume;
+#include "G4RunManager.hh"
+#include "G4UnitsTable.hh"
+#include "G4UserRunAction.hh"
+#include "G4SystemOfUnits.hh"
+
+#include "TETRun.hh"
+#include "TETPrimaryGeneratorAction.hh"
+#include "VOXModelImport.hh"
 
 // *********************************************************************
-// This class defines the phantom geometry by using G4PVParameterisation
-// class.
-// -- ComputeSolid: return the G4Tet* for each element
-// -- ComputeMaterial: return the G4Material* corresponding to each organ,
-//                     and set the colours for visualization purposes
+// The main function of this UserRunAction class is to produce the result
+// data and print them.
+// -- GenerateRun: Generate TETRun class which will calculate the sum of
+//                  energy deposition.
+// -- BeginOfRunAction: Set the RunManager to print the progress at the
+//                      interval of 10%.
+// -- EndOfRunAction: Print the run result by G4cout and std::ofstream.
+//  └-- PrintResult: Method to print the result.
 // *********************************************************************
 
-class TETParameterisation : public G4VPVParameterisation
+class RunAction : public G4UserRunAction
 {
-  public:
-    TETParameterisation(TETModelImport* tetData);
-    virtual ~TETParameterisation();
-    
-    virtual G4VSolid* ComputeSolid(
-    		       const G4int copyNo, G4VPhysicalVolume* );
-    
-    virtual void ComputeTransformation(
-                   const G4int,G4VPhysicalVolume*) const;
+public:
+    RunAction(G4String output, G4Timer* initTimer);
+    virtual ~RunAction();
 
-    virtual G4Material* ComputeMaterial(const G4int copyNo,
-                                        G4VPhysicalVolume* phy,
-                                        const G4VTouchable*);
+public:
+	virtual G4Run* GenerateRun();
+	virtual void BeginOfRunAction(const G4Run*);
+	virtual void EndOfRunAction(const G4Run*);
 
-  private:
-    TETModelImport*                    tetData;
-    std::map<G4int, G4VisAttributes*>  visAttMap;
-    G4bool                             isforVis;
+	void PrintResult(std::ostream &out);
+	void PrintLine(std::ostream &out);
+
+private:
+	TETRun*         fRun;
+	G4int           numOfEvent;
+	G4int           runID;
+	G4String        outputFile;
+	G4Timer*        initTimer;
+	G4Timer*        runTimer;
+
+	G4String primarySourceName;
+	G4ThreeVector primaryDir;
 };
 
 #endif
+
+
+
+
+
