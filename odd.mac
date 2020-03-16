@@ -1,0 +1,12 @@
+/odd/dir front
+/run/beamOn 10000000
+/odd/dir back
+/run/beamOn 10000000
+/odd/dir left
+/run/beamOn 10000000
+/odd/dir right
+/run/beamOn 10000000
+/odd/dir top
+/run/beamOn 10000000
+/odd/dir bottom
+/run/beamOn 10000000
