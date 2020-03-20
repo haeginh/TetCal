@@ -51,7 +51,7 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	// read dose file (*.dose) -if there is any
 	DoseRead(doseFile);
 	// read phantom data files (*. ele, *.node)
-	DataRead(eleFile, nodeFile);
+    DataRead(eleFile, nodeFile);
 	// read material file (*.material)
 	MaterialRead(materialFile);
 	// read bone file (*.RBMnBS)

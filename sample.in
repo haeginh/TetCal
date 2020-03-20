@@ -2,7 +2,7 @@
 /run/verbose 0
 
 # Set the number of threads for multi-threading mode
-/run/numberOfThreads  2
+/run/numberOfThreads  1
 
 # Initialize
 /run/initialize
@@ -11,13 +11,16 @@
 /gun/particle gamma
 /external/dir AP
 /gun/energy 0.1 MeV
-#/run/beamOn 1E7
-/gun/energy 1 MeV
-/gun/energy 10 MeV
-/gun/energy 100 MeV
-/gun/energy 1000 MeV
+#/run/beamOn 10000
 
-/internal/source 102
+#/internal/source 102
+#/gun/energy 0.01 MeV
+
+/internal/surface 102
+/gun/energy 0.01 MeV
+/run/beamOn 10000
+
+/internal/surface "143 144"
 /gun/energy 0.01 MeV
 /run/beamOn 10000
 

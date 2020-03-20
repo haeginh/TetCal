@@ -30,35 +30,31 @@
 // \
 
 
-#include "../include/PrimaryGeneratorAction.hh"
+#include "PrimaryGeneratorAction.hh"
 
-#include <fstream>
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(TETModelImport* _tetData)
 :tetData(_tetData), fSourceGenerator(0)
 {
 	fParticleGun = new G4ParticleGun(1);
 	fMessenger   = new PrimaryMessenger(this);
-	fExternal    = new ExternalBeam();
-	fInternal    = new InternalSource(tetData);
-
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
 	delete fParticleGun;
 	delete fMessenger;
-	delete fExternal;
-	delete fInternal;
+    if(fExternal) delete fExternal;
+    if(fInternal) delete fInternal;
+    if(fSurface)  delete fSurface;
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-
 	G4ThreeVector direction, position;
 	fSourceGenerator->GetAprimaryPosDir(position, direction);
 	fParticleGun->SetParticlePosition(position);
-	fParticleGun->SetParticleMomentumDirection(direction);
+    fParticleGun->SetParticleMomentumDirection(direction);
 	fParticleGun->GeneratePrimaryVertex(anEvent);
 }
 

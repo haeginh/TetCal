@@ -66,7 +66,7 @@ class TETModelImport
 {
 public:
 	TETModelImport(G4String phantomName, G4UIExecutive* ui);
-	virtual ~TETModelImport() {};
+    virtual ~TETModelImport() {}
 
 	// get methods
 	G4bool        DoseWasOrganized()         { return doseOrganized; }
@@ -75,7 +75,7 @@ public:
 	G4String      GetDoseName(G4int doseID)  { return doseName[doseID];}
 	std::map<G4int, G4double> GetDoseMassMap(){ return doseMassMap; }
 
-	G4String      GetPhantomName()           { return phantomName; };
+    G4String      GetPhantomName()           { return phantomName; }
 	G4Material*   GetMaterial(G4int idx)     { return materialMap[idx];}
 	G4int         GetNumTetrahedron()        { return tetVector.size();}
 	G4int         GetMaterialIndex(G4int idx){ return materialVector[idx]; }
@@ -90,12 +90,27 @@ public:
 	std::map<G4int, G4double> GetBSratio()   { return bsRatio;}
 	G4double GetRBMDRF(G4int idx, G4int eIdx){ return rbmDRF[idx][eIdx];}
 	G4double GetBSDRF (G4int idx, G4int eIdx){ return bsDRF[idx][eIdx];}
+    G4ThreeVector GetAVertex(G4int idx)      { return vertexVector[idx]; }
+
+    std::vector<std::vector<G4int>> GetElements(G4int organID){
+        std::vector<std::vector<G4int>> eleVec;
+        for(size_t i=0;i<materialVector.size();i++){
+            if(materialVector[i]!=organID) continue;
+            std::vector<G4int> ele = {eleVector[i][0],
+                                      eleVector[i][1],
+                                      eleVector[i][2],
+                                      eleVector[i][3]};
+            std::sort(ele.begin(), ele.end());
+            eleVec.push_back(ele);
+        }
+        return eleVec;
+    }
 
 private:
 
 	// private methods
 	void DoseRead(G4String);
-	void DataRead(G4String, G4String);
+    void DataRead(G4String, G4String);
 	void MaterialRead(G4String);
 	void RBMBSRead(G4String);
 	void DRFRead(G4String);
@@ -142,6 +157,7 @@ private:
 	std::map<G4int, G4Material*>                             materialMap;
 	std::map<G4int, G4double>                                densityMap;
 	std::map<G4int, G4String>                                organNameMap;
+
 };
 
 #endif

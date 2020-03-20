@@ -25,6 +25,7 @@ InternalSource::~InternalSource()
 void InternalSource::SetSource(std::vector<G4int> sources)
 {
 	std::set<G4int>    sourceSet(sources.begin(), sources.end());
+    tetPick.clear();
 
 	//Cout
 	std::stringstream ss;

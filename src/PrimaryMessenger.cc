@@ -70,7 +70,7 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 	if(command == fSourceOrganCmd){
 		fPrimary->SetInternalBeam();
 		InternalSource* fInternal = (InternalSource*) fPrimary->GetInternalBeamGenerator();
-		if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);
+        if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);
 
 		fPrimary->SetSourceName("(V) "+newValue);
 
@@ -80,5 +80,18 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 		while(ss>>intTemp) organIDs.push_back(intTemp);
 		fInternal->SetSource(organIDs);
 	}
+    if(command == fSurfaceSourceCmd){
+        fPrimary->SetSurfaceSource();
+        SurfaceSource* fSurface = (SurfaceSource*) fPrimary->GetSurfaceSourceGenerator();
+        if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);
+
+        fPrimary->SetSourceName("(S) "+newValue);
+
+        std::stringstream ss(newValue);
+        std::vector<G4int> organIDs;
+        G4int intTemp;
+        while(ss>>intTemp) organIDs.push_back(intTemp);
+        fSurface->SetSource(organIDs);
+    }
 }
 

@@ -26,15 +26,9 @@
 // External.cc
 // \file          Tetcal_v2
 // \author        Haegin Han
-// \update
-// \  - add internal source
-// \  -
-// \  -
-// \  -
-// \  -
 
-#include "include/ActionInitialization.hh"
-#include "include/PhysicsList.hh"
+#include "ActionInitialization.hh"
+#include "PhysicsList.hh"
 #include "TETDetectorConstruction.hh"
 #include "TETModelImport.hh"
 
