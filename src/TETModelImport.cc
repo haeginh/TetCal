@@ -51,7 +51,7 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	// read dose file (*.dose) -if there is any
 	DoseRead(doseFile);
 	// read phantom data files (*. ele, *.node)
-	DataRead(eleFile, nodeFile);
+    DataRead(eleFile, nodeFile);
 	// read material file (*.material)
 	MaterialRead(materialFile);
 	// read bone file (*.RBMnBS)
@@ -221,9 +221,10 @@ void TETModelImport::MaterialRead(G4String materialFile)
 		density = std::atof(read_data);        //ex) 1.30
 		ifpMat >> read_data;                   //ex) g/cm3
 		ifpMat >> read_data;
+        if(G4String(read_data).empty()) continue;
 		token = std::strtok(read_data,"m");
 		G4int matID = std::atoi(token);        //ex) m'10'
-		materialIndex.push_back(matID);
+        materialIndex.push_back(matID);
 		organNameMap[matID]= MaterialName;
 		densityMap[matID] = density*g/cm3;
 

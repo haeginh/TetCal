@@ -17,11 +17,11 @@
 class SourceGenerator
 {
 public:
-	virtual ~SourceGenerator() {};
+    virtual ~SourceGenerator() {}
 	virtual void GetAprimaryPosDir(G4ThreeVector &pos, G4ThreeVector &dir)
 	{pos = G4ThreeVector(); dir = G4ThreeVector(0., 0., -1.);}
-	void SetExternal() {isExternal = true; isInternal = false;}
-	void SetInternal() {isInternal = true; isExternal = false;}
+    void SetExternal() {isExternal = true; isInternal = false;}
+    void SetInternal() {isInternal = true; isExternal = false;}
 	G4bool IsExternal() {return isExternal;}
 	G4bool IsInternal() {return isInternal;}
 private:
@@ -72,7 +72,8 @@ private:
     std::vector<VOLPICK>  tetPick;
 };
 
-/*class SurfaceSource: public SourceGenerator
+typedef std::pair<G4double, std::tuple<G4int, G4int, G4int>> TRIPICK;
+class SurfaceSource: public SourceGenerator
 {
 public:
 	SurfaceSource(TETModelImport* tetData);
@@ -84,13 +85,14 @@ public:
 	std::vector<G4int> GetSource() 	const {return sourceIDs;}
 
 private:
-	G4ThreeVector RandomSamplingInTriangle(G4Tet* tet);
+    G4double      CalculateTriangleArea(G4ThreeVector a, G4ThreeVector b, G4ThreeVector c);
+    G4ThreeVector RandomSamplingInTriangle(std::tuple<G4int, G4int, G4int>);
 
 private:
     std::vector<G4int>    sourceIDs;
     TETModelImport*       tetData;
-    std::vector<VOLPICK>  tetPick;
-};*/
+    std::vector<TRIPICK>  facePick;
+};
 
 
 #endif /* SRC_EXTERNALBEAM_HH_ */
