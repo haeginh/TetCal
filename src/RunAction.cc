@@ -310,9 +310,11 @@ void RunAction::PrintLineExternal(std::ostream &out)
 
 	for(auto itr:doses){
 		out << itr.second.first/(joule/kg) * beamArea/cm2 <<"\t" << itr.second.second << "\t";
-	}
-	out<<effective_DRF.first/(joule/kg) * beamArea/cm2<< "\t" <<effective_DRF.second <<"\t";
-	out<<effective.first/(joule/kg) * beamArea/cm2<< "\t" <<effective.second ;
+    }
+    if(tetData->DoseWasOrganized()) {
+        out<<effective_DRF.first/(joule/kg) * beamArea/cm2<< "\t" <<effective_DRF.second <<"\t";
+        out<<effective.first/(joule/kg) * beamArea/cm2<< "\t" <<effective.second ;
+    }
 	out<<G4endl;
 }
 
