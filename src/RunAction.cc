@@ -60,7 +60,8 @@ RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
 	ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
 	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
 	for(auto name:nameMap) ofs<<std::to_string(name.first)+"_"+name.second<<"\t"<<massMap[name.first]/g<<"\t";
-	ofs<<"eff. dose (DRF)"<<"\t\t"<< "eff. dose"<<G4endl;
+	if(tetData->DoseWasOrganized()) ofs<<"eff. dose (DRF)"<<"\t\t"<< "eff. dose";
+	ofs<<G4endl;
 	ofs.close();
 }
 
@@ -133,7 +134,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 
 	// set doses
 	SetDoses();
-	if(isExternal) SetEffectiveDose();
+	if(isExternal & tetData->DoseWasOrganized()) SetEffectiveDose();
 
 	// print by G4cout
 	if(isExternal) PrintResultExternal(G4cout);
