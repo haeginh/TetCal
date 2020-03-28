@@ -86,9 +86,9 @@ PhysicsList::~PhysicsList()
 
 void PhysicsList::SetCuts()
 {
-  SetCutValue(1*mm, "proton");
-  SetCutValue(1*mm, "e-");
-  SetCutValue(1*mm, "e+");
-  SetCutValue(1*mm, "gamma");
+  SetCutValue(1*um, "proton");
+  SetCutValue(1*um, "e-");
+  SetCutValue(1*um, "e+");
+  SetCutValue(1*um, "gamma");
 }
 
