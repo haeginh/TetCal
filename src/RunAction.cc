@@ -104,8 +104,8 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 	primaryParticle = primary->GetParticleGun()->GetParticleDefinition()->GetParticleName();
 	primarySourceName = primary->GetSourceName();
 	primaryEnergy = primary->GetParticleGun()->GetParticleEnergy();
-	beamArea = primary->GetExternalBeamGenerator()->GetBeamArea();
 	isExternal = primary-> GetSourceGenerator()->IsExternal();
+	if(isExternal) beamArea = primary->GetExternalBeamGenerator()->GetBeamArea();
 	fRun->SetPrimary(primaryParticle, primarySourceName, primaryEnergy, beamArea, isExternal);
 }
 
