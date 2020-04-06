@@ -105,8 +105,8 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 	primaryParticle = primary->GetParticleGun()->GetParticleDefinition()->GetParticleName();
 	primarySourceName = primary->GetSourceName();
 	primaryEnergy = primary->GetParticleGun()->GetParticleEnergy();
-	beamArea = primary->GetExternalBeamGenerator()->GetBeamArea();
 	isExternal = primary-> GetSourceGenerator()->IsExternal();
+	if(isExternal) beamArea = primary->GetExternalBeamGenerator()->GetBeamArea();
 	fRun->SetPrimary(primaryParticle, primarySourceName, primaryEnergy, beamArea, isExternal);
 
 }
@@ -166,15 +166,15 @@ void RunAction::SetDoses()
 	}
 	for(auto itr : massMap){
 		if(itr.first<0) continue;
-		G4double meanDose    = edepMap[itr.first].first  / itr.second / numOfEvent;
-		G4double squareDoese = edepMap[itr.first].second / (itr.second*itr.second);
+		G4double meanDose    = edepMap[itr.first].first / numOfEvent;
+		G4double squareDoese = edepMap[itr.first].second;
 		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
 		G4double relativeE   = sqrt(variance)/meanDose;
-		if(isExternal) doses[itr.first] = std::make_pair(meanDose*1e12, relativeE);
-		else           doses[itr.first] = std::make_pair(meanDose, relativeE);
+		if(isExternal) doses[itr.first] = std::make_pair(meanDose/itr.second*1e12, relativeE);
+		else           doses[itr.first] = std::make_pair(meanDose/itr.second, relativeE);
 	}
 
-	for(auto itr:doses) itr.second.first *= weight;
+	for(auto &itr:doses) itr.second.first *= weight;
 }
 
 void RunAction::SetEffectiveDose()

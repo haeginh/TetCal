@@ -29,7 +29,7 @@ void InternalSource::SetSource(std::vector<G4int> sources)
 	
 	//Cout
 	std::stringstream ss;
-	ss<<"Set source organs for ";
+	ss<<"Set source organs for "<<G4endl;
 	for(auto source:sourceSet) ss<<source<<" ";
 
 	//Extract source tet IDs
@@ -37,7 +37,7 @@ void InternalSource::SetSource(std::vector<G4int> sources)
 		if(sourceSet.find(tetData->GetMaterialIndex(i)) != sourceSet.end())
 			tetPick.push_back(VOLPICK(tetData->GetTetrahedron(i)->GetCubicVolume(), i));
 	}
-	ss<<" -> "<<tetPick.size()<<G4endl;
+        ss<<" -> "<<tetPick.size()<<G4endl;
 
 	//Arrange volumes
 	std::sort(tetPick.begin(), tetPick.end());
@@ -50,7 +50,6 @@ void InternalSource::SetSource(std::vector<G4int> sources)
 	}
 
 	for(auto &tp:tetPick) tp.first /= previousVol;
-
 	G4cout<<ss.str();
 }
 
@@ -89,8 +88,10 @@ G4ThreeVector InternalSource::RandomSamplingInTet(G4Tet* tet){
 	}
 
 	double a = 1 - varS - varT - varU;
-
-	G4ThreeVector SampledPosition = a*(tet->GetVertices()[0])+varS*(tet->GetVertices()[1])+varT*(tet->GetVertices()[2])+varU*(tet->GetVertices()[3]);
+	
+	G4ThreeVector v1, v2, v3, v4;
+	tet->GetVertices(v1, v2, v3, v4);
+	G4ThreeVector SampledPosition = a*v1+varS*v2+varT*v3+varU*v4;
 	return SampledPosition;
 }
 

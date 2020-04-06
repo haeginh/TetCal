@@ -50,6 +50,12 @@ Run::Run(TETModelImport* tetData)
 		bsFactor[bs.first] = bs.second / massMap[bs.first];
 
 	doseOrganized = tetData->DoseWasOrganized();
+
+	//initialize edepMap
+	edepMap[-1]={0.,0.};
+	edepMap[-2]={0.,0.};
+	if(!doseOrganized) for(auto itr:massMap) edepMap[itr.first] = {0.,0.};
+	else               for(auto itr:organ2dose) edepMap[itr.first] = {0.,0.};
 }
 
 Run::~Run()
