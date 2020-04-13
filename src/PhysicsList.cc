@@ -29,7 +29,7 @@
 // $Id: PhysicsList.cc 70268 2013-05-28 14:17:50Z maire $
 
 
-#include "../include/PhysicsList.hh"
+#include "PhysicsList.hh"
 
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"

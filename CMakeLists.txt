@@ -16,6 +16,9 @@ else()
   find_package(Geant4 REQUIRED)
 endif()
 
+#openmp
+find_package(OpenMP)
+
 #----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
 # Setup include directory for this project
@@ -34,7 +37,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(TetCal TetCal.cc ${sources} ${headers})
-target_link_libraries(TetCal ${Geant4_LIBRARIES})
+target_link_libraries(TetCal ${Geant4_LIBRARIES} OpenMP::OpenMP_CXX)
 
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX

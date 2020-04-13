@@ -24,35 +24,50 @@
 // ********************************************************************
 //
 // TETPrimaryMessenger.cc
-// \file   MRCP_GEANT4/External/src/TETModelImport.cc
 // \author Haegin Han
 //
 
-#ifndef PRIMARYMESSENGER_HH_
-#define PRIMARYMESSENGER_HH_ 1
+#include "G4UIdirectory.hh"
+#include "G4UIcmdWithAString.hh"
+#include "G4UIcmdWithAnInteger.hh"
+#include "G4UIcmdWithADoubleAndUnit.hh"
+#include "G4RunManager.hh"
+#include <sstream>
+#include <vector>
+#include "LungDetMessenger.hh"
+#include "LungParallelDetCon.hh"
 
-#include "globals.hh"
-#include "G4UImessenger.hh"
-
-class G4UIdirectory;
-class G4UIcmdWithAString;
-class PrimaryGeneratorAction;
-
-class PrimaryMessenger: public G4UImessenger
+LungDetMessenger::LungDetMessenger(LungParallelDetCon* _lungDet)
+:G4UImessenger(), lungDet(_lungDet)
 {
-public:
-    PrimaryMessenger(PrimaryGeneratorAction* primary);
-    virtual ~PrimaryMessenger();
+    fLungDetDir = new G4UIdirectory("/lung/");
+    fVolChkCmd  = new G4UIcmdWithAString("/lung/volchk", this);
+    fSamplingCmd= new G4UIcmdWithAnInteger("/lung/sampling", this);
+    fBBbasCmd   = new G4UIcmdWithADoubleAndUnit("/lung/BB-bas", this);
+    fBBsecCmd   = new G4UIcmdWithADoubleAndUnit("/lung/BB-sec", this);
+    fbbsecCmd   = new G4UIcmdWithADoubleAndUnit("/lung/bb-sec", this);
+}
 
-	virtual void SetNewValue(G4UIcommand*, G4String);
+LungDetMessenger::~LungDetMessenger() {
+    delete fLungDetDir;
+    delete fVolChkCmd;
+    delete fSamplingCmd;
+    delete fBBbasCmd;
+    delete fBBsecCmd;
+    delete fbbsecCmd;
+}
 
-private:
-	PrimaryGeneratorAction* fPrimary;
-	G4UIdirectory*             fExternalDir;
-	G4UIcmdWithAString*        fBeamDirCmd;
-	G4UIdirectory*             fInternalDir;
-	G4UIcmdWithAString*        fSourceOrganCmd;
-	G4UIcmdWithAString*        fSurfaceSourceCmd;
-};
+void LungDetMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
+{
+    if(command == fVolChkCmd)
+        lungDet->SetVolChkName(newValue);
+    else if(command == fSamplingCmd)
+        lungDet->SetSamplingNum(fSamplingCmd->GetNewIntValue(newValue));
+    else if(command == fBBbasCmd)
+        lungDet->SetBBbasVol(fBBbasCmd->GetNewDoubleValue(newValue));
+    else if(command == fBBsecCmd)
+        lungDet->SetBBsecVol(fBBsecCmd->GetNewDoubleValue(newValue));
+    else if(command == fbbsecCmd)
+        lungDet->SetbbsecVol(fbbsecCmd->GetNewDoubleValue(newValue));
+}
 
-#endif

@@ -1,0 +1,30 @@
+# Set the verbose
+/run/verbose 2
+
+# Set the number of threads for multi-threading mode
+/run/numberOfThreads  2
+
+# Initialize
+/lung/BB-bas 465.345 mm3
+/lung/BB-sec 285.198 mm3
+/lung/bb-sec 1477.61 mm3
+/run/initialize
+
+# internal source
+/internal/source "9500"
+/gun/particle e-
+/gun/energy 0.01 MeV
+/run/beamOn 100000
+
+# internal source
+/internal/source "9700 9900"
+/gun/particle e-
+/gun/energy 0.01 MeV
+/run/beamOn 100000
+
+# external irradiation
+/gun/particle gamma
+/external/dir AP
+/gun/energy 10 MeV
+/run/beamOn 100000
+

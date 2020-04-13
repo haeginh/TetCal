@@ -48,10 +48,12 @@
 #include "G4Timer.hh"
 #include "G4PhysListFactory.hh"
 #include "G4VModularPhysicsList.hh"
+#include "G4ParallelWorldPhysics.hh"
+#include "LungParallelDetCon.hh"
 
 void PrintUsage(){
-	G4cerr<< "Usage: ./TetCal -m [MACRO] -o [OUTPUT] -p [phantom name]"  <<G4endl;
-	G4cerr<< "Example: ./TetCal -m sample.in -o run.out -p ./phantoms/00M" <<G4endl;
+    G4cerr<< "Usage: ./TetCal -m [MACRO, X for vis.] -o [OUTPUT, optional] -p [phantom name]"  <<G4endl;
+    G4cerr<< "Example: ./TetCal -m sample.in -o run.out -p ./phantoms/00M" <<G4endl;
 }
 
 int main(int argc,char** argv) 
@@ -66,21 +68,15 @@ int main(int argc,char** argv)
 	G4UIExecutive* ui = 0;
 
 	for ( G4int i=1; i<argc; i++ ) {
-		// macro file name
-		if ( G4String(argv[i]) == "-m" ) {
-			macro = argv[i+1];
-			i++;
-		}
-		// output file name
-		else if ( G4String(argv[i]) == "-o" ) {
-			output = argv[i+1];
-			i++;
-		}
-		// switch for MRCP-AF phantom
-		else if ( G4String(argv[i]) == "-p" ) {
-			phantomName = argv[i+1];
-			i++;
-		}
+        //arguments
+        if ( G4String(argv[i]) == "-m" )
+            macro = argv[++i];
+        else if ( G4String(argv[i]) == "-o" )
+            output = argv[++i];
+        else if ( G4String(argv[i]) == "-p" )
+            phantomName = argv[++i];
+
+        //exceptions
 		else {
 			PrintUsage();
 			return 1;
@@ -88,7 +84,7 @@ int main(int argc,char** argv)
 	}
 
 	// print usage when there are more than six arguments
-	if ( argc>7 || macro.empty() || phantomName.empty()){
+    if ( argc>7 || phantomName.empty()){
 		PrintUsage();
 		return 1;
 	}
@@ -97,8 +93,6 @@ int main(int argc,char** argv)
 	//
 	if ( !macro.size() ) {
 		ui = new G4UIExecutive(argc, argv, "csh");
-		G4cerr<<"ERROR: Interactive mode is not available. Please provide macro file."<<G4endl;
-		return 1;
 	}
 	// default output file name
 	else if ( !output.size() ) output = macro + ".out";
@@ -124,13 +118,24 @@ int main(int argc,char** argv)
 
 	// Set mandatory initialisation classes
 	//
+    TETDetectorConstruction* det = new TETDetectorConstruction(tetData);
+    // lung installation
+    LungParallelDetCon* parallelWorld = new LungParallelDetCon("lung_World", tetData);
+    det->RegisterParallelWorld(parallelWorld);
+
 	// detector construction
-	runManager->SetUserInitialization(new TETDetectorConstruction(tetData));
-	// physics list
-	G4PhysListFactory factory;
+    runManager->SetUserInitialization(det);
+
+    // physics list
+    //
+//	G4PhysListFactory factory;
 //	G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BIC_LIV");
-//	runManager->SetUserInitialization(physList);
-	runManager->SetUserInitialization(new PhysicsList());
+//	runManager->SetUserInitializati on(physList);
+    PhysicsList* phys = new PhysicsList();
+    //lung installation
+    phys->RegisterPhysics(new G4ParallelWorldPhysics("lung_World", true));
+
+    runManager->SetUserInitialization(phys);
 	// user action initialisation
 	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer));
     

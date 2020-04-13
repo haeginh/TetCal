@@ -107,7 +107,6 @@ public:
     }
 
 private:
-
 	// private methods
 	void DoseRead(G4String);
     void DataRead(G4String, G4String);
@@ -158,6 +157,20 @@ private:
 	std::map<G4int, G4double>                                densityMap;
 	std::map<G4int, G4String>                                organNameMap;
 
+    //lung variables
+public:
+    void SetBB_basal_vol(G4double vol) {mass_BB_basal = vol * densityMap[803] + massMap[804] + massMap[805];}
+    void SetBB_secretory_vol(G4double vol) {mass_BB_secretory = vol * densityMap[803] + massMap[803] + massMap[804];}
+    void Setbb_secretory_vol(G4double vol) {mass_bb_secretory = vol * densityMap[803];}
+
+    G4double GetBB_basal_Mass() {return mass_BB_basal;}
+    G4double GetBB_secretory_mass() {return mass_BB_secretory;}
+    G4double Getbb_secretory_Mass() {return mass_bb_secretory;}
+
+private:
+    G4double mass_BB_basal;
+    G4double mass_BB_secretory;
+    G4double mass_bb_secretory;
 };
 
 #endif

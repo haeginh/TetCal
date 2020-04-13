@@ -37,6 +37,8 @@ Run::Run(TETModelImport* tetData)
 	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/eDep");
 	fCollID_DRF
 	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/DRF");
+    fCollID_Lung
+    = G4SDManager::GetSDMpointer()->GetCollectionID("lungSD/eDep");
 
 	organ2dose = tetData->GetDoseMap();
 
@@ -92,36 +94,57 @@ void Run::RecordEvent(const G4Event* event)
 			bsDose += *doseMap[bs.first] * bs.second;
 		}
 		edepMap[-2].first+=rbmDose; edepMap[-2].second+=rbmDose*rbmDose;
-		edepMap[-1].first+=bsDose; edepMap[-1].second+=bsDose*bsDose;
+        edepMap[-1].first+=bsDose;  edepMap[-1].second+=bsDose *bsDose;
 		return;
 	}
+    else{
+        //for the organized doses
+        std::map<G4int, G4double> edepSum;
+        for (auto itr : doseMap){
+            for(auto doseID:organ2dose[itr.first])
+                edepSum[doseID]  += *itr.second;
+        }
+        for(auto rbm:rbmFactor){
+            if(doseMap.find(rbm.first)==doseMap.end()) continue;
+            edepSum[-2] += *doseMap[rbm.first] * rbm.second;
+        }
+        for(auto bs:bsFactor){
+            if(doseMap.find(bs.first)==doseMap.end()) continue;
+            edepSum[-1] += *doseMap[bs.first] * bs.second;
+        }
+        //organize
+        for(auto edep:edepSum){
+            edepMap[edep.first].first += edep.second;                 //sum
+            edepMap[edep.first].second += edep.second * edep.second;  //square sum
+        }
+    }
+    //lung doses
+    G4THitsMap<G4double>* evtMap_lung =
+            static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID_Lung));
+    auto doseMap_Lung = *evtMap_lung->GetMap();
+    G4double BB_basal(0.), BB_secretory(0.), bb_secretory(0.);
+    for(auto itr:doseMap_Lung){
+        if(itr.first==1163) BB_secretory+=*itr.second;
+        if(itr.first==1164) {BB_basal+=*itr.second; BB_secretory+=*itr.second;}
+        if(itr.first==1165) BB_basal+=*itr.second;
+        if(itr.first==2165) bb_secretory+=*itr.second;
+    }
+    if(doseMap.find(803)!=doseMap.end()) BB_secretory+=*doseMap[803];
+    if(doseMap.find(804)!=doseMap.end()) {BB_secretory+=*doseMap[804]; BB_basal+=*doseMap[804];}
+    if(doseMap.find(805)!=doseMap.end()) BB_basal+=*doseMap[805];
 
-	//for the organized doses
-	std::map<G4int, G4double> edepSum;
-	for (auto itr : doseMap) {
-		for(auto doseID:organ2dose[itr.first])
-			edepSum[doseID]  += *itr.second;
-	}
-	for(auto rbm:rbmFactor){
-		if(doseMap.find(rbm.first)==doseMap.end()) continue;
-		edepSum[-2] += *doseMap[rbm.first] * rbm.second;
-	}
-	for(auto bs:bsFactor){
-		if(doseMap.find(bs.first)==doseMap.end()) continue;
-		edepSum[-1] += *doseMap[bs.first] * bs.second;
-	}
-	//organize
-	for(auto edep:edepSum){
-		edepMap[edep.first].first += edep.second;                 //sum
-		edepMap[edep.first].second += edep.second * edep.second;  //square sum
-	}
+    edepMap_Lung[0].first += BB_basal; edepMap_Lung[0].second += BB_basal*BB_basal;
+    edepMap_Lung[1].first += BB_secretory; edepMap_Lung[1].second += BB_secretory*BB_secretory;
+    edepMap_Lung[2].first += bb_secretory; edepMap_Lung[2].second += bb_secretory*bb_secretory;
 }
+
 
 void Run::Merge(const G4Run* run)
 {
 	const Run* localRun = static_cast<const Run*>(run);
 	// merge the data from each thread
 	EDEPMAP localMap = localRun->edepMap;
+    EDEPMAP localMap_Lung = localRun->edepMap_Lung;
 
 	primary = localRun->primary;
 	dir = localRun->dir;
@@ -133,6 +156,11 @@ void Run::Merge(const G4Run* run)
 		edepMap[itr.first].first  += itr.second.first;
 		edepMap[itr.first].second += itr.second.second;
 	}
+
+    for(auto itr : localMap_Lung){
+        edepMap_Lung[itr.first].first  += itr.second.first;
+        edepMap_Lung[itr.first].second += itr.second.second;
+    }
 
 	G4Run::Merge(run);
 }
