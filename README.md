@@ -1,5 +1,5 @@
 # TetCal
-(synchronized with VoxelVersion - except for surface source)
+(Lung installed, for adult(new ID) lung)
 
 * __Under Development__: visualization
 * __Developed Functions__: External, Internal (volume/surface), Hadronic, dose arrangement (tallying), effective dose calculation
@@ -11,6 +11,11 @@
 
 *__MACROS__ _(see sample.in)_
 ```
+/lung/volchk ICRP-AM.lungVol (optional, calculates the lung branch volume and print the data file)
+/lung/sampling 10000         (optional, for source sampling #needs to be checked)
+/lung/BB-bas 465.345 mm3     (required, set BB-bas volume)
+/lung/BB-sec 285.198 mm3
+/lung/bb-sec 1477.61 mm3
 /run/initialize       (required before any run)
 /gun/particle  gamma  (particle)
 /gun/energy    1 MeV  (energy)
