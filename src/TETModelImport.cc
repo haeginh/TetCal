@@ -58,7 +58,7 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	RBMBSRead(boneFile);
 	// read bone file (*.DRF)
 	DRFRead(drfFile);
-	// read colour data file (colour.dat) if this is interactive mode
+    // read colour data file (mtl file) if this is interactive mode
 	if(ui) ColourRead(mtlFile);
 	// print the summary of phantom information
 	PrintMaterialInfomation();
@@ -343,12 +343,12 @@ void TETModelImport::ColourRead(G4String mtlFile)
 		}
 		else if(dump=="Kd"){
 			ifpColour>>rgb;
-			colourMap[organID] = G4Colour(rgb.getX(), rgb.getY(), rgb.getZ(), 0.);
+            colourMap[organID] = G4Colour(rgb.getX(), rgb.getY(), rgb.getZ(), 0.01);
 		}
 	}
 	ifpColour.close();
 	colourMap[160].SetAlpha(0.1);
-	colourMap[140].SetAlpha(0.1);
+    colourMap[140].SetAlpha(0.0);
 	colourMap[141].SetAlpha(0.1);
 	colourMap[142].SetAlpha(0.1);
 }

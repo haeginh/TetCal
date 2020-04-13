@@ -67,6 +67,7 @@ public:
 	virtual void EndOfRunAction(const G4Run*);
 
 	void SetDoses();
+    void SetDoses_Lung();
 	void SetEffectiveDose();
 	void PrintResultExternal(std::ostream &out);
 	void PrintResultInternal(std::ostream &out);
@@ -79,7 +80,7 @@ public:
 
 private:
 	TETModelImport* tetData;
-	Run*         fRun;
+    Run*            fRun;
 	G4int           numOfEvent;
 	G4int           runID;
 	G4String        outputFile;
@@ -98,6 +99,10 @@ private:
 	std::map<G4int, G4String> nameMap;
 	std::pair<G4double, G4double> effective, effective_DRF;
 	G4double weight;
+
+    std::map<G4int, G4double> massMap_lung;
+    std::map<G4int, std::pair<G4double,G4double>> doses_lung;
+    std::map<G4int, G4String> nameMap_lung;
 };
 
 #endif

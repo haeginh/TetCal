@@ -41,8 +41,8 @@ class PrimaryGeneratorAction;
 class PrimaryMessenger: public G4UImessenger
 {
 public:
-	PrimaryMessenger(PrimaryGeneratorAction* primary);
-	virtual ~PrimaryMessenger();
+    PrimaryMessenger(PrimaryGeneratorAction* primary);
+    virtual ~PrimaryMessenger();
 
 	virtual void SetNewValue(G4UIcommand*, G4String);
 
