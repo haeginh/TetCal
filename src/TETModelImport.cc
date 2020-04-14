@@ -296,23 +296,18 @@ void TETModelImport::DRFRead(G4String DRFfile){
 	G4int ID;
     G4double DRF;
 
-    for (int i=0; i<57; i++) {
-    	for (int j=0; j<25; j++) {
-    		rbmDRF[i].push_back(0);
-    		bsDRF[i].push_back(0);
-    	}
-    }
-
     for (int i=0; i<23; i++) {
     	ifp >> ID;
+	rbmDRF[ID] = {};
+	bsDRF[ID] = {};
     	for (int j=0; j<25; j++) {
     		ifp >> DRF;
-    		rbmDRF[ID][j]=DRF;
+    		rbmDRF[ID].push_back(DRF);
     	}
 
     	for (int j=0; j<25; j++) {
     		ifp >> DRF;
-    		bsDRF[ID][j]=DRF;
+    		bsDRF[ID].push_back(DRF);
     	}
 	}
     ifp.close();
