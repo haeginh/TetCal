@@ -57,6 +57,7 @@ Run::Run(TETModelImport* tetData)
 Run::~Run()
 {
 	edepMap.clear();
+    edepMap_Lung.clear();
 }
 
 void Run::RecordEvent(const G4Event* event)
@@ -95,7 +96,6 @@ void Run::RecordEvent(const G4Event* event)
 		}
 		edepMap[-2].first+=rbmDose; edepMap[-2].second+=rbmDose*rbmDose;
         edepMap[-1].first+=bsDose;  edepMap[-1].second+=bsDose *bsDose;
-		return;
 	}
     else{
         //for the organized doses

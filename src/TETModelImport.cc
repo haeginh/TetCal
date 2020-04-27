@@ -175,7 +175,6 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 									  vertexVector[ele[1]]-center,
 									  vertexVector[ele[2]]-center,
 									  vertexVector[ele[3]]-center));
-
 		// calculate the total volume and the number of tetrahedrons for each organ
 		std::map<G4int, G4double>::iterator FindIter = volumeMap.find(materialVector[i]);
 
