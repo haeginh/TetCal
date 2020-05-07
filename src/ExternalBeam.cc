@@ -16,9 +16,9 @@ ExternalBeam::ExternalBeam()
 :beamDir(AP), xHalf(-1), yHalf(-1), zHalf(-1), beamArea(-1)
 {
 	G4Box* phantomBox = (G4Box*) G4LogicalVolumeStore::GetInstance()->GetVolume("phantomLogical")->GetSolid();
-	xHalf=phantomBox->GetXHalfLength()-10*cm;
-	yHalf=phantomBox->GetYHalfLength()-10*cm;
-	zHalf=phantomBox->GetZHalfLength()-10*cm;
+	xHalf=phantomBox->GetXHalfLength();
+	yHalf=phantomBox->GetYHalfLength();
+	zHalf=phantomBox->GetZHalfLength();
 }
 
 ExternalBeam::~ExternalBeam()
