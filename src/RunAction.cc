@@ -174,7 +174,6 @@ void RunAction::SetDoses()
 		else           doses[itr.first] = std::make_pair(meanDose/itr.second, relativeE);
 	}
 
-	for(auto &itr:doses) itr.second.first *= weight;
 }
 
 void RunAction::SetEffectiveDose()
@@ -217,8 +216,8 @@ void RunAction::SetEffectiveDose()
 	for(auto r:ratios) sum += r;
 	G4cout<<"Sum of the ratios -->"<<sum<<G4endl;
 
-	effective = PropagateError(effDoseComp, ratios);
-	effective_DRF = PropagateError(effDoseComp_DRF, ratios);
+	effective = PropagateError(effDoseComp, ratios) * weight;
+	effective_DRF = PropagateError(effDoseComp_DRF, ratios) * weight;
 }
 
 void RunAction::PrintResultExternal(std::ostream &out)
