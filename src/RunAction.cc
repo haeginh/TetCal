@@ -216,8 +216,10 @@ void RunAction::SetEffectiveDose()
 	for(auto r:ratios) sum += r;
 	G4cout<<"Sum of the ratios -->"<<sum<<G4endl;
 
-	effective = PropagateError(effDoseComp, ratios) * weight;
-	effective_DRF = PropagateError(effDoseComp_DRF, ratios) * weight;
+	effective = PropagateError(effDoseComp, ratios);
+	effective_DRF = PropagateError(effDoseComp_DRF, ratios);
+	effective.first *= weight;
+	effective_DRF.first *= weight;
 }
 
 void RunAction::PrintResultExternal(std::ostream &out)
