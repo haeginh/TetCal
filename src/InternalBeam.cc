@@ -25,7 +25,8 @@ InternalSource::~InternalSource()
 void InternalSource::SetSource(std::vector<G4int> sources)
 {
 	std::set<G4int>    sourceSet(sources.begin(), sources.end());
-
+	tetPick.clear();
+	
 	//Cout
 	std::stringstream ss;
 	ss<<"Set source organs for ";
@@ -70,13 +71,10 @@ G4ThreeVector InternalSource::RandomSamplingInTet(G4Tet* tet){
 	G4double varU = G4UniformRand();
 
 	if (varS+varT>1.0){
-
 		varS = 1.0 - varS;
 		varT = 1.0 - varT;
-
 	}
 	if (varT+varU>1.0){
-
 		double tmp = varU;
 		varU = 1.0 - varS - varT;
 		varT = 1.0 -tmp;
@@ -89,7 +87,9 @@ G4ThreeVector InternalSource::RandomSamplingInTet(G4Tet* tet){
 
 	double a = 1 - varS - varT - varU;
 
-	G4ThreeVector SampledPosition = a*(tet->GetVertices()[0])+varS*(tet->GetVertices()[1])+varT*(tet->GetVertices()[2])+varU*(tet->GetVertices()[3]);
+	G4ThreeVector v1, v2, v3, v4;
+	tet->GetVertices(v1, v2, v3, v4);
+	G4ThreeVector SampledPosition = a*v1+varS*v2+varT*v3+varU*v4;
 	return SampledPosition;
 }
 
