@@ -5,21 +5,15 @@
  *      Author: hhg
  */
 
-#include "G4LogicalVolumeStore.hh"
-#include "G4Box.hh"
 #include "Randomize.hh"
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 #include "../include/ExternalBeam.hh"
 
-ExternalBeam::ExternalBeam()
-:beamDir(AP), xHalf(-1), yHalf(-1), zHalf(-1), beamArea(-1), beamCenter(G4ThreeVector()), initChk(false)
+ExternalBeam::ExternalBeam(G4ThreeVector _trans)
+:beamDir(AP), xHalf(-1), yHalf(-1), zHalf(-1), beamArea(-1), beamCenter(G4ThreeVector()), initChk(false), trans(_trans)
 {
-	G4Box* phantomBox = (G4Box*) G4LogicalVolumeStore::GetInstance()->GetVolume("phantomLogical")->GetSolid();
-	xHalf=phantomBox->GetXHalfLength();
-	yHalf=phantomBox->GetYHalfLength();
-	zHalf=phantomBox->GetZHalfLength();
-    radius = zHalf*1.3;
+    SetDefaultSize();
 }
 
 ExternalBeam::~ExternalBeam()
@@ -104,7 +98,7 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 		theta = G4UniformRand()*2*pi;
 		phi = acos(G4UniformRand()*2.-1.);
 		direction = G4ThreeVector(0, 0, -1.);
-		position = G4ThreeVector(p1, p2, 200.*cm);
+        position = G4ThreeVector(p1, p2, 200.*cm);
 		direction = direction.rotateY(phi);
 		position = position.rotateY(phi);
 		direction = direction.rotateZ(theta);

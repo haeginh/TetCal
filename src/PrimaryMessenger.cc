@@ -30,6 +30,7 @@
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWith3VectorAndUnit.hh"
+#include "G4UIcmdWithoutParameter.hh"
 #include "G4RunManager.hh"
 #include <sstream>
 #include <vector>
@@ -51,11 +52,16 @@ PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
     fBeamCenterCmd->SetDefaultUnit("cm");
     fBeamCenterCmd->SetUnitCandidates("cm mm m");
     fBeamCenterCmd->SetDefaultValue(G4ThreeVector());
+
+    fBeamDefaultCmd = new G4UIcmdWithoutParameter("/beam/default", this);
 }
 
 PrimaryMessenger::~PrimaryMessenger() {
 	delete fExternalDir;
 	delete fBeamDirCmd;
+    delete fBeamSizeCmd;
+    delete fBeamCenterCmd;
+    delete fBeamDefaultCmd;
 }
 
 void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
@@ -75,6 +81,9 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
     }
     else if(command == fBeamCenterCmd){
         fPrimary->GetSourceGenerator()->SetBeamCenter(fBeamCenterCmd->GetNew3VectorValue(newValue));
+    }
+    else if(command == fBeamDefaultCmd){
+        fPrimary->GetSourceGenerator()->SetDefaultSize();
     }
 }
 

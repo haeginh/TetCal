@@ -86,25 +86,7 @@ public:
 	G4ThreeVector GetPhantomSize()           { return phantomSize; }
 	G4ThreeVector GetPhantomBoxMin()         { return boundingBox_Min; }
 	G4ThreeVector GetPhantomBoxMax()         { return boundingBox_Max; }
-	std::map<G4int, G4double> GetRBMratio()  { return rbmRatio;}
-	std::map<G4int, G4double> GetBSratio()   { return bsRatio;}
-	G4double GetRBMDRF(G4int idx, G4int eIdx){ return rbmDRF[idx][eIdx];}
-	G4double GetBSDRF (G4int idx, G4int eIdx){ return bsDRF[idx][eIdx];}
-    G4ThreeVector GetAVertex(G4int idx)      { return vertexVector[idx]; }
-
-    std::vector<std::vector<G4int>> GetElements(G4int organID){
-        std::vector<std::vector<G4int>> eleVec;
-        for(size_t i=0;i<materialVector.size();i++){
-            if(materialVector[i]!=organID) continue;
-            std::vector<G4int> ele = {eleVector[i][0],
-                                      eleVector[i][1],
-                                      eleVector[i][2],
-                                      eleVector[i][3]};
-            std::sort(ele.begin(), ele.end());
-            eleVec.push_back(ele);
-        }
-        return eleVec;
-    }
+    G4ThreeVector GetTranslation()           { return trans; }
 
 private:
 
@@ -133,6 +115,7 @@ private:
 	G4ThreeVector boundingBox_Min;
 	G4ThreeVector boundingBox_Max;
 	G4ThreeVector phantomSize;
+    G4ThreeVector trans;
 
 	std::map<G4int, std::vector<G4int>>   organ2dose;
 	std::map<G4int, G4String>  doseName;
@@ -147,10 +130,6 @@ private:
 	std::map<G4int, G4double>  volumeMap;
 	std::map<G4int, G4double>  massMap;
 	std::map<G4int, G4Colour>  colourMap;
-	std::map<G4int, G4double>  rbmRatio;
-	std::map<G4int, G4double>  bsRatio;
-	std::map<G4int, std::vector<G4double>> rbmDRF;
-	std::map<G4int, std::vector<G4double>> bsDRF;
 
 	std::map<G4int, std::vector<std::pair<G4int, G4double>>> materialIndexMap;
 	std::vector<G4int>                                       materialIndex;

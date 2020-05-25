@@ -35,26 +35,15 @@ Run::Run(TETModelImport* tetData)
 {
 	fCollID
 	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/eDep");
-	fCollID_DRF
-	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/DRF");
 
 	organ2dose = tetData->GetDoseMap();
 
 	auto massMap  = tetData->GetMassMap();
-	auto rbmRatio = tetData->GetRBMratio();
-	auto bsRatio  = tetData->GetBSratio();
-
-	for(auto rbm:rbmRatio)
-		rbmFactor[rbm.first] = rbm.second / massMap[rbm.first];
-	for(auto bs:bsRatio)
-		bsFactor[bs.first] = bs.second / massMap[bs.first];
 
 	doseOrganized = tetData->DoseWasOrganized();
 
 	//initialize edepMap
-	edepMap[-1]={0.,0.};
-	edepMap[-2]={0.,0.};
-	if(!doseOrganized) for(auto itr:massMap) edepMap[itr.first] = {0.,0.};
+    if(!doseOrganized) for(auto itr:massMap) edepMap[itr.first] = {0.,0.};
 	else               for(auto itr:organ2dose) edepMap[itr.first] = {0.,0.};
 }
 
@@ -70,15 +59,6 @@ void Run::RecordEvent(const G4Event* event)
 	G4HCofThisEvent* HCE = event->GetHCofThisEvent();
 	if(!HCE) return;
 
-	//RBM doses
-	G4THitsMap<G4double>* evtMap_DRF =
-			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID_DRF));
-	auto doseMap_RBM = *evtMap_DRF->GetMap();
-	for(auto itr:doseMap_RBM){
-		edepMap[-4+itr.first].first  += *itr.second;
-		edepMap[-4+itr.first].second += (*itr.second)*(*itr.second);
-	}
-
 	//other doses
 	G4THitsMap<G4double>* evtMap =
 			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID));
@@ -88,17 +68,6 @@ void Run::RecordEvent(const G4Event* event)
 			edepMap[itr.first].first += *itr.second;
 			edepMap[itr.first].second += (*itr.second)*(*itr.second);
 		}
-		G4double rbmDose(0.), bsDose(0.);
-		for(auto rbm:rbmFactor){
-			if(doseMap.find(rbm.first)==doseMap.end()) continue;
-			rbmDose += *doseMap[rbm.first] * rbm.second;
-		}
-		for(auto bs:bsFactor){
-			if(doseMap.find(bs.first)==doseMap.end()) continue;
-			bsDose += *doseMap[bs.first] * bs.second;
-		}
-		edepMap[-2].first+=rbmDose; edepMap[-2].second+=rbmDose*rbmDose;
-		edepMap[-1].first+=bsDose; edepMap[-1].second+=bsDose*bsDose;
 		return;
 	}
 
@@ -107,14 +76,6 @@ void Run::RecordEvent(const G4Event* event)
 	for (auto itr : doseMap) {
 		for(auto doseID:organ2dose[itr.first])
 			edepSum[doseID]  += *itr.second;
-	}
-	for(auto rbm:rbmFactor){
-		if(doseMap.find(rbm.first)==doseMap.end()) continue;
-		edepSum[-2] += *doseMap[rbm.first] * rbm.second;
-	}
-	for(auto bs:bsFactor){
-		if(doseMap.find(bs.first)==doseMap.end()) continue;
-		edepSum[-1] += *doseMap[bs.first] * bs.second;
 	}
 	//organize
 	for(auto edep:edepSum){

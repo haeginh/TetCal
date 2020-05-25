@@ -31,13 +31,14 @@
 
 
 #include "PrimaryGeneratorAction.hh"
-
+#include "TETModelImport.hh"
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(TETModelImport* _tetData)
-:tetData(_tetData), fExternalBeam(0)
+:tetData(_tetData)
 {
 	fParticleGun = new G4ParticleGun(1);
 	fMessenger   = new PrimaryMessenger(this);
+    fExternalBeam = new ExternalBeam(tetData->GetTranslation());
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()

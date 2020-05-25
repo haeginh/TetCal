@@ -1,6 +1,6 @@
+LensCal.cc
 TetCal.cc
 include/ActionInitialization.hh
-include/DRFScorer.hh
 include/ExternalBeam.hh
 include/GammaPhysics.hh
 include/HadronElasticPhysicsHP.hh
@@ -17,7 +17,6 @@ include/TETModelImport.hh
 include/TETParameterisation.hh
 include/TETSteppingAction.hh
 src/ActionInitialization.cc
-src/DRFScorer.cc
 src/ExternalBeam.cc
 src/GammaPhysics.cc
 src/HadronElasticPhysicsHP.cc
