@@ -36,6 +36,7 @@
 
 class G4UIdirectory;
 class G4UIcmdWithAString;
+class G4UIcmdWith3VectorAndUnit;
 class PrimaryGeneratorAction;
 
 class PrimaryMessenger: public G4UImessenger
@@ -50,9 +51,8 @@ private:
 	PrimaryGeneratorAction* fPrimary;
 	G4UIdirectory*             fExternalDir;
 	G4UIcmdWithAString*        fBeamDirCmd;
-	G4UIdirectory*             fInternalDir;
-	G4UIcmdWithAString*        fSourceOrganCmd;
-	G4UIcmdWithAString*        fSurfaceSourceCmd;
+    G4UIcmdWith3VectorAndUnit* fBeamSizeCmd;
+    G4UIcmdWith3VectorAndUnit* fBeamCenterCmd;
 };
 
 #endif

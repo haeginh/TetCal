@@ -44,17 +44,6 @@
 #include "Run.hh"
 #include "TETModelImport.hh"
 
-// *********************************************************************
-// The main function of this UserRunAction class is to produce the result
-// data and print them.
-// -- GenerateRun: Generate TETRun class which will calculate the sum of
-//                  energy deposition.
-// -- BeginOfRunAction: Set the RunManager to print the progress at the
-//                      interval of 10%.
-// -- EndOfRunAction: Print the run result by G4cout and std::ofstream.
-//  └-- PrintResult: Method to print the result.
-// *********************************************************************
-
 class RunAction : public G4UserRunAction
 {
 public:
@@ -69,9 +58,7 @@ public:
 	void SetDoses();
 	void SetEffectiveDose();
 	void PrintResultExternal(std::ostream &out);
-	void PrintResultInternal(std::ostream &out);
 	void PrintLineExternal(std::ostream &out);
-	void PrintLineInternal(std::ostream &out);
 
 	std::pair<G4double, G4double> PropagateError(std::vector<std::pair<G4double, G4double>> doses,
 												 std::vector<G4double> ratio);
@@ -91,7 +78,6 @@ private:
 	G4double primaryEnergy;
 	G4double beamArea;
 	G4int    prevNPS;
-	G4bool   isExternal;
 	G4bool   sameToPrev;
 	std::map<G4int, G4double> massMap;
 	std::map<G4int, std::pair<G4double,G4double>> doses;

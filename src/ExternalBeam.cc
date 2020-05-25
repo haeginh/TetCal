@@ -10,15 +10,16 @@
 #include "Randomize.hh"
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
-#include "../include/SourceGenerator.hh"
+#include "../include/ExternalBeam.hh"
 
 ExternalBeam::ExternalBeam()
-:beamDir(AP), xHalf(-1), yHalf(-1), zHalf(-1), beamArea(-1)
+:beamDir(AP), xHalf(-1), yHalf(-1), zHalf(-1), beamArea(-1), beamCenter(G4ThreeVector()), initChk(false)
 {
 	G4Box* phantomBox = (G4Box*) G4LogicalVolumeStore::GetInstance()->GetVolume("phantomLogical")->GetSolid();
 	xHalf=phantomBox->GetXHalfLength();
 	yHalf=phantomBox->GetYHalfLength();
 	zHalf=phantomBox->GetZHalfLength();
+    radius = zHalf*1.3;
 }
 
 ExternalBeam::~ExternalBeam()
@@ -26,6 +27,7 @@ ExternalBeam::~ExternalBeam()
 
 void ExternalBeam::SetBeamDirection(BEAMDIR _dir){
 	beamDir = _dir;
+    initChk = true;
 	switch(beamDir){
 	case AP:
 		beamDirName = "AP";
@@ -45,18 +47,18 @@ void ExternalBeam::SetBeamDirection(BEAMDIR _dir){
 		break;
 	case ROT:
 		beamDirName = "ROT";
-		beamArea = 10000*cm2*pi;
+        beamArea = radius*radius*cm2*pi;
 		break;
 	case ISO:
 		beamDirName = "ISO";
-		beamArea = 10000*cm2*pi;
+        beamArea = radius*radius*cm2*pi;
 		break;
 	}
 }
 
 void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &direction)
 {
-	G4double radius, rand, p1, p2, theta, phi;
+    G4double _r, rand, p1, p2, theta, phi;
 	switch(beamDir)
 	{
 	case AP:
@@ -84,10 +86,10 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 		position.setZ(-zHalf+2*zHalf*G4UniformRand());
 		break;
 	case ROT:
-		radius = 100*sqrt(G4UniformRand())*cm;
+        _r = radius*sqrt(G4UniformRand())*cm;
 		rand = G4UniformRand();
-		p1 = radius*cos(rand*2*pi);
-		p2 = radius*sin(rand*2*pi);
+        p1 = _r*cos(rand*2*pi);
+        p2 = _r*sin(rand*2*pi);
 		theta = G4UniformRand()*2*pi;
 		direction  = G4ThreeVector(-1, 0, 0);
 		position  = G4ThreeVector(100.*cm, p1, p2);
@@ -95,10 +97,10 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 		position = position.rotateZ(theta);
 		break;
 	case ISO:
-		radius = 100*sqrt(G4UniformRand())*cm;
+        _r = radius*sqrt(G4UniformRand())*cm;
 		rand = G4UniformRand();
-		p1 = radius*cos(rand*2*pi);
-		p2 = radius*sin(rand*2*pi);
+        p1 = _r*cos(rand*2*pi);
+        p2 = _r*sin(rand*2*pi);
 		theta = G4UniformRand()*2*pi;
 		phi = acos(G4UniformRand()*2.-1.);
 		direction = G4ThreeVector(0, 0, -1.);
@@ -109,6 +111,7 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 		position = position.rotateZ(theta);
 		break;
 	}
+    position += beamCenter;
 }
 
 

@@ -34,7 +34,7 @@
 
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(TETModelImport* _tetData)
-:tetData(_tetData), fSourceGenerator(0)
+:tetData(_tetData), fExternalBeam(0)
 {
 	fParticleGun = new G4ParticleGun(1);
 	fMessenger   = new PrimaryMessenger(this);
@@ -44,15 +44,13 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
 	delete fParticleGun;
 	delete fMessenger;
-    if(fExternal) delete fExternal;
-    if(fInternal) delete fInternal;
-    if(fSurface)  delete fSurface;
+    delete fExternalBeam;
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-	G4ThreeVector direction, position;
-	fSourceGenerator->GetAprimaryPosDir(position, direction);
+    G4ThreeVector direction, position;
+    fExternalBeam->GetAprimaryPosDir(position, direction);
 	fParticleGun->SetParticlePosition(position);
     fParticleGun->SetParticleMomentumDirection(direction);
 	fParticleGun->GeneratePrimaryVertex(anEvent);

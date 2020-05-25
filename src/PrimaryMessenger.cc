@@ -29,6 +29,7 @@
 
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithAString.hh"
+#include "G4UIcmdWith3VectorAndUnit.hh"
 #include "G4RunManager.hh"
 #include <sstream>
 #include <vector>
@@ -38,28 +39,30 @@
 PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
 :G4UImessenger(), fPrimary(_primary)
 {
-	fExternalDir = new G4UIdirectory("/external/");
-	fBeamDirCmd = new G4UIcmdWithAString("/external/dir", this);
+    fExternalDir = new G4UIdirectory("/beam/");
+    fBeamDirCmd = new G4UIcmdWithAString("/beam/dir", this);
 	fBeamDirCmd->SetCandidates("AP PA LLAT RLAT ROT ISO");
 
-	fInternalDir      = new G4UIdirectory("/internal/");
-	fSourceOrganCmd   = new G4UIcmdWithAString("/internal/source", this);
-	fSurfaceSourceCmd = new G4UIcmdWithAString("/internal/surface", this);
+    fBeamSizeCmd = new G4UIcmdWith3VectorAndUnit("/beam/size", this);
+    fBeamSizeCmd->SetDefaultUnit("cm");
+    fBeamSizeCmd->SetUnitCandidates("cm mm m");
+
+    fBeamCenterCmd = new G4UIcmdWith3VectorAndUnit("/beam/center", this);
+    fBeamCenterCmd->SetDefaultUnit("cm");
+    fBeamCenterCmd->SetUnitCandidates("cm mm m");
+    fBeamCenterCmd->SetDefaultValue(G4ThreeVector());
 }
 
 PrimaryMessenger::~PrimaryMessenger() {
 	delete fExternalDir;
 	delete fBeamDirCmd;
-	delete fInternalDir;
-	delete fSourceOrganCmd;
 }
 
 void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
 	if(command == fBeamDirCmd){
-		fPrimary->SetExternalBeam();
-		fPrimary->SetSourceName(newValue);
-		ExternalBeam* fExternal = fPrimary->GetExternalBeamGenerator();
+        fPrimary->SetSourceName(newValue);
+        ExternalBeam* fExternal = fPrimary->GetSourceGenerator();
 		if(newValue=="AP")	      	fExternal->SetBeamDirection(AP);
 		else if(newValue=="PA")	    fExternal->SetBeamDirection(PA);
 		else if(newValue=="RLAT")	fExternal->SetBeamDirection(RLAT);
@@ -67,31 +70,11 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 		else if(newValue=="ROT")	fExternal->SetBeamDirection(ROT);
 		else if(newValue=="ISO")	fExternal->SetBeamDirection(ISO);
 	}
-	if(command == fSourceOrganCmd){
-		fPrimary->SetInternalBeam();
-		InternalSource* fInternal = fPrimary->GetInternalBeamGenerator();
-        if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);
-
-		fPrimary->SetSourceName("(V) "+newValue);
-
-		std::stringstream ss(newValue);
-		std::vector<G4int> organIDs;
-		G4int intTemp;
-		while(ss>>intTemp) organIDs.push_back(intTemp);
-		fInternal->SetSource(organIDs);
-	}
-    if(command == fSurfaceSourceCmd){
-        fPrimary->SetSurfaceSource();
-        SurfaceSource* fSurface = fPrimary->GetSurfaceSourceGenerator();
-        if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);
-
-        fPrimary->SetSourceName("(S) "+newValue);
-
-        std::stringstream ss(newValue);
-        std::vector<G4int> organIDs;
-        G4int intTemp;
-        while(ss>>intTemp) organIDs.push_back(intTemp);
-        fSurface->SetSource(organIDs);
+    else if(command == fBeamSizeCmd){
+        fPrimary->GetSourceGenerator()->SetBeamXYZ(fBeamSizeCmd->GetNew3VectorValue(newValue));
+    }
+    else if(command == fBeamCenterCmd){
+        fPrimary->GetSourceGenerator()->SetBeamCenter(fBeamCenterCmd->GetNew3VectorValue(newValue));
     }
 }
 

@@ -37,7 +37,7 @@
 #include "G4ParticleGun.hh"
 #include "G4SystemOfUnits.hh"
 #include "PrimaryMessenger.hh"
-#include "SourceGenerator.hh"
+#include "ExternalBeam.hh"
 
 class TETModelImport;
 
@@ -51,35 +51,16 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
   public:
     virtual void   GeneratePrimaries(G4Event* anEvent);
 
-    void SetExternalBeam(){
-       if(!fExternal) fExternal = new ExternalBeam();
-        fSourceGenerator = fExternal; fSourceGenerator->SetExternal();
-    }
-    void SetInternalBeam(){
-        if(!fInternal) fInternal = new InternalSource(tetData);
-        fSourceGenerator = fInternal; fSourceGenerator->SetInternal();
-    }
-    void SetSurfaceSource(){
-        if(!fSurface) fSurface = new SurfaceSource(tetData);
-        fSourceGenerator = fSurface; fSourceGenerator->SetInternal();
-    }
-
     void SetSourceName(G4String _sourceN) {sourceName = _sourceN;}
     G4ParticleGun*  GetParticleGun()            const {return fParticleGun;}
-    SourceGenerator* GetSourceGenerator()       const {return fSourceGenerator;}
-    ExternalBeam*   GetExternalBeamGenerator()  const {return fExternal;}
-    InternalSource* GetInternalBeamGenerator()  const {return fInternal;}
-    SurfaceSource*  GetSurfaceSourceGenerator() const {return fSurface;}
+    ExternalBeam*   GetSourceGenerator()       const {return fExternalBeam;}
     G4String        GetSourceName() const {return sourceName;}
 
   private:
     TETModelImport*      tetData;
     G4ParticleGun*       fParticleGun;
     PrimaryMessenger*    fMessenger;
-    SourceGenerator*     fSourceGenerator;
-    ExternalBeam*        fExternal;
-    InternalSource*      fInternal;
-    SurfaceSource*       fSurface;
+    ExternalBeam*     fExternalBeam;
     G4String             sourceName;
 };
 
