@@ -41,11 +41,11 @@ void ExternalBeam::SetBeamDirection(BEAMDIR _dir){
 		break;
 	case ROT:
 		beamDirName = "ROT";
-        beamArea = radius*radius*cm2*pi;
+        beamArea = radius*radius*pi;
 		break;
 	case ISO:
 		beamDirName = "ISO";
-        beamArea = radius*radius*cm2*pi;
+        beamArea = radius*radius*pi;
 		break;
 	}
 }
