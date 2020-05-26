@@ -37,6 +37,7 @@
 class G4UIdirectory;
 class G4UIcmdWithAString;
 class G4UIcmdWith3VectorAndUnit;
+class G4UIcmdWithADoubleAndUnit;
 class G4UIcmdWithoutParameter;
 class PrimaryGeneratorAction;
 
@@ -54,6 +55,7 @@ private:
 	G4UIcmdWithAString*        fBeamDirCmd;
     G4UIcmdWith3VectorAndUnit* fBeamSizeCmd;
     G4UIcmdWith3VectorAndUnit* fBeamCenterCmd;
+    G4UIcmdWithADoubleAndUnit* fBeamRadiusCmd;
     G4UIcmdWithoutParameter*   fBeamDefaultCmd;
 };
 

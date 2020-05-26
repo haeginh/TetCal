@@ -30,6 +30,7 @@
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWith3VectorAndUnit.hh"
+#include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWithoutParameter.hh"
 #include "G4RunManager.hh"
 #include <sstream>
@@ -52,6 +53,10 @@ PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
     fBeamCenterCmd->SetDefaultUnit("cm");
     fBeamCenterCmd->SetUnitCandidates("cm mm m");
     fBeamCenterCmd->SetDefaultValue(G4ThreeVector());
+
+    fBeamRadiusCmd = new G4UIcmdWithADoubleAndUnit("/beam/radius", this);
+    fBeamRadiusCmd->SetDefaultUnit("cm");
+    fBeamRadiusCmd->SetUnitCandidates("cm mm m");
 
     fBeamDefaultCmd = new G4UIcmdWithoutParameter("/beam/default", this);
 }
@@ -81,6 +86,9 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
     }
     else if(command == fBeamCenterCmd){
         fPrimary->GetSourceGenerator()->SetBeamCenter(fBeamCenterCmd->GetNew3VectorValue(newValue));
+    }
+    else if(command == fBeamRadiusCmd){
+        fPrimary->GetSourceGenerator()->SetBeamRadius(fBeamRadiusCmd->GetNewDoubleValue(newValue));
     }
     else if(command == fBeamDefaultCmd){
         fPrimary->GetSourceGenerator()->SetDefaultSize();

@@ -32,6 +32,7 @@
 
 #include "PrimaryGeneratorAction.hh"
 #include "TETModelImport.hh"
+#include "G4GeneralParticleSource.hh"
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(TETModelImport* _tetData)
 :tetData(_tetData)
