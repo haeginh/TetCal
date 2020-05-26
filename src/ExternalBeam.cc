@@ -80,7 +80,7 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 		position.setZ(-zHalf+2*zHalf*G4UniformRand());
 		break;
 	case ROT:
-        _r = radius*sqrt(G4UniformRand())*cm;
+        _r = radius*sqrt(G4UniformRand());
 		rand = G4UniformRand();
         p1 = _r*cos(rand*2*pi);
         p2 = _r*sin(rand*2*pi);
@@ -91,7 +91,7 @@ void ExternalBeam::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &dir
 		position = position.rotateZ(theta);
 		break;
 	case ISO:
-        _r = radius*sqrt(G4UniformRand())*cm;
+        _r = radius*sqrt(G4UniformRand());
 		rand = G4UniformRand();
         p1 = _r*cos(rand*2*pi);
         p2 = _r*sin(rand*2*pi);
