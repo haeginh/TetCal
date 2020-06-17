@@ -48,9 +48,10 @@
 #include "G4Timer.hh"
 #include "G4PhysListFactory.hh"
 #include "G4VModularPhysicsList.hh"
+#include "G4GenericBiasingPhysics.hh"
 
 void PrintUsage(){
-	G4cerr<< "Usage: ./TetCal -m [MACRO] -o [OUTPUT] -p [phantom name]"  <<G4endl;
+	G4cerr<< "Usage: ./TetCal -m [MACRO] -o [OUTPUT] -p [phantom name] (-b)"  <<G4endl;
 	G4cerr<< "Example: ./TetCal -m sample.in -o run.out -p ./phantoms/00M" <<G4endl;
 }
 
@@ -63,6 +64,7 @@ int main(int argc,char** argv)
 	G4String macro;
 	G4String output;
 	G4String phantomName;
+	G4bool onOffBiasing = false;
 	G4UIExecutive* ui = 0;
 
 	for ( G4int i=1; i<argc; i++ ) {
@@ -81,6 +83,10 @@ int main(int argc,char** argv)
 			phantomName = argv[i+1];
 			i++;
 		}
+		// switch for biasing
+		else if ( G4String(argv[i]) == "-b" ) {
+			onOffBiasing = true;
+		}
 		else {
 			PrintUsage();
 			return 1;
@@ -88,7 +94,7 @@ int main(int argc,char** argv)
 	}
 
 	// print usage when there are more than six arguments
-    if ( argc>7 || phantomName.empty()){
+    if ( argc>8 || phantomName.empty()){
 		PrintUsage();
 		return 1;
 	}
@@ -130,7 +136,34 @@ int main(int argc,char** argv)
 	G4PhysListFactory factory;
 //	G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BIC_LIV");
 //	runManager->SetUserInitialization(physList);
-	runManager->SetUserInitialization(new PhysicsList());
+	auto physList = new PhysicsList();
+  // -- And augment it with biasing facilities:
+  G4GenericBiasingPhysics* biasingPhysics = new G4GenericBiasingPhysics(); 
+if (onOffBiasing)
+    {
+      // -- Create list of physics processes to be biased: only brem. in this case:
+      std::vector< G4String > processToBias;
+      processToBias.push_back("eBrem");
+      // -- Pass the list to the G4GenericBiasingPhysics, which will wrap the eBrem
+      // -- process of e- and e+ to activate the biasing of it:
+      biasingPhysics->PhysicsBias("e-", processToBias);
+      biasingPhysics->PhysicsBias("e+", processToBias);
+      physList->RegisterPhysics(biasingPhysics);
+      G4cout << "      ********************************************************* "
+             << G4endl;
+      G4cout << "      ********** processes are wrapped for biasing ************ "
+             << G4endl;
+      G4cout << "      ********************************************************* "
+             << G4endl;
+    }
+  else
+    {
+      G4cout << "      ************************************************* " << G4endl;
+      G4cout << "      ********** processes are not wrapped ************ " << G4endl;
+      G4cout << "      ************************************************* " << G4endl;
+    }
+
+	runManager->SetUserInitialization(physList);
 	// user action initialisation
 	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer));
     
