@@ -126,7 +126,7 @@ void TETDetectorConstruction::ConstructSDandField()
   // -- operator creation and attachment to volume:
   // ----------------------------------------------
   GB04BOptrBremSplitting* bremSplittingOperator =  new GB04BOptrBremSplitting();
-  bremSplittingOperator->AttachTo(container_logic);
+  bremSplittingOperator->AttachTo(tetLogic);
   G4cout << " Attaching biasing operator " << bremSplittingOperator->GetName()
          << " to logical volume " << container_logic->GetName()
          << G4endl;
