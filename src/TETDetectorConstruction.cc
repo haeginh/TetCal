@@ -76,7 +76,7 @@ void TETDetectorConstruction::SetupWorldGeometry()
 										            phantomSize.y()/2 + 1.*cm,
 										            phantomSize.z()/2 + 1.*cm);
 
-	container_logic = new G4LogicalVolume(containerSolid, vacuum, "phantomLogical");
+    container_logic = new G4LogicalVolume(containerSolid, vacuum, "phantomLogical");
 
 	new G4PVPlacement(0, G4ThreeVector(), container_logic, "PhantomPhysical",
 			          worldLogical, false, 0);
