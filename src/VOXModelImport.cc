@@ -211,25 +211,29 @@ void VOXModelImport::DRFRead(G4String DRFfile){
 	G4int ID;
     G4double DRF;
 
-    for (int i=0; i<57; i++) {
-    	for (int j=0; j<25; j++) {
-    		rbmDRF[i].push_back(0);
-    		bsDRF[i].push_back(0);
-    	}
+    while (!ifp.eof()) {
+        G4String dump;
+        getline(ifp, dump);
+        std::stringstream ss(dump); dump.clear();
+        ss >> dump;
+        if(dump.empty()) continue;
+        ID = atoi(dump.c_str());
+        if(rbmDRF.find(ID)!=rbmDRF.end()) {
+            G4cerr<<ID<<" is duplicated in DRF file.."<<G4endl;
+            exit(0);
+        }
+        rbmDRF[ID]={};
+        bsDRF[ID]={};
+        for (int j=0; j<25; j++) {
+            ss >> DRF;
+            rbmDRF[ID].push_back(DRF);
+        }
+        for (int j=0; j<25; j++) {
+            ss >> DRF;
+            bsDRF[ID].push_back(DRF);
+        }
     }
 
-    for (int i=0; i<23; i++) {
-    	ifp >> ID;
-    	for (int j=0; j<25; j++) {
-    		ifp >> DRF;
-    		rbmDRF[ID][j]=DRF;
-    	}
-
-    	for (int j=0; j<25; j++) {
-    		ifp >> DRF;
-    		bsDRF[ID][j]=DRF;
-    	}
-	}
     ifp.close();
 }
 
