@@ -279,6 +279,10 @@ void TETModelImport::RBMBSRead(G4String bonefile){
 	G4int idx;
 	G4double rbm, bs;
 	while(ifs>>idx>>rbm>>bs){
+        if(rbmRatio.find(idx)!=rbmRatio.end()) {
+            G4cerr<<idx<<" is duplicated in RBMBS file.."<<G4endl;
+            exit(0);
+        }
 		rbmRatio[idx]=rbm;
 		bsRatio[idx]=bs;
 	}
@@ -295,21 +299,28 @@ void TETModelImport::DRFRead(G4String DRFfile){
 
 	G4int ID;
     G4double DRF;
-
-    for (int i=0; i<23; i++) {
-    	ifp >> ID;
-	rbmDRF[ID]={};
-	bsDRF[ID]={};    
+    while (!ifp.eof()) {
+        G4String dump;
+        getline(ifp, dump);
+        std::stringstream ss(dump); dump.clear();
+        ss >> dump;
+        if(dump.empty()) continue;
+        ID = atoi(dump.c_str());
+        if(rbmDRF.find(ID)!=rbmDRF.end()) {
+            G4cerr<<ID<<" is duplicated in DRF file.."<<G4endl;
+            exit(0);
+        }
+        rbmDRF[ID]={};
+        bsDRF[ID]={};
     	for (int j=0; j<25; j++) {
-    		ifp >> DRF;
+            ss >> DRF;
     		rbmDRF[ID].push_back(DRF);
     	}
-
     	for (int j=0; j<25; j++) {
-    		ifp >> DRF;
+            ss >> DRF;
     		bsDRF[ID].push_back(DRF);
     	}
-	}
+    }
     ifp.close();
 }
 
