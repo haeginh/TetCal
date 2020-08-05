@@ -30,6 +30,7 @@
 
 #include "TETDetectorConstruction.hh"
 #include "G4VisAttributes.hh"
+#include "GB04BOptrBremSplitting.hh"
 
 TETDetectorConstruction::TETDetectorConstruction(TETModelImport* _tetData)
 :worldPhysical(0), container_logic(0), tetData(_tetData), tetLogic(0)
@@ -120,6 +121,15 @@ void TETDetectorConstruction::ConstructSDandField()
 
 	// attach the detector to logical volume for parameterised geometry (phantom geometry)
 	SetSensitiveDetector(tetLogic, MFDet);
+
+  // ----------------------------------------------
+  // -- operator creation and attachment to volume:
+  // ----------------------------------------------
+  GB04BOptrBremSplitting* bremSplittingOperator =  new GB04BOptrBremSplitting();
+  bremSplittingOperator->AttachTo(tetLogic);
+  G4cout << " Attaching biasing operator " << bremSplittingOperator->GetName()
+         << " to logical volume " << container_logic->GetName()
+         << G4endl;
 }
 
 void TETDetectorConstruction::PrintPhantomInformation()
