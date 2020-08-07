@@ -34,6 +34,8 @@ void InternalSource::SetSource(std::vector<G4int> sources)
 {
 	std::set<G4int>    sourceSet(sources.begin(), sources.end());
 
+	voxPick.clear();
+	
 	//Cout
 	std::stringstream ss;
 	ss<<"Set source organs for ";
