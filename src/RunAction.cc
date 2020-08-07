@@ -158,11 +158,8 @@ void RunAction::SetDoses()
 		G4double relativeE   = sqrt(variance)/meanDose;
 		doses[i] = std::make_pair(meanDose, relativeE);
 	}
-
-	if(isExternal){
-		doses[-1].first *= 1e12;
-		doses[-2].first *= 1e12;
-	}
+    doses[-4].first*=joule/kg;
+    doses[-3].first*=joule/kg;
 
 	for(auto itr : massMap){
 		if(itr.first<0) continue;
@@ -170,11 +167,8 @@ void RunAction::SetDoses()
 		G4double squareDose = edepMap[itr.first].second / (itr.second*itr.second);
 		G4double variance    = ((squareDose/numOfEvent) - (meanDose*meanDose))/numOfEvent;
 		G4double relativeE   = sqrt(variance)/meanDose;
-		if(isExternal) doses[itr.first] = std::make_pair(meanDose*1e12, relativeE);
-		else           doses[itr.first] = std::make_pair(meanDose, relativeE);
+        doses[itr.first] = std::make_pair(meanDose, relativeE);
 	}
-
-	for(auto &itr:doses) itr.second.first *= weight;
 }
 
 void RunAction::SetEffectiveDose()
@@ -219,6 +213,8 @@ void RunAction::SetEffectiveDose()
 
 	effective = PropagateError(effDoseComp, ratios);
 	effective_DRF = PropagateError(effDoseComp_DRF, ratios);
+    effective.first *= weight;
+    effective_DRF.first *= weight;
 }
 
 void RunAction::PrintResultExternal(std::ostream &out)
@@ -226,7 +222,6 @@ void RunAction::PrintResultExternal(std::ostream &out)
 	// Print run result
 	//
 	using namespace std;
-	EDEPMAP edepMap = *fRun->GetEdepMap();
 
 	out << G4endl
 	    << "=======================================================================" << G4endl
@@ -245,19 +240,19 @@ void RunAction::PrintResultExternal(std::ostream &out)
 		if(voxData->DoseWasOrganized()||itr.first<0) out << setw(25) << nameMap[itr.first]<< "| ";
 		else                            out << setw(25) << voxData->GetVoxelMaterial(itr.first)->GetName()<< "| ";
 		out	<< setw(15) << fixed      << itr.second/g;
-		out	<< setw(15) << scientific << doses[itr.first].first/(joule/kg)*beamArea/cm2;
+        out	<< setw(15) << scientific << doses[itr.first].first/(joule/kg)*1e12*beamArea/cm2;
 		out	<< setw(15) << fixed      << doses[itr.first].second << G4endl;
 	}
 
 	//effective dose
 	out << setw(25) << "eff. dose (DRF)" << "| ";
 	out	<< setw(15) << " "                ;
-	out	<< setw(15) << scientific << effective_DRF.first/(joule/kg)*beamArea/cm2;
+    out	<< setw(15) << scientific << effective_DRF.first/(joule/kg)*1e12*beamArea/cm2;
 	out	<< setw(15) << fixed      << effective_DRF.second << G4endl;
 
 	out << setw(25) << "eff. dose" << "| ";
 	out	<< setw(15) << " "                ;
-	out	<< setw(15) << scientific << effective.first/(joule/kg)*beamArea/cm2;
+    out	<< setw(15) << scientific << effective.first/(joule/kg)*1e12*beamArea/cm2;
 	out	<< setw(15) << fixed      << effective.second << G4endl;
 
 	out << "=======================================================================" << G4endl << G4endl;
@@ -268,7 +263,6 @@ void RunAction::PrintResultInternal(std::ostream &out)
 	// Print run result
 	//
 	using namespace std;
-	EDEPMAP edepMap = *fRun->GetEdepMap();
 
 	out << G4endl
 	    << "=======================================================================" << G4endl
@@ -290,7 +284,6 @@ void RunAction::PrintResultInternal(std::ostream &out)
 		out	<< setw(15) << scientific << doses[itr.first].first/primaryEnergy/(1./kg);
 		out	<< setw(15) << fixed      << doses[itr.first].second << G4endl;
 	}
-
 	out << "=======================================================================" << G4endl << G4endl;
 }
 
@@ -305,10 +298,10 @@ void RunAction::PrintLineExternal(std::ostream &out)
 		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
 
 	for(auto itr:doses){
-		out << itr.second.first/(joule/kg) * beamArea/cm2 <<"\t" << itr.second.second << "\t";
+        out << itr.second.first/(joule/kg)*1e12 * beamArea/cm2 <<"\t" << itr.second.second << "\t";
 	}
-	out<<effective_DRF.first/(joule/kg) * beamArea/cm2<< "\t" <<effective_DRF.second <<"\t";
-	out<<effective.first/(joule/kg) * beamArea/cm2<< "\t" <<effective.second ;
+    out<<effective_DRF.first/(joule/kg)*1e12 * beamArea/cm2<< "\t" <<effective_DRF.second <<"\t";
+    out<<effective.first/(joule/kg)*1e12 * beamArea/cm2<< "\t" <<effective.second ;
 	out<<G4endl;
 }
 
