@@ -228,7 +228,6 @@ void RunAction::PrintResultExternal(std::ostream &out)
 	// Print run result
 	//
 	using namespace std;
-	EDEPMAP edepMap = *fRun->GetEdepMap();
 
 	out << G4endl
 	    << "=======================================================================" << G4endl
@@ -275,7 +274,6 @@ void RunAction::PrintResultInternal(std::ostream &out)
 	// Print run result
 	//
 	using namespace std;
-	EDEPMAP edepMap = *fRun->GetEdepMap();
 
 	out << G4endl
 	    << "=======================================================================" << G4endl
