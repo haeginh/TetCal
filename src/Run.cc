@@ -73,8 +73,8 @@ void Run::RecordEvent(const G4Event* event)
 	//RBM doses
 	G4THitsMap<G4double>* evtMap_DRF =
 			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID_DRF));
-	auto doseMap_RBM = *evtMap_DRF->GetMap();
-	for(auto itr:doseMap_RBM){
+    auto doseMap_DRF = *evtMap_DRF->GetMap();
+    for(auto itr:doseMap_DRF){
 		edepMap[-4+itr.first].first  += *itr.second;
 		edepMap[-4+itr.first].second += (*itr.second)*(*itr.second);
 	}

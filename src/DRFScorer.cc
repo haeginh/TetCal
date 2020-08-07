@@ -40,6 +40,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+//Unit: Gy
 DRFScorer::DRFScorer(G4String name,TETModelImport* _PhantomData)
   :G4VPrimitiveScorer(name), PhantomData(_PhantomData), HCID(-1), EvtMap(0)
 {

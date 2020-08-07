@@ -61,7 +61,7 @@ public:
 	void ConstructMFD(const G4String& mfdName);
     virtual void Merge(const G4Run*);
 
-    EDEPMAP* GetEdepMap() {return &edepMap;};
+    EDEPMAP* GetEdepMap()      {return &edepMap;}
     G4String GetParticleName() {return primary;}
     G4String GetBeamDirName()  {return dir;}
     G4double GetBeamEnergy()   {return primaryE;}

@@ -53,10 +53,10 @@ RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
 		for(auto itr:massMap) nameMap[itr.first] = tetData->GetMaterial(itr.first)->GetName();
 	}
 
-//	nameMap[-6] = "RBM(DRF)_test"; nameMap[-5] = "BS(DRF)_test";
 	nameMap[-4] = "RBM(DRF)"; nameMap[-3] = "BS(DRF)";
 	nameMap[-2] = "RBM"     ; nameMap[-1] = "BS"     ;
 
+    //massMap will be initialized for negative IDs (RBM and BS) in the for loop
 	ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
 	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
 	for(auto name:nameMap) ofs<<std::to_string(name.first)+"_"+name.second<<"\t"<<massMap[name.first]/g<<"\t";
@@ -153,6 +153,8 @@ void RunAction::SetDoses()
 {
 	doses.clear();
 	EDEPMAP edepMap = *fRun->GetEdepMap();
+
+    //RBM and BS
 	for(G4int i=-4;i<0;i++){
 		G4double meanDose = edepMap[i].first / numOfEvent;
 		G4double squareDoese = edepMap[i].second;
@@ -160,18 +162,17 @@ void RunAction::SetDoses()
 		G4double relativeE   = sqrt(variance)/meanDose;
 		doses[i] = std::make_pair(meanDose, relativeE);
 	}
-	if(isExternal){
-		doses[-1].first *= 1e12;
-		doses[-2].first *= 1e12;
-	}
+    doses[-4].first *= joule/kg;
+    doses[-3].first *= joule/kg;
+
+    //other organs
 	for(auto itr : massMap){
-		if(itr.first<0) continue;
+        if(itr.first<0) continue; //continue for RBM and BS
 		G4double meanDose    = edepMap[itr.first].first / numOfEvent;
 		G4double squareDoese = edepMap[itr.first].second;
 		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
 		G4double relativeE   = sqrt(variance)/meanDose;
-		if(isExternal) doses[itr.first] = std::make_pair(meanDose/itr.second*1e12, relativeE);
-		else           doses[itr.first] = std::make_pair(meanDose/itr.second, relativeE);
+        doses[itr.first] = std::make_pair(meanDose/itr.second, relativeE);
 	}
 
 }
@@ -251,19 +252,19 @@ void RunAction::PrintResultExternal(std::ostream &out)
 		if(tetData->DoseWasOrganized()||itr.first<0) out << setw(25) << nameMap[itr.first]<< "| ";
 		else                            out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
 		out	<< setw(15) << fixed      << itr.second/g;
-		out	<< setw(15) << scientific << doses[itr.first].first/(joule/kg)*beamArea/cm2;
+        out	<< setw(15) << scientific << doses[itr.first].first/(joule/kg)*1e12*beamArea/cm2;
 		out	<< setw(15) << fixed      << doses[itr.first].second << G4endl;
 	}
 
 	//effective dose
 	out << setw(25) << "eff. dose (DRF)" << "| ";
 	out	<< setw(15) << " "                ;
-	out	<< setw(15) << scientific << effective_DRF.first/(joule/kg)*beamArea/cm2;
+    out	<< setw(15) << scientific << effective_DRF.first/(joule/kg)*1e12*beamArea/cm2;
 	out	<< setw(15) << fixed      << effective_DRF.second << G4endl;
 
 	out << setw(25) << "eff. dose" << "| ";
 	out	<< setw(15) << " "                ;
-	out	<< setw(15) << scientific << effective.first/(joule/kg)*beamArea/cm2;
+    out	<< setw(15) << scientific << effective.first/(joule/kg)*1e12*beamArea/cm2;
 	out	<< setw(15) << fixed      << effective.second << G4endl;
 
 	out << "=======================================================================" << G4endl << G4endl;
@@ -310,11 +311,11 @@ void RunAction::PrintLineExternal(std::ostream &out)
 		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
 
 	for(auto itr:doses){
-		out << itr.second.first/(joule/kg) * beamArea/cm2 <<"\t" << itr.second.second << "\t";
+        out << itr.second.first/(joule/kg)*1e12 * beamArea/cm2 <<"\t" << itr.second.second << "\t";
     }
     if(tetData->DoseWasOrganized()) {
-        out<<effective_DRF.first/(joule/kg) * beamArea/cm2<< "\t" <<effective_DRF.second <<"\t";
-        out<<effective.first/(joule/kg) * beamArea/cm2<< "\t" <<effective.second ;
+        out<<effective_DRF.first/(joule/kg)*1e12 * beamArea/cm2<< "\t" <<effective_DRF.second <<"\t";
+        out<<effective.first/(joule/kg)*1e12 * beamArea/cm2<< "\t" <<effective.second ;
     }
 	out<<G4endl;
 }
