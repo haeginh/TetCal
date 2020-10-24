@@ -23,39 +23,38 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETPrimaryGeneratorAction.cc
-// \file   MRCP_GEANT4/External/src/TETPrimaryGeneratorAction.cc
-// \author Haegin Han
-// \update
-// \
-
+//
+/// \file PrimaryGeneratorAction.cc
+/// \brief Implementation of the PrimaryGeneratorActionclass
 
 #include "PrimaryGeneratorAction.hh"
 
+#include "G4Event.hh"
+#include "G4GeneralParticleSource.hh"
 
-PrimaryGeneratorAction::PrimaryGeneratorAction(TETModelImport* _tetData)
-:tetData(_tetData), fSourceGenerator(0)
+PrimaryGeneratorAction::PrimaryGeneratorAction()
+  : G4VUserPrimaryGeneratorAction(),
+    fGeneralParticleSource(nullptr)
 {
-	fParticleGun = new G4ParticleGun(1);
-	fMessenger   = new PrimaryMessenger(this);
+  fGeneralParticleSource  = new G4GeneralParticleSource();
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
-	delete fParticleGun;
-	delete fMessenger;
-    if(fExternal) delete fExternal;
-    if(fInternal) delete fInternal;
-    if(fSurface)  delete fSurface;
+  delete fGeneralParticleSource;
 }
+
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-	G4ThreeVector direction, position;
-	fSourceGenerator->GetAprimaryPosDir(position, direction);
-	fParticleGun->SetParticlePosition(position);
-    fParticleGun->SetParticleMomentumDirection(direction);
-	fParticleGun->GeneratePrimaryVertex(anEvent);
+  fGeneralParticleSource->GeneratePrimaryVertex(anEvent);
 }
+
+
+
+
+
+
+
 
 

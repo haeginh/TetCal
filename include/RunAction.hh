@@ -69,9 +69,7 @@ public:
 	void SetDoses();
 	void SetEffectiveDose();
 	void PrintResultExternal(std::ostream &out);
-	void PrintResultInternal(std::ostream &out);
 	void PrintLineExternal(std::ostream &out);
-	void PrintLineInternal(std::ostream &out);
 
 	std::pair<G4double, G4double> PropagateError(std::vector<std::pair<G4double, G4double>> doses,
 												 std::vector<G4double> ratio);
@@ -86,13 +84,6 @@ private:
 	G4Timer*        initTimer;
 	G4Timer*        runTimer;
 
-	G4String primaryParticle;
-	G4String primarySourceName;
-	G4double primaryEnergy;
-	G4double beamArea;
-	G4int    prevNPS;
-	G4bool   isExternal;
-	G4bool   sameToPrev;
 	std::map<G4int, G4double> massMap;
 	std::map<G4int, std::pair<G4double,G4double>> doses;
 	std::map<G4int, G4String> nameMap;

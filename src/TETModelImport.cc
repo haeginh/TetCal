@@ -55,13 +55,20 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	// read material file (*.material)
 	MaterialRead(materialFile);
 	// read bone file (*.RBMnBS)
-	RBMBSRead(boneFile);
+    RBMBSRead(boneFile);
 	// read bone file (*.DRF)
-	DRFRead(drfFile);
+    DRFRead(drfFile);
 	// read colour data file (colour.dat) if this is interactive mode
 	if(ui) ColourRead(mtlFile);
 	// print the summary of phantom information
 	PrintMaterialInfomation();
+
+    //for 4d cal.
+    deformer = new DQSdeformer();
+    deformer->SetBVHname("take5.bvh");
+    deformer->SetWname(_phantomName + ".m.weight");
+    deformer->SetTGFname(_phantomName+".tgf");
+    deformer->Initialize(vertexVector);
 }
 
 

@@ -23,36 +23,38 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETPrimaryMessenger.cc
-// \file   MRCP_GEANT4/External/src/TETModelImport.cc
-// \author Haegin Han
+/// \file /include/DetectorMessenger.hh
+/// \brief Definition of the DetectorMessenger class
+//
 //
 
-#ifndef PRIMARYMESSENGER_HH_
-#define PRIMARYMESSENGER_HH_ 1
+#ifndef DetectorMessenger_h
+#define DetectorMessenger_h 1
 
 #include "globals.hh"
 #include "G4UImessenger.hh"
 
+class TETDetectorConstruction;
 class G4UIdirectory;
-class G4UIcmdWithAString;
-class PrimaryGeneratorAction;
+class G4UIcmdWithAnInteger;
 
-class PrimaryMessenger: public G4UImessenger
+class DetectorMessenger: public G4UImessenger
 {
-public:
-	PrimaryMessenger(PrimaryGeneratorAction* primary);
-	virtual ~PrimaryMessenger();
+  public:
+    DetectorMessenger(TETDetectorConstruction* );
+    virtual ~DetectorMessenger();
 
-	virtual void SetNewValue(G4UIcommand*, G4String);
+    virtual void SetNewValue(G4UIcommand*, G4String);
+    virtual G4String GetCurrentValue(G4UIcommand * command);
 
-private:
-	PrimaryGeneratorAction* fPrimary;
-	G4UIdirectory*             fExternalDir;
-	G4UIcmdWithAString*        fBeamDirCmd;
-	G4UIdirectory*             fInternalDir;
-	G4UIcmdWithAString*        fSourceOrganCmd;
-	G4UIcmdWithAString*        fSurfaceSourceCmd;
+  private:
+    void UpdateMaterialList();
+
+    TETDetectorConstruction* fDetector;
+
+    G4UIdirectory*             fDirectory;
+    G4UIcmdWithAnInteger*      fDeformCmd;
 };
+
 
 #endif

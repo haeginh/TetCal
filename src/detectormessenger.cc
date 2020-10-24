@@ -1,3 +1,4 @@
+//
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *
@@ -22,36 +23,42 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+/// \file RE06/src/RE06DetectorMessenger.cc
+/// \brief Implementation of the RE06DetectorMessenger class
 //
-/// \file PrimaryGeneratorAction.hh
-/// \brief Definition of the PrimaryGeneratorActionclass
 //
 
-#ifndef PrimaryGeneratorAction_h
-#define PrimaryGeneratorAction_h 1
+#include "detectormessenger.hh"
 
-#include "G4VUserPrimaryGeneratorAction.hh"
-#include "globals.hh"
+#include "TETDetectorConstruction.hh"
+#include "G4UIdirectory.hh"
+#include "G4UIcmdWithAnInteger.hh"
 
-class G4GeneralParticleSource;
-class G4Event;
 
-class PrimaryGeneratorAction: public G4VUserPrimaryGeneratorAction
+DetectorMessenger::DetectorMessenger(TETDetectorConstruction* det)
+ : G4UImessenger(),
+   fDetector(det),
+   fDirectory(0),
+   fDeformCmd(0)
 {
-  public:
-    PrimaryGeneratorAction();
-    ~PrimaryGeneratorAction();
+    fDirectory = new G4UIdirectory("/4D/");
+    fDeformCmd = new G4UIcmdWithAnInteger("/4D/deform", this);
+    fDeformCmd->AvailableForStates(G4State_Idle);
+}
 
-    // methods
-    virtual void GeneratePrimaries(G4Event*);
+DetectorMessenger::~DetectorMessenger(){
+    delete fDirectory;
+    delete fDeformCmd;
+}
 
-  private:
-    // static data members
-    static const G4String fgkDefaultParticleName;
-    static const G4double fgkDefaultEnergy;
+void DetectorMessenger::SetNewValue(G4UIcommand * command, G4String newValue)
+{
+    if(command==fDeformCmd) fDetector->DeformToBVHFrame(fDeformCmd->GetNewIntValue(newValue));
+}
 
-    // data members
-    G4GeneralParticleSource*  fGeneralParticleSource;
-};
-
-#endif
+G4String DetectorMessenger::GetCurrentValue(G4UIcommand *command)
+{
+    G4String ans;
+    if(command==fDeformCmd) ans=fDeformCmd->ConvertToString(fDetector->GetCurrentFrameNo());
+    return ans;
+}

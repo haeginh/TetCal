@@ -47,6 +47,9 @@
 #include "G4NistManager.hh"
 #include "G4Material.hh"
 #include "G4Colour.hh"
+#include "G4Timer.hh"
+
+#include "dqsdeformer.hh"
 
 // *********************************************************************
 // This class is to import the phantom data from *.ele, *.node, and
@@ -158,6 +161,44 @@ private:
 	std::map<G4int, G4double>                                densityMap;
 	std::map<G4int, G4String>                                organNameMap;
 
+//For 4d dose cal.
+public:
+    bool Deform(int frameNo){
+        if(frameNo>=deformer->GetFrameNo()){
+            cout<<"WARNING: "<<frameNo<<" >= "<<deformer->GetFrameNo()<<endl;
+            return false;
+        }
+        vertexVector.clear();
+        G4Timer timer; timer.Start();
+        vertexVector = deformer->GetVertices(frameNo);
+        for(int i=0;i<GetNumTetrahedron();i++){
+            tetVector[i]->SetVertices(vertexVector[eleVector[i][0]],
+                                      vertexVector[eleVector[i][1]],
+                                      vertexVector[eleVector[i][2]],
+                                      vertexVector[eleVector[i][3]]);
+        }
+        boundingBox_Max = vertexVector[0];
+        boundingBox_Min = vertexVector[0];
+        for(G4ThreeVector v:vertexVector){
+            if(v.getX()>boundingBox_Max.getX()) boundingBox_Max.setX(v.getX());
+            else if(v.getX()<boundingBox_Min.getX()) boundingBox_Min.setX(v.getX());
+            if(v.getY()>boundingBox_Max.getY()) boundingBox_Max.setY(v.getY());
+            else if(v.getY()<boundingBox_Min.getY()) boundingBox_Min.setY(v.getY());
+            if(v.getZ()>boundingBox_Max.getZ()) boundingBox_Max.setZ(v.getZ());
+            else if(v.getZ()<boundingBox_Min.getZ()) boundingBox_Min.setZ(v.getZ());
+        }
+        timer.Stop();
+        deformT = timer.GetRealElapsed();
+        currentFrameNo = frameNo;
+    }
+    G4ThreeVector GetTranslation(int frameNo){return deformer->GetTrans(frameNo)*cm;}
+    G4int GetTotalFrameNo() {return deformer->GetFrameNo();}
+    G4int GetCurrentFrameNo() {return currentFrameNo;}
+    G4int GetDeformT(){return deformT;}
+private:
+    DQSdeformer* deformer;
+    G4int currentFrameNo;
+    G4double deformT;
 };
 
 #endif

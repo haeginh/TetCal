@@ -49,6 +49,7 @@
 #include "G4SDManager.hh"
 #include "G4MultiFunctionalDetector.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4RunManager.hh"
 
 #include "PSEnergyDeposit.hh"
 #include "TETModelImport.hh"
@@ -85,6 +86,7 @@ private:
 
 	G4VPhysicalVolume* worldPhysical;
 	G4LogicalVolume*   container_logic;
+    G4VPhysicalVolume* container_phy;
 
 	TETModelImport*    tetData;
 	G4ThreeVector      phantomSize;
@@ -92,6 +94,28 @@ private:
 	G4int              nOfTetrahedrons;
 
 	G4LogicalVolume*   tetLogic;
+
+    //4D cal
+public:
+    bool DeformToBVHFrame(G4int frameNo){
+        if(!tetData->Deform(frameNo)) return false;
+        G4ThreeVector max = tetData->GetPhantomBoxMax();
+        G4ThreeVector min = tetData->GetPhantomBoxMin();
+        G4double dimX = max.getX()>-min.getX()? max.getX():-min.getX();
+        G4double dimY = max.getY()>-min.getY()? max.getY():-min.getY();
+        G4double dimZ = max.getZ()>-min.getZ()? max.getZ():-min.getZ();
+
+        G4Box* phantomBox = dynamic_cast<G4Box*>(container_logic->GetSolid());
+        phantomBox->SetXHalfLength(dimX);
+        phantomBox->SetYHalfLength(dimY);
+        phantomBox->SetZHalfLength(dimZ);
+        container_phy->SetTranslation(tetData->GetTranslation(frameNo));
+        G4RunManager::GetRunManager()->GeometryHasBeenModified();
+        currentFrame = frameNo;
+    }
+    G4int GetCurrentFrameNo(){return currentFrame;}
+private:
+    G4int currentFrame;
 };
 
 #endif

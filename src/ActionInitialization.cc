@@ -45,7 +45,7 @@ void ActionInitialization::BuildForMaster() const
 void ActionInitialization::Build() const
 {
 	// initialise UserAction classes
-	SetUserAction(new PrimaryGeneratorAction(tetData));
+    SetUserAction(new PrimaryGeneratorAction());
 	SetUserAction(new RunAction(tetData, output, initTimer));
 	SetUserAction(new TETSteppingAction);
 }  

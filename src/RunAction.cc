@@ -33,11 +33,10 @@
 #include "G4Alpha.hh"
 #include "G4Neutron.hh"
 #include <iostream>
-#include "../include/RunAction.hh"
+#include "RunAction.hh"
 
 RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
-:tetData(_tetData), fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0),
- primaryEnergy(-1.), beamArea(-1.), isExternal(true)
+:tetData(_tetData), fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0)
 {
 	if(!isMaster) return;
 
@@ -57,8 +56,8 @@ RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
 	nameMap[-2] = "RBM"     ; nameMap[-1] = "BS"     ;
 
     //massMap will be initialized for negative IDs (RBM and BS) in the for loop
-	ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
-	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
+    ofs<<"[pGy/nps]"<<G4endl;
+    ofs<<"frame#\tnps\tdeformT\tinitT\trunT\t";
 	for(auto name:nameMap) ofs<<std::to_string(name.first)+"_"+name.second<<"\t"<<massMap[name.first]/g<<"\t";
 	if(tetData->DoseWasOrganized()) ofs<<"eff. dose (DRF)"<<"\t\t"<< "eff. dose";
 	ofs<<G4endl;
@@ -101,14 +100,6 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 	const PrimaryGeneratorAction* primary =
 			dynamic_cast<const PrimaryGeneratorAction*>(G4RunManager::GetRunManager()
 			->GetUserPrimaryGeneratorAction());
-	if(!primary) return;
-	primaryParticle = primary->GetParticleGun()->GetParticleDefinition()->GetParticleName();
-	primarySourceName = primary->GetSourceName();
-	primaryEnergy = primary->GetParticleGun()->GetParticleEnergy();
-	isExternal = primary-> GetSourceGenerator()->IsExternal();
-	if(isExternal) beamArea = primary->GetExternalBeamGenerator()->GetBeamArea();
-	fRun->SetPrimary(primaryParticle, primarySourceName, primaryEnergy, beamArea, isExternal);
-
 }
 
 void RunAction::EndOfRunAction(const G4Run* aRun)
@@ -120,30 +111,16 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	// get the run ID
 	runID = aRun->GetRunID();
 
-	//get primary info
-	primaryParticle = fRun->GetParticleName();
-	primarySourceName  = fRun->GetBeamDirName();
-	primaryEnergy   = fRun->GetBeamEnergy();
-	beamArea        = fRun->GetBeamArea();
-	isExternal      = fRun->GetIsExternal();
-
-	G4ParticleDefinition* particle = G4ParticleTable::GetParticleTable()->FindParticle(primaryParticle);
-	weight = GetRadiationWeighting(particle, primaryEnergy);
-	// Print the run result by G4cout and std::ofstream
-	//
-
 	// set doses
 	SetDoses();
-	if(isExternal & tetData->DoseWasOrganized()) SetEffectiveDose();
+    if(tetData->DoseWasOrganized()) SetEffectiveDose();
 
 	// print by G4cout
-	if(isExternal) PrintResultExternal(G4cout);
-	else           PrintResultInternal(G4cout);
+    PrintResultExternal(G4cout);
 
 	// print by std::ofstream
 	std::ofstream ofs(outputFile.c_str(), std::ios::app);
-	if(isExternal)PrintLineExternal(ofs);
-	else          PrintLineInternal(ofs);
+    PrintLineExternal(ofs);
 	ofs.close();
 
 	initTimer->Start();
@@ -237,64 +214,30 @@ void RunAction::PrintResultExternal(std::ostream &out)
 	    << "=======================================================================" << G4endl
 	    << setw(27) << "organ ID| "
 		<< setw(15) << "Organ Mass (g)"
-		<< setw(15) << "Dose (pGy*cm2)"
+        << setw(15) << "Dose (pGy/nps)"
 		<< setw(15) << "Relative Error" << G4endl;
 
 	out.precision(3);
-
-//	for(G4int i=-4;i<0;i++){
-//		out << setw(25) << nameMap[i] << "| ";
-//		out << setw(30) << scientific << doses[i].first/(joule/kg)*beamArea/cm2<< setw(15) << fixed << doses[i].second << G4endl;
-//	}
 
 	for(auto itr : massMap){
 		if(tetData->DoseWasOrganized()||itr.first<0) out << setw(25) << nameMap[itr.first]<< "| ";
 		else                            out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
 		out	<< setw(15) << fixed      << itr.second/g;
-        out	<< setw(15) << scientific << doses[itr.first].first/(joule/kg)*1e12*beamArea/cm2;
+        out	<< setw(15) << scientific << doses[itr.first].first/(joule/kg)*1e12;
 		out	<< setw(15) << fixed      << doses[itr.first].second << G4endl;
 	}
 
 	//effective dose
 	out << setw(25) << "eff. dose (DRF)" << "| ";
 	out	<< setw(15) << " "                ;
-    out	<< setw(15) << scientific << effective_DRF.first/(joule/kg)*1e12*beamArea/cm2;
+    out	<< setw(15) << scientific << effective_DRF.first/(joule/kg)*1e12;
 	out	<< setw(15) << fixed      << effective_DRF.second << G4endl;
 
 	out << setw(25) << "eff. dose" << "| ";
 	out	<< setw(15) << " "                ;
-    out	<< setw(15) << scientific << effective.first/(joule/kg)*1e12*beamArea/cm2;
+    out	<< setw(15) << scientific << effective.first/(joule/kg)*1e12;
 	out	<< setw(15) << fixed      << effective.second << G4endl;
 
-	out << "=======================================================================" << G4endl << G4endl;
-}
-
-void RunAction::PrintResultInternal(std::ostream &out)
-{
-	// Print run result
-	//
-	using namespace std;
-
-	out << G4endl
-	    << "=======================================================================" << G4endl
-	    << " Run #" << runID << " / Number of event processed : "<< numOfEvent     << G4endl
-	    << "=======================================================================" << G4endl
-		<< " Init time: " << initTimer->GetRealElapsed() << " s / Run time: "<< runTimer->GetRealElapsed()<<" s"<< G4endl
-	    << "=======================================================================" << G4endl
-	    << setw(27) << "organ ID| "
-		<< setw(15) << "Organ Mass (g)"
-		<< setw(15) << "SAF (kg-1)"
-		<< setw(15) << "Relative Error" << G4endl;
-
-	out.precision(3);
-
-	for(auto itr : massMap){
-		if(tetData->DoseWasOrganized()||itr.first<0) out << setw(25) << nameMap[itr.first]<< "| ";
-		else                            out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
-		out	<< setw(15) << fixed      << itr.second/g;
-		out	<< setw(15) << scientific << doses[itr.first].first/primaryEnergy/(1./kg);
-		out	<< setw(15) << fixed      << doses[itr.first].second << G4endl;
-	}
 	out << "=======================================================================" << G4endl << G4endl;
 }
 
@@ -303,34 +246,16 @@ void RunAction::PrintLineExternal(std::ostream &out)
 	// Print run result
 	//
 	using namespace std;
-	EDEPMAP edepMap = *fRun->GetEdepMap();
 
-	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
-		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
+    out << tetData->GetCurrentFrameNo() << "\t" <<numOfEvent<<"\t"<<tetData->GetDeformT()<<"\t"<<initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t";
 
 	for(auto itr:doses){
-        out << itr.second.first/(joule/kg)*1e12 * beamArea/cm2 <<"\t" << itr.second.second << "\t";
+        out << itr.second.first/(joule/kg)*1e12 <<"\t" << itr.second.second << "\t";
     }
     if(tetData->DoseWasOrganized()) {
-        out<<effective_DRF.first/(joule/kg)*1e12 * beamArea/cm2<< "\t" <<effective_DRF.second <<"\t";
-        out<<effective.first/(joule/kg)*1e12 * beamArea/cm2<< "\t" <<effective.second ;
+        out<<effective_DRF.first/(joule/kg)*1e12 << "\t" <<effective_DRF.second <<"\t";
+        out<<effective.first/(joule/kg)*1e12 << "\t" <<effective.second ;
     }
-	out<<G4endl;
-}
-
-void RunAction::PrintLineInternal(std::ostream &out)
-{
-	// Print run result
-	//
-	using namespace std;
-	EDEPMAP edepMap = *fRun->GetEdepMap();
-
-	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
-		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
-
-	for(auto itr:doses){
-		out << itr.second.first/primaryEnergy/(1./kg) <<"\t" << itr.second.second << "\t";
-	}
 	out<<G4endl;
 }
 
