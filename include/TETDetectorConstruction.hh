@@ -42,6 +42,7 @@
 
 #include "G4Box.hh"
 #include "G4Tet.hh"
+#include "G4Sphere.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4PVParameterised.hh"
@@ -56,21 +57,6 @@
 #include "TETModelImport.hh"
 #include "TETParameterisation.hh"
 #include "detectormessenger.hh"
-
-// *********************************************************************
-// This is UserDetectorConstruction class that defines geometry
-// -- Construct: construct Geometry by three methods listed below.
-//  └-- SetupWorldGeometry: Defines the world box (10*10*10 m3) and,
-//                          phantom container which has 10 cm-margins from
-//                          the bounding box of phantom
-//  └-- ConstructPhantom: Define the phantom geometry by using
-//                        G4PVParameterised class
-//  └-- PrintPhantomInformation: Print overall phantom information
-//
-// -- ConstructSDandField: Setup the MultiFunctionalDetector with energy
-//                         deposition scorer, and attach it to phantom
-//                         geometry
-// *********************************************************************
 
 class TETDetectorConstruction : public G4VUserDetectorConstruction
 {
@@ -123,9 +109,28 @@ public:
         return true;
     }
     G4int GetCurrentFrameNo(){return currentFrame;}
+    void SetShielding(G4ThreeVector trans, G4double thickness){
+        shield->SetTranslation(trans);
+        shield->GetLogicalVolume()->SetMaterial(lead);
+        G4Sphere* sol = dynamic_cast<G4Sphere*>(shield->GetLogicalVolume()->GetSolid());
+        sol->SetInnerRadius(2*cm);
+        sol->SetOuterRadius(2*cm+thickness);
+        G4RunManager::GetRunManager()->GeometryHasBeenModified();
+    }
+    void RemoveShielding(){
+        shield->GetLogicalVolume()->SetMaterial(vacuum);
+        shield->SetTranslation(G4ThreeVector(0,0,2*m));
+        G4Sphere* sol = dynamic_cast<G4Sphere*>(shield->GetLogicalVolume()->GetSolid());
+        sol->SetInnerRadius(0);
+        sol->SetOuterRadius(0.00001*um);
+        G4RunManager::GetRunManager()->GeometryHasBeenModified();
+    }
 private:
     G4int currentFrame;
     DetectorMessenger* detMessenger;
+    G4PVPlacement* shield;
+    G4Material* vacuum;
+    G4Material* lead;
 };
 
 #endif

@@ -1,9 +1,7 @@
 #include "dqsdeformer.hh"
 
 DQSdeformer::DQSdeformer()
-{
-
-}
+{}
 
 void DQSdeformer::ReadBVH(string fileN){
     vector<vector<Transfo>> data;

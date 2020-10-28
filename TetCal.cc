@@ -62,25 +62,26 @@ int main(int argc,char** argv)
 	initTimer->Start();
 	G4String macro;
 	G4String output;
-	G4String phantomName;
+    G4String phantomName, bvhFile;
 	G4UIExecutive* ui = 0;
 
 	for ( G4int i=1; i<argc; i++ ) {
 		// macro file name
 		if ( G4String(argv[i]) == "-m" ) {
-			macro = argv[i+1];
-			i++;
+            macro = argv[++i];
 		}
 		// output file name
 		else if ( G4String(argv[i]) == "-o" ) {
-			output = argv[i+1];
-			i++;
+            output = argv[++i];
 		}
 		// switch for MRCP-AF phantom
 		else if ( G4String(argv[i]) == "-p" ) {
-			phantomName = argv[i+1];
-			i++;
+            phantomName = argv[++i];
 		}
+        // switch for BVH file
+        else if ( G4String(argv[i]) == "-b" ) {
+            bvhFile = argv[++i];
+        }
 		else {
 			PrintUsage();
 			return 1;
@@ -120,7 +121,7 @@ int main(int argc,char** argv)
 
 	// Set a class to import phantom data
 	//
-	TETModelImport* tetData = new TETModelImport(phantomName, ui);
+    TETModelImport* tetData = new TETModelImport(phantomName, ui, bvhFile);
 
 	// Set mandatory initialisation classes
 	//

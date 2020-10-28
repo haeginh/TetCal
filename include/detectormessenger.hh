@@ -37,6 +37,9 @@
 class TETDetectorConstruction;
 class G4UIdirectory;
 class G4UIcmdWithAnInteger;
+class G4UIcmdWithADoubleAndUnit;
+class G4UIcmdWith3VectorAndUnit;
+class G4UIcmdWithoutParameter;
 
 class DetectorMessenger: public G4UImessenger
 {
@@ -54,6 +57,12 @@ class DetectorMessenger: public G4UImessenger
 
     G4UIdirectory*             fDirectory;
     G4UIcmdWithAnInteger*      fDeformCmd;
+    G4UIcmdWithADoubleAndUnit* fThicknessCmd;
+    G4UIcmdWith3VectorAndUnit* fTransCmd;
+    G4UIcmdWithoutParameter*   fRemoveCmd;
+
+    G4double thickness;
+    G4ThreeVector trans;
 };
 
 

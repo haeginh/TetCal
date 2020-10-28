@@ -30,7 +30,7 @@
 
 #include "TETModelImport.hh"
 
-TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
+TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui, G4String bvhFile)
 :doseOrganized(false)
 {
 	// set phantom name
@@ -67,7 +67,7 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 
     //for 4d cal.
     deformer = new DQSdeformer();
-    deformer->SetBVHname("take5.bvh");
+    deformer->SetBVHname(bvhFile);
     deformer->SetWname(_phantomName + ".m.weight");
     deformer->SetTGFname(_phantomName+".tgf");
     deformer->Initialize(vertexVector);
