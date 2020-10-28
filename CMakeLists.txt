@@ -18,9 +18,12 @@ else()
 endif()
 
 #igl
-option(LIBIGL_WITH_OPENGL            "Use OpenGL"         ON)
-option(LIBIGL_WITH_OPENGL_GLFW       "Use GLFW"           ON)
-find_package(LIBIGL REQUIRED QUIET)
+#option(LIBIGL_WITH_OPENGL            "Use OpenGL"         ON)
+#option(LIBIGL_WITH_OPENGL_GLFW       "Use GLFW"           ON)
+#find_package(LIBIGL REQUIRED QUIET)
+
+#Eigen
+#find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 #----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
@@ -44,7 +47,9 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(TetCal TetCal.cc ${sources} ${headers} ${dqs})
-target_link_libraries(TetCal ${Geant4_LIBRARIES} igl::core igl::opengl_glfw)
+target_link_libraries(TetCal ${Geant4_LIBRARIES})
+# Eigen3::Eigen igl::core)
+# igl::opengl_glfw)
 
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX

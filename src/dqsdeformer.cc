@@ -26,17 +26,18 @@ void DQSdeformer::ReadBVH(string fileN){
     double x,y,z;
 
     trans.clear();
-    trans.resize(frameNo);
     for(int i=0;i<frameNo;i++){
         data[i].resize(23);
         vector<Transfo> bvhData;
         ifs>>x>>y>>z;
-        trans[i] = G4ThreeVector(x,y,z);
+        trans.push_back(G4ThreeVector(x*cm,y*cm,z*cm));
 
         //collect a row
         for(int j=0;j<19;j++){
             ifs>>y>>x>>z;
-            bvhData.push_back(transfo_from_eulerYXZ(y,x,z));
+            if(j==5) bvhData.push_back(transfo_from_eulerYXZ(y,z,x));
+            else if(j==11) bvhData.push_back(transfo_from_eulerYXZ(y,-z,-x));
+            else bvhData.push_back(transfo_from_eulerYXZ(y,x,z));
         }
         Transfo tf4 = Transfo::rotate(Vec3(-0.2,-1,0),85*deg);
         Transfo tf10 = Transfo::rotate(Vec3(-0.2,1,0),85*deg);
@@ -48,14 +49,14 @@ void DQSdeformer::ReadBVH(string fileN){
         bvhData[12]  = bvhData[12]*tf12;
 
         Transfo tf0 = bvhData[0];
-        for(int j=0;j<BE.rows();j++){
-            int p = BE(j,0);
-            if(P(j)<0) {
+        for(size_t j=0;j<BE.size();j++){
+            int p = BE[j][0];
+            if(P[j]<0) {
                 data[i][j] = Transfo::identity();
                 continue;
             }
-            Transfo tf = Transfo::translate(Vec3(C(p,0),C(p,1),C(p,2)))*bvhData[p]*Transfo::translate(-Vec3(C(p,0),C(p,1),C(p,2)));
-            data[i][j]=data[i][P(j)]*tf;
+            Transfo tf = Transfo::translate(C[p])*bvhData[p]*Transfo::translate(-C[p]);
+            data[i][j]=data[i][P[j]]*tf;
         }
         for(Transfo &tf:data[i])
             tf = tf0*tf;
@@ -82,7 +83,6 @@ void DQSdeformer::dual_quat_deformer(vector<Dual_quat_cu> dual_quat)
         Dual_quat_cu dq_blend;
         bool first(true);
         Quat_cu q0;
-
         for(auto w:weights[n]){
             if(first){
                 dq_blend = dual_quat[w.first] * w.second;
@@ -92,9 +92,8 @@ void DQSdeformer::dual_quat_deformer(vector<Dual_quat_cu> dual_quat)
             }
             if( dual_quat[w.first].rotation().dot( q0 ) < 0.f )
                 dq_blend = dq_blend + dual_quat[w.first] * (-w.second);
-            else dq_blend = dq_blend + dual_quat[w.second] * w.second;
+            else dq_blend = dq_blend + dual_quat[w.first] * w.second;
         }
-
         // Compute animated position
         Point3 v = dq_blend.transform(U[n]);
         V.push_back(G4ThreeVector(v.x,v.y,v.z));

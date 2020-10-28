@@ -34,6 +34,7 @@
 #include "G4Neutron.hh"
 #include <iostream>
 #include "RunAction.hh"
+#include "TETDetectorConstruction.hh"
 
 RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
 :tetData(_tetData), fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0)
@@ -77,7 +78,8 @@ G4Run* RunAction::GenerateRun()
 
 void RunAction::BeginOfRunAction(const G4Run* aRun)
 {
-	// print the progress at the interval of 10%
+    G4cout<<"Start!"<<G4endl;
+    // print the progress at the interval of 10%
 	numOfEvent=aRun->GetNumberOfEventToBeProcessed();
 	G4RunManager::GetRunManager()->SetPrintProgress(int(numOfEvent*0.1));
 //		    FILE* file = fopen("/proc/self/status", "r");
@@ -96,10 +98,6 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 		initTimer->Stop();
 		runTimer->Start();
 	}
-
-	const PrimaryGeneratorAction* primary =
-			dynamic_cast<const PrimaryGeneratorAction*>(G4RunManager::GetRunManager()
-			->GetUserPrimaryGeneratorAction());
 }
 
 void RunAction::EndOfRunAction(const G4Run* aRun)

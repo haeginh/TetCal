@@ -8,12 +8,12 @@
 /run/initialize
 
 # deformation
-/4D/deform 1
+#/4D/deform 1
 
 # gps commands
-/gps/particle e-
-/gps/pos 0 0 0 cm
-/gps/energy 0.1 MeV
+#/gps/particle e-
+#/gps/pos 0 0 0 cm
+#/gps/energy 0.1 MeV
 
 /run/beamOn 10000
 

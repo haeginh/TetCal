@@ -66,11 +66,12 @@ class TETParameterisation : public G4VPVParameterisation
     virtual G4Material* ComputeMaterial(const G4int copyNo,
                                         G4VPhysicalVolume* phy,
                                         const G4VTouchable*);
-
+    void SetFloorMove(G4double trans) {floorMove = trans;}
   private:
     TETModelImport*                    tetData;
     std::map<G4int, G4VisAttributes*>  visAttMap;
     G4bool                             isforVis;
+    G4double                           floorMove;
 };
 
 #endif

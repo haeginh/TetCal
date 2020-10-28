@@ -42,7 +42,8 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 
 	G4String eleFile      =  phantomName + ".ele";
 	G4String nodeFile     =  phantomName + ".node";
-	G4String materialFile =  phantomName + ".material";
+    G4String meshFile     =  phantomName + ".mesh";
+    G4String materialFile =  phantomName + ".material";
 	G4String doseFile     =  phantomName + ".dose";
 	G4String boneFile     =  phantomName + ".RBMnBS";
 	G4String drfFile      =  phantomName + ".DRF";
@@ -51,7 +52,8 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	// read dose file (*.dose) -if there is any
 	DoseRead(doseFile);
 	// read phantom data files (*. ele, *.node)
-    DataRead(eleFile, nodeFile);
+//    DataRead(eleFile, nodeFile);
+    DataRead(meshFile);
 	// read material file (*.material)
 	MaterialRead(materialFile);
 	// read bone file (*.RBMnBS)
@@ -59,7 +61,7 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	// read bone file (*.DRF)
     DRFRead(drfFile);
 	// read colour data file (colour.dat) if this is interactive mode
-	if(ui) ColourRead(mtlFile);
+    //if(ui) ColourRead(mtlFile);
 	// print the summary of phantom information
 	PrintMaterialInfomation();
 
@@ -131,7 +133,6 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 
 		// save the node data as the form of std::vector<G4ThreeVector>
 		vertexVector.push_back(G4ThreeVector(xPos, yPos, zPos));
-
 		// to get the information of the bounding box of phantom
 		if (xPos < xMin) xMin = xPos;
 		if (xPos > xMax) xMax = xPos;
@@ -196,6 +197,104 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 		}
 	}
 	ifpEle.close();
+}
+
+void TETModelImport::DataRead(G4String meshFile)
+{
+    std::ifstream ifs;
+
+    ifs.open(meshFile);
+    if(!ifs.is_open()) {
+        // exception for the case when there is no *.node file
+        G4Exception("TETModelImport::DataRead","",FatalErrorInArgument,
+                G4String("      There is no " + meshFile ).c_str());
+    }
+    G4cout << "  Opening TETGEN node (vertex points: x y z) file '" << meshFile << "'" <<G4endl;
+
+    G4String dump;
+    G4double xMin(DBL_MAX), yMin(DBL_MAX), zMin(DBL_MAX);
+    G4double xMax(DBL_MIN), yMax(DBL_MIN), zMax(DBL_MIN);
+    while(getline(ifs,dump)){
+        stringstream ss(dump);
+        ss>>dump;
+        if(dump=="Vertices"){
+            G4int numVertex, tmp;
+            G4ThreeVector point;
+            ifs>>numVertex;
+            for(int i=0;i<numVertex;i++){
+                ifs>>point>>tmp; point*=cm;
+                vertexVector.push_back(point);
+                xMin = point.getX()<xMin? point.getX():xMin;
+                yMin = point.getY()<yMin? point.getY():yMin;
+                zMin = point.getZ()<zMin? point.getZ():zMin;
+                xMax = point.getX()>xMax? point.getX():xMax;
+                yMax = point.getY()>yMax? point.getY():yMax;
+                zMax = point.getZ()>zMax? point.getZ():zMin;
+            }
+        }
+        else if(dump=="Tetrahedra"){
+            G4int numEle, a, b, c, d, id;
+            ifs>>numEle;
+            for(int i=0;i<numEle;i++){
+                G4int* ele = new G4int[4];
+                ifs>>a>>b>>c>>d>>id;
+                ele[0]=a-1;ele[1]=b-1;ele[2]=c-1;ele[3]=d-1;
+                eleVector.push_back(ele);
+                materialVector.push_back(id);
+                // save the element (tetrahedron) data as the form of std::vector<G4Tet*>
+                tetVector.push_back(new G4Tet("Tet_Solid",
+                                              vertexVector[ele[0]],
+                                              vertexVector[ele[1]],
+                                              vertexVector[ele[2]],
+                                              vertexVector[ele[3]]));
+                // calculate the total volume and the number of tetrahedrons for each organ
+                std::map<G4int, G4int>::iterator FindIter = numTetMap.find(materialVector[i]);
+
+                if(FindIter!=numTetMap.end()){
+                    volumeMap[materialVector[i]]+=tetVector[i]->GetCubicVolume();
+//                    volumeMap[materialVector[i]]=0;
+                    numTetMap[materialVector[i]]++;
+                }
+                else {
+                    volumeMap[materialVector[i]] = tetVector[i]->GetCubicVolume();
+//                    volumeMap[materialVector[i]] = 0;
+                    numTetMap[materialVector[i]] = 1;
+                }
+            }
+        }
+    }
+//    G4bool degen; G4int count(0);
+//    G4Tet* tet = new G4Tet("tmp", G4ThreeVector(1,0,0), G4ThreeVector(0,0,1), G4ThreeVector(0,1,0), G4ThreeVector(1,1,1));
+//    do{
+//        G4cout<<"TRY #"<<count++<<G4endl;
+//        degen = false;
+//        for(size_t i=0;i<eleVector.size();i++){
+//            if(tet->CheckDegeneracy(vertexVector[eleVector[i][0]], vertexVector[eleVector[i][1]],
+//                                   vertexVector[eleVector[i][2]], vertexVector[eleVector[i][3]])){
+//                double move = FixDegenTet(vertexVector[eleVector[i][0]],
+//                                          vertexVector[eleVector[i][1]],
+//                                          vertexVector[eleVector[i][2]],
+//                                          vertexVector[eleVector[i][3]]);
+//                G4cout<<"Fixed degen tet"<<i<<" ("<<materialVector[i]<<") -> moved "<<move<<" mm"<<G4endl;
+//                degen = true;
+//            }
+//        }
+//    }while(degen);
+//    delete tet;
+//    for(size_t i=0;i<eleVector.size();i++){
+//        tetVector.push_back(new G4Tet("Tet_Solid",
+//                                      vertexVector[eleVector[i][0]],
+//                                      vertexVector[eleVector[i][1]],
+//                                      vertexVector[eleVector[i][2]],
+//                                      vertexVector[eleVector[i][3]]));
+//        volumeMap[materialVector[i]]+=tetVector[i]->GetCubicVolume();
+//    }
+
+    boundingBox_Min = G4ThreeVector(xMin,yMin,zMin);
+    boundingBox_Max = G4ThreeVector(xMax,yMax,zMax);
+
+
+    ifs.close();
 }
 
 void TETModelImport::MaterialRead(G4String materialFile)
@@ -394,4 +493,107 @@ void TETModelImport::PrintMaterialInfomation()
 			   << std::setw(11) << massMap[idx]/g              // organ mass
 			   << "\t"<<materialMap[idx]->GetName() << G4endl; // organ name
 	}
+}
+
+//4D cal
+bool TETModelImport::Deform(int frameNo)
+{
+    if(frameNo>=deformer->GetFrameNo()){
+        cout<<"WARNING: "<<frameNo<<" >= "<<deformer->GetFrameNo()<<endl;
+        return false;
+    }
+    vertexVector.clear();
+    G4Timer timer; timer.Start();
+    vertexVector = deformer->GetVertices(frameNo);
+    G4Tet* tet = new G4Tet("temp", G4ThreeVector(1,0,0),G4ThreeVector(0,1,0),G4ThreeVector(1,1,0),G4ThreeVector(1,1,1));
+    G4bool degen(false); G4int count(0);
+    do{
+        G4cout<<"TRY #"<<count++<<G4endl;
+        degen = false;
+        for(int i=0;i<GetNumTetrahedron();i++){
+            if(tet->CheckDegeneracy(vertexVector[eleVector[i][0]], vertexVector[eleVector[i][1]],
+                                   vertexVector[eleVector[i][2]], vertexVector[eleVector[i][3]])){
+                double move = FixDegenTet(vertexVector[eleVector[i][0]],
+                                          vertexVector[eleVector[i][1]],
+                                          vertexVector[eleVector[i][2]],
+                                          vertexVector[eleVector[i][3]]);
+                G4cout<<"Fixed degen tet"<<i<<" ("<<materialVector[i]<<") -> moved "<<move<<" mm"<<G4endl;
+                degen = true;
+            }
+        }
+    }while(degen);
+    delete tet;
+
+    for(int i=0;i<GetNumTetrahedron();i++){
+        tetVector[i]->SetVertices(vertexVector[eleVector[i][0]], vertexVector[eleVector[i][1]],
+                                  vertexVector[eleVector[i][2]], vertexVector[eleVector[i][3]]);
+    }
+    boundingBox_Max = vertexVector[0];
+    boundingBox_Min = vertexVector[0];
+    for(G4ThreeVector v:vertexVector){
+        if(v.getX()>boundingBox_Max.getX()) boundingBox_Max.setX(v.getX());
+        else if(v.getX()<boundingBox_Min.getX()) boundingBox_Min.setX(v.getX());
+        if(v.getY()>boundingBox_Max.getY()) boundingBox_Max.setY(v.getY());
+        else if(v.getY()<boundingBox_Min.getY()) boundingBox_Min.setY(v.getY());
+        if(v.getZ()>boundingBox_Max.getZ()) boundingBox_Max.setZ(v.getZ());
+        else if(v.getZ()<boundingBox_Min.getZ()) boundingBox_Min.setZ(v.getZ());
+    }
+    timer.Stop();
+    deformT = timer.GetRealElapsed();
+    currentFrameNo = frameNo;
+    return true;
+}
+
+G4double TETModelImport::FixDegenTet(G4ThreeVector& anchor, G4ThreeVector& p2, G4ThreeVector& p3, G4ThreeVector& p4){
+    vector<G4ThreeVector> pointVec = { anchor, p2, p3, p4 };
+    vector<G4ThreeVector> upVector;
+    for (int i = 0; i < 4; i++) {
+        G4ThreeVector up = (pointVec[(i + 2) % 4] - pointVec[(i + 1) % 4]).cross(pointVec[(i + 3) % 4] - pointVec[(i + 1) % 4]);
+        up = up.unit();
+        if (up.dot(pointVec[i] - pointVec[(i + 1) % 4]) < 0) {
+            up = -up;
+        }
+        upVector.push_back(up);
+    }
+    double minHeight(DBL_MAX);
+    vector<G4ThreeVector> midVector;
+    vector<G4ThreeVector> cenVector;
+    int minP(-1);
+    for (int i = 0; i < 4; i++) {
+        G4ThreeVector u = pointVec[(i + 1) % 4] - pointVec[i];
+        double height = -upVector[i].dot(u);
+        G4ThreeVector proj = pointVec[i] - upVector[i] * height;
+        G4ThreeVector mid = (pointVec[(i + 1) % 4] + pointVec[(i + 2) % 4] + pointVec[(i + 3) % 4]) / 3.;
+        midVector.push_back(mid - proj);
+        cenVector.push_back(mid + upVector[i] * height);
+        if (height > minHeight) continue;
+        minHeight = height;
+        minP = i;
+    }
+
+    bool degen = true;
+    double totalMove(0.);
+    G4ThreeVector fV21 = p2 - anchor;
+    G4ThreeVector fV31 = p3 - anchor;
+    G4ThreeVector fV41 = p4 - anchor;
+    double signed_vol = fV21.cross(fV31).dot(fV41);
+    double vol6 = std::fabs(signed_vol);
+    double move = pow(vol6, 1. / 3.)*0.0001;
+    if (move > 0.0001*cm) move = 0.00001*cm;
+    else if(move<1e-10*mm) move =  1e-10*mm;
+    G4Tet* tet = new G4Tet("temp", G4ThreeVector(1,0,0),G4ThreeVector(0,1,0),G4ThreeVector(1,1,0),G4ThreeVector(1,1,1));
+    while (degen) {
+        pointVec[minP] += upVector[minP] * move;
+        if ((cenVector[minP] - pointVec[minP]).dot(midVector[minP]) > 0) {
+            pointVec[minP] += midVector[minP] * move;
+            totalMove += move * 1.41421356237;
+        }
+        else totalMove += move;
+        degen = tet->CheckDegeneracy(pointVec[0], pointVec[1], pointVec[2], pointVec[3]);
+    }
+    anchor = pointVec[0];
+    p2 = pointVec[1];
+    p3 = pointVec[2];
+    p4 = pointVec[3];
+    return totalMove;
 }

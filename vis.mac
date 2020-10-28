@@ -86,11 +86,11 @@
 #
 # To get nice view
 # Make the "World" box invisible
-/vis/geometry/set/visibility worldLogical 0 false
-/vis/geometry/set/visibility phantomLogical 0 false
+#/vis/geometry/set/visibility worldLogical 0 false
+#/vis/geometry/set/visibility phantomLogical 0 false
 /vis/viewer/set/style surface
 /vis/viewer/set/hiddenMarker true
-/vis/viewer/set/background 1 1 1 1 
+/vis/viewer/set/background 0 0 0 1 
 #
 # Specify view angle:
 /vis/viewer/set/upVector 0 0 1

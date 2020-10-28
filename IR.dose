@@ -1,0 +1,27 @@
+2	Colon	7686					
+4	Lungs	9700	9900				
+5	Stomach	7203					
+7	Breasts	6200	6300	6400	6500		
+8	Testes/Ovaries	12900	13000				
+9	UB	13700					
+11	Oesophagus	11002					
+13	Liver	9500					
+14	Thyroid	13200					
+16	Brain	6100					
+17	SalivaryGlands	12000	12100				
+18	Skin	12200	12201				
+20	Adrenal	100	200				
+21	ET1	303					
+22	ET2	405					
+25	GallBladder	7000					
+26	Heart	8700					
+27	Kidneys	8900	9000	9100	9200	9300	9400
+28	LymphNodes	10000	10100	10200	10300	10400	10500
+30	OralMucosa	500	501	600			
+31	Pancreas	11300					
+32	Prostate/Uterus	11500					
+33	SI	7403					
+35	Spleen	12700					
+36	Thymus	13100					
+37	EyeLens	6600	6601	6800	6801		
+38	RST	11600					

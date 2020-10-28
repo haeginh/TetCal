@@ -50,10 +50,12 @@
 #include "G4MultiFunctionalDetector.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4RunManager.hh"
+//#include "G4GeometryManager.hh"
 
 #include "PSEnergyDeposit.hh"
 #include "TETModelImport.hh"
 #include "TETParameterisation.hh"
+#include "detectormessenger.hh"
 
 // *********************************************************************
 // This is UserDetectorConstruction class that defines geometry
@@ -94,10 +96,12 @@ private:
 	G4int              nOfTetrahedrons;
 
 	G4LogicalVolume*   tetLogic;
+    TETParameterisation* phantomParm;
 
     //4D cal
 public:
-    bool DeformToBVHFrame(G4int frameNo){
+    bool DeformToBVHFrame(G4int frameNo) {
+        G4cout<<"TETDetecotrConstruction::DeformToBVHFrame("<<frameNo<<")"<<G4endl;
         if(!tetData->Deform(frameNo)) return false;
         G4ThreeVector max = tetData->GetPhantomBoxMax();
         G4ThreeVector min = tetData->GetPhantomBoxMin();
@@ -109,13 +113,19 @@ public:
         phantomBox->SetXHalfLength(dimX);
         phantomBox->SetYHalfLength(dimY);
         phantomBox->SetZHalfLength(dimZ);
-        container_phy->SetTranslation(tetData->GetTranslation(frameNo));
+        G4ThreeVector trans = tetData->GetTranslation(frameNo);
+        G4double floorShift(0);
+        if(trans.z()-dimZ<-6.5*cm) floorShift = -6.5*cm-(trans.z()-dimZ);
+        container_phy->SetTranslation(trans + G4ThreeVector(0,0,floorShift));
+        phantomParm->SetFloorMove(-floorShift);
         G4RunManager::GetRunManager()->GeometryHasBeenModified();
         currentFrame = frameNo;
+        return true;
     }
     G4int GetCurrentFrameNo(){return currentFrame;}
 private:
     G4int currentFrame;
+    DetectorMessenger* detMessenger;
 };
 
 #endif
