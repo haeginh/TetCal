@@ -55,14 +55,9 @@ TETDetectorConstruction::~TETDetectorConstruction()
 
 G4VPhysicalVolume* TETDetectorConstruction::Construct()
 {
-    G4cout<<"1"<<G4endl;
-
     SetupWorldGeometry();
-    G4cout<<"2"<<G4endl;
     ConstructPhantom();
-    G4cout<<"3"<<G4endl;
     PrintPhantomInformation();
-    G4cout<<"4"<<G4endl;
     return worldPhysical;
 }
 

@@ -34,7 +34,7 @@
 #include "G4RunManager.hh"
 
 TETParameterisation::TETParameterisation(TETModelImport* _tetData)
-: G4VPVParameterisation(), tetData(_tetData)
+: G4VPVParameterisation(), tetData(_tetData), floorMove(0)
 {
 	// initialise visAttMap which contains G4VisAttributes* for each organ
 	auto colourMap =  tetData->GetColourMap();

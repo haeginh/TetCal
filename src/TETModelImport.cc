@@ -517,11 +517,12 @@ bool TETModelImport::Deform(int frameNo)
                                           vertexVector[eleVector[i][1]],
                                           vertexVector[eleVector[i][2]],
                                           vertexVector[eleVector[i][3]]);
-                G4cout<<"Fixed degen tet"<<i<<" ("<<materialVector[i]<<") -> moved "<<move<<" mm"<<G4endl;
+                G4cout<<"Fixed degen tet"<<i<<" ("<<materialVector[i]<<") -> moved "<<std::scientific<<move<<" mm"<<G4endl;
                 degen = true;
             }
         }
     }while(degen);
+    G4cout<<"All passed!"<<G4endl;
     delete tet;
 
     for(int i=0;i<GetNumTetrahedron();i++){
