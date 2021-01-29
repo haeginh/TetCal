@@ -29,6 +29,7 @@
 
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithAString.hh"
+#include "G4UIcmdWithADouble.hh"
 #include "G4RunManager.hh"
 #include <sstream>
 #include <vector>
@@ -43,7 +44,14 @@ PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
 	fBeamDirCmd->SetCandidates("AP PA LLAT RLAT ROT ISO");
 
 	fInternalDir      = new G4UIdirectory("/internal/");
+    fSourceOrganFractionCmd   = new G4UIcmdWithAString("/internal/fraction", this);
 	fSourceOrganCmd   = new G4UIcmdWithAString("/internal/source", this);
+
+    fBloodSourceCmd = new G4UIcmdWithAString("/internal/blood", this);
+
+    fLungSourceCmd = new G4UIcmdWithAString("/internal/lung", this);
+    fLungFractionCmd = new G4UIcmdWithADouble("/internal/lungFraction", this);
+
 	fSurfaceSourceCmd = new G4UIcmdWithAString("/internal/surface", this);
 }
 
@@ -52,6 +60,9 @@ PrimaryMessenger::~PrimaryMessenger() {
 	delete fBeamDirCmd;
 	delete fInternalDir;
 	delete fSourceOrganCmd;
+    delete fSourceOrganFractionCmd;
+    delete fBloodSourceCmd;
+    delete fSurfaceSourceCmd;
 }
 
 void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
@@ -67,20 +78,59 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 		else if(newValue=="ROT")	fExternal->SetBeamDirection(ROT);
 		else if(newValue=="ISO")	fExternal->SetBeamDirection(ISO);
 	}
-	if(command == fSourceOrganCmd){
-		fPrimary->SetInternalBeam();
+    else if(command == fSourceOrganFractionCmd){
+        fractions.clear();
+        newValue = newValue.substr(1, newValue.size()-2);
+         std::stringstream ss(newValue);
+        G4double temp;
+        while(ss>>temp) fractions.push_back(temp);
+    }
+    else if(command == fSourceOrganCmd){
+        fPrimary->SetInternalBeam();
         InternalSource* fInternal = fPrimary->GetInternalBeamGenerator();
         if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);
 
-		fPrimary->SetSourceName("(V) "+newValue);
-
-		std::stringstream ss(newValue);
-		std::vector<G4int> organIDs;
-		G4int intTemp;
-		while(ss>>intTemp) organIDs.push_back(intTemp);
-		fInternal->SetSource(organIDs);
-	}
-    if(command == fSurfaceSourceCmd){
+        std::stringstream ss(newValue);
+        std::vector<G4int> organIDs;
+        G4int intTemp;
+        while(ss>>intTemp) organIDs.push_back(intTemp);
+        if(fractions.size()) {
+            fInternal->SetSource(organIDs, fractions);
+            fractions.clear();
+            fPrimary->SetSourceName("(VF) "+newValue);
+        }
+        else {
+            fInternal->SetSource(organIDs);
+            fPrimary->SetSourceName("(V) "+newValue);
+        }
+    }
+    else if(command == fBloodSourceCmd){
+        std::ifstream ifs(newValue);
+        G4int id; G4double fraction;
+        std::vector<G4int> sVec;
+        std::vector<G4double> fVec;
+        G4String dump;
+        while(getline(ifs,dump)){
+            std::stringstream ss(dump);
+            ss>>fraction;
+            while(ss>>id) sVec.push_back(id);
+            for(size_t i=0;i<sVec.size();i++)
+                fVec.push_back(fraction/(G4double)sVec.size());
+        }
+        fPrimary->SetInternalBeam();
+        InternalSource* fInternal = fPrimary->GetInternalBeamGenerator();
+        fInternal->SetSource(sVec,fVec);
+        fPrimary->SetSourceName(newValue);
+    }
+    else if (command==fLungSourceCmd){
+        LungSource* fLung = fPrimary->SetLungSource();
+        fLung->SetSource(newValue);
+        fPrimary->SetSourceName(newValue);
+    }
+    else if (command==fLungFractionCmd){
+        fPrimary->SetLungFraction(fLungFractionCmd->GetNewDoubleValue(newValue));
+    }
+    else if(command == fSurfaceSourceCmd){
         fPrimary->SetSurfaceSource();
         SurfaceSource* fSurface = fPrimary->GetSurfaceSourceGenerator();
         if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);

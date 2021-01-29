@@ -2,7 +2,7 @@
 /run/verbose 2
 #/tracking/verbose 2
 # Set the number of threads for multi-threading mode
-/run/numberOfThreads  1
+/run/numberOfThreads  4
 
 # Initialize
 /lung/BB-bas 465.345 mm3
@@ -14,17 +14,38 @@
 /internal/source "9500"
 /gun/particle gamma
 /gun/energy 0.1 MeV
-/run/beamOn 10000
+/run/beamOn 1000
 
 # internal source
 /internal/source "9700 9900"
 /gun/particle e-
 /gun/energy 0.01 MeV
-/run/beamOn 100000
+/run/beamOn 1000
+
+# internal source (fraction)
+/internal/fraction "0.3 0.7" #this should come before /internal/source
+/internal/source "9700 9900"
+/gun/particle e-
+/gun/energy 0.01 MeV
+/run/beamOn 1000
+
+# internal source (blood)
+/internal/blood "~/MRCPs_newID/MRCP-AM.blood"
+/gun/particle gamma
+/gun/energy 1 MeV
+/run/beamOn 1000
+
+# internal source (lung)
+/internal/source 100
+/internal/lung lung.txt
+/internal/lungFraction 0.5
+/gun/particle gamma
+/gun/energy 1 MeV
+/run/beamOn 1000
 
 # external irradiation
 /gun/particle gamma
 /external/dir AP
 /gun/energy 10 MeV
-/run/beamOn 100000
+/run/beamOn 1000
 

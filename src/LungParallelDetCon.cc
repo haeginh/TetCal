@@ -56,7 +56,7 @@ G4ThreadLocal G4bool LungParallelDetCon::fSDConstructed = false;
 LungParallelDetCon
 ::LungParallelDetCon(G4String parallelWorldName, TETModelImport* _tetData)
 :G4VUserParallelWorld(parallelWorldName),fConstructed(false),tetData(_tetData),
- bBoxLogical(0), volChkName(""), samplingNum(0)
+ bBoxLogical(0), volChkName("")
 {
     fMessenger = new LungDetMessenger(this);
     bbox.first = G4ThreeVector(1, 1, 1);
@@ -171,22 +171,6 @@ void LungParallelDetCon::Construct()
         ofs_vol.close();
 	}
 
-	//from here
-
-    if(samplingNum){
-		std::ofstream ofs("sampled_points");
-		//G4ITNavigator* theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigator(GetWorld());
-        for(G4int i=0; i<samplingNum; i++){
-			G4ThreeVector randPoint(bbox.second.x()+G4UniformRand()*box_dim.x(),
-									bbox.second.y()+G4UniformRand()*box_dim.y(),
-									bbox.second.z()+G4UniformRand()*box_dim.z());
-			 //G4Navigator* theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
-			 G4int copy_num = G4TransportationManager::GetTransportationManager()->GetNavigator(GetWorld())->LocateGlobalPointAndSetup(randPoint)->GetCopyNo();
-			 if(copy_num>1000 && copy_num!=2000){
-				 ofs<<randPoint.x()/cm<<"	"<<randPoint.y()/cm<<"	"<<randPoint.z()/cm<<"	"<<copy_num<<G4endl;
-			 }
-		}
-	}
 }
 void LungParallelDetCon::ImportInfoData()
 {

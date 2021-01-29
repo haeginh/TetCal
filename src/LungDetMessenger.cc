@@ -42,7 +42,6 @@ LungDetMessenger::LungDetMessenger(LungParallelDetCon* _lungDet)
 {
     fLungDetDir = new G4UIdirectory("/lung/");
     fVolChkCmd  = new G4UIcmdWithAString("/lung/volchk", this);
-    fSamplingCmd= new G4UIcmdWithAnInteger("/lung/sampling", this);
     fBBbasCmd   = new G4UIcmdWithADoubleAndUnit("/lung/BB-bas", this);
     fBBsecCmd   = new G4UIcmdWithADoubleAndUnit("/lung/BB-sec", this);
     fbbsecCmd   = new G4UIcmdWithADoubleAndUnit("/lung/bb-sec", this);
@@ -51,7 +50,6 @@ LungDetMessenger::LungDetMessenger(LungParallelDetCon* _lungDet)
 LungDetMessenger::~LungDetMessenger() {
     delete fLungDetDir;
     delete fVolChkCmd;
-    delete fSamplingCmd;
     delete fBBbasCmd;
     delete fBBsecCmd;
     delete fbbsecCmd;
@@ -61,8 +59,6 @@ void LungDetMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
     if(command == fVolChkCmd)
         lungDet->SetVolChkName(newValue);
-    else if(command == fSamplingCmd)
-        lungDet->SetSamplingNum(fSamplingCmd->GetNewIntValue(newValue));
     else if(command == fBBbasCmd)
         lungDet->SetBBbasVol(fBBbasCmd->GetNewDoubleValue(newValue));
     else if(command == fBBsecCmd)

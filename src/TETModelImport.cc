@@ -91,8 +91,7 @@ void TETModelImport::DoseRead(G4String doseFile){
 
 void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 {
-	G4String tempStr;
-	G4int tempInt;
+    G4int tempInt;
 
 	// Read *.node file
 	//
@@ -137,8 +136,7 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 	// set the variables for the bounding box and phantom size
 	boundingBox_Min = G4ThreeVector(xMin,yMin,zMin);
 	boundingBox_Max = G4ThreeVector(xMax,yMax,zMax);
-	G4ThreeVector center = (boundingBox_Max+boundingBox_Min)*0.5;
-	phantomSize = G4ThreeVector(xMax-xMin,yMax-yMin,zMax-zMin);
+    phantomSize = G4ThreeVector(xMax-xMin,yMax-yMin,zMax-zMin);
 
 	ifpNode.close();
 
@@ -171,10 +169,10 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 
 		// save the element (tetrahedron) data as the form of std::vector<G4Tet*>
 		tetVector.push_back(new G4Tet("Tet_Solid",
-							   		  vertexVector[ele[0]]-center,
-									  vertexVector[ele[1]]-center,
-									  vertexVector[ele[2]]-center,
-									  vertexVector[ele[3]]-center));
+                                      vertexVector[ele[0]],
+                                      vertexVector[ele[1]],
+                                      vertexVector[ele[2]],
+                                      vertexVector[ele[3]]));
 		// calculate the total volume and the number of tetrahedrons for each organ
 		std::map<G4int, G4double>::iterator FindIter = volumeMap.find(materialVector[i]);
 
@@ -295,8 +293,8 @@ void TETModelImport::DRFRead(G4String DRFfile){
 	G4int ID;
     G4double DRF;
 
-    for (int i=0; i<23; i++) {
-    	ifp >> ID;
+    for (size_t i=0; i<rbmRatio.size(); i++) {
+    ifp >> ID;
 	rbmDRF[ID] = {};
 	bsDRF[ID] = {};
     	for (int j=0; j<25; j++) {

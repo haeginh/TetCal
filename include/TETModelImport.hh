@@ -76,7 +76,13 @@ public:
 	std::map<G4int, G4double> GetDoseMassMap(){ return doseMassMap; }
 
     G4String      GetPhantomName()           { return phantomName; }
-	G4Material*   GetMaterial(G4int idx)     { return materialMap[idx];}
+    G4Material*   GetMaterial(G4int idx)     {
+        if(materialMap.find(idx)==materialMap.end()){
+            G4cerr<<"There is no material #"<<idx<<G4endl;
+            exit(100);
+        }
+        return materialMap[idx];
+    }
 	G4int         GetNumTetrahedron()        { return tetVector.size();}
 	G4int         GetMaterialIndex(G4int idx){ return materialVector[idx]; }
 	G4Tet*        GetTetrahedron(G4int idx)  { return tetVector[idx]; }

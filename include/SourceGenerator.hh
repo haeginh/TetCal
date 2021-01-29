@@ -11,7 +11,7 @@
 #include "globals.hh"
 #include "G4ThreeVector.hh"
 #include "G4Tet.hh"
-
+#include "G4RandomDirection.hh"
 #include <vector>
 
 class SourceGenerator
@@ -59,6 +59,7 @@ public:
 	virtual ~InternalSource();
 
 	void SetSource(std::vector<G4int> sources);
+    void SetSource(std::vector<G4int> sources, std::vector<G4double> fractions);
 	void GetAprimaryPosDir(G4ThreeVector &pos, G4ThreeVector &dir);
 
 	std::vector<G4int> GetSource() 	const {return sourceIDs;}
@@ -70,6 +71,34 @@ private:
     std::vector<G4int>    sourceIDs;
     TETModelImport*       tetData;
     std::vector<VOLPICK>  tetPick;
+};
+
+class LungSource: public SourceGenerator
+{
+public:
+    LungSource(){}
+    virtual ~LungSource(){}
+
+    void SetSource(G4String file){
+        sources.clear();
+        std::ifstream ifs(file);
+        if(!ifs.is_open()){
+            G4cerr<<file<<" is not open"<<G4endl;
+            exit(300);
+        }
+        G4double xPos,yPos,zPos;
+        for(G4int i=0;i<100000000;i++){
+            ifs>>xPos>>yPos>>zPos;
+            sources.push_back(G4ThreeVector(xPos, yPos, zPos)*cm);
+        }
+    }
+    void GetAprimaryPosDir(G4ThreeVector &pos, G4ThreeVector &dir){
+        pos = sources[floor(G4UniformRand()*100000000)];
+        dir = G4RandomDirection();
+    }
+
+private:
+    std::vector<G4ThreeVector> sources;
 };
 
 typedef std::pair<G4double, std::tuple<G4int, G4int, G4int>> TRIPICK;

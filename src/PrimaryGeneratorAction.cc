@@ -34,7 +34,7 @@
 
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(TETModelImport* _tetData)
-:tetData(_tetData), fSourceGenerator(0)
+:tetData(_tetData), fSourceGenerator(0), lungFraction(-1)
 {
 	fParticleGun = new G4ParticleGun(1);
 	fMessenger   = new PrimaryMessenger(this);
@@ -47,12 +47,20 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
     if(fExternal) delete fExternal;
     if(fInternal) delete fInternal;
     if(fSurface)  delete fSurface;
+    if(fLungSource)  delete fLungSource;
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
 	G4ThreeVector direction, position;
-	fSourceGenerator->GetAprimaryPosDir(position, direction);
+    if(lungFraction < 0) fSourceGenerator->GetAprimaryPosDir(position, direction);
+    else if (lungFraction > 1) fLungSource -> GetAprimaryPosDir(position, direction);
+    else {
+        G4double rand = G4UniformRand();
+        if(rand<lungFraction) fLungSource -> GetAprimaryPosDir(position, direction);
+        else fSourceGenerator->GetAprimaryPosDir(position, direction);
+    }
+
 	fParticleGun->SetParticlePosition(position);
     fParticleGun->SetParticleMomentumDirection(direction);
 	fParticleGun->GeneratePrimaryVertex(anEvent);

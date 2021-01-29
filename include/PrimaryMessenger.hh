@@ -36,6 +36,7 @@
 
 class G4UIdirectory;
 class G4UIcmdWithAString;
+class G4UIcmdWithADouble;
 class PrimaryGeneratorAction;
 
 class PrimaryMessenger: public G4UImessenger
@@ -51,8 +52,14 @@ private:
 	G4UIdirectory*             fExternalDir;
 	G4UIcmdWithAString*        fBeamDirCmd;
 	G4UIdirectory*             fInternalDir;
+    G4UIcmdWithAString*        fSourceOrganFractionCmd;
 	G4UIcmdWithAString*        fSourceOrganCmd;
-	G4UIcmdWithAString*        fSurfaceSourceCmd;
+    G4UIcmdWithAString*        fLungSourceCmd;
+    G4UIcmdWithADouble*        fLungFractionCmd;
+    G4UIcmdWithAString*        fBloodSourceCmd;
+    G4UIcmdWithAString*        fSurfaceSourceCmd;
+
+    std::vector<G4double> fractions;
 };
 
 #endif

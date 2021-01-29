@@ -54,16 +54,25 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     void SetExternalBeam(){
        if(!fExternal) fExternal = new ExternalBeam();
         fSourceGenerator = fExternal; fSourceGenerator->SetExternal();
+        lungFraction = -1;
     }
     void SetInternalBeam(){
         if(!fInternal) fInternal = new InternalSource(tetData);
         fSourceGenerator = fInternal; fSourceGenerator->SetInternal();
+        lungFraction = -1;
+    }
+    LungSource* SetLungSource(){
+        if(!fLungSource) fLungSource = new LungSource();
+        fSourceGenerator->SetInternal();
+        lungFraction = 2;
+        return fLungSource;
     }
     void SetSurfaceSource(){
         if(!fSurface) fSurface = new SurfaceSource(tetData);
         fSourceGenerator = fSurface; fSourceGenerator->SetInternal();
+        lungFraction = -1;
     }
-
+    void SetLungFraction(G4double frac){lungFraction = frac;}
     void SetSourceName(G4String _sourceN) {sourceName = _sourceN;}
     G4ParticleGun*  GetParticleGun()            const {return fParticleGun;}
     SourceGenerator* GetSourceGenerator()       const {return fSourceGenerator;}
@@ -77,6 +86,8 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4ParticleGun*       fParticleGun;
     PrimaryMessenger*    fMessenger;
     SourceGenerator*     fSourceGenerator;
+    LungSource*          fLungSource;
+    G4double             lungFraction;
     ExternalBeam*        fExternal;
     InternalSource*      fInternal;
     SurfaceSource*       fSurface;

@@ -22,7 +22,6 @@ private:
     LungParallelDetCon*        lungDet;
     G4UIdirectory*             fLungDetDir;
     G4UIcmdWithAString*        fVolChkCmd;
-    G4UIcmdWithAnInteger*      fSamplingCmd;
     G4UIcmdWithADoubleAndUnit* fBBbasCmd;
     G4UIcmdWithADoubleAndUnit* fBBsecCmd;
     G4UIcmdWithADoubleAndUnit* fbbsecCmd;

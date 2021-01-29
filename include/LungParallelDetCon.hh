@@ -80,7 +80,6 @@ class LungParallelDetCon : public G4VUserParallelWorld
     //for messenger
 public:
     void SetVolChkName(G4String fileN) {volChkName=fileN;}
-    void SetSamplingNum(G4int num)     {samplingNum=num;}
     void SetBBbasVol(G4double vol)     {tetData->SetBB_basal_vol(vol);}
     void SetBBsecVol(G4double vol)     {tetData->SetBB_secretory_vol(vol);}
     void SetbbsecVol(G4double vol)     {tetData->Setbb_secretory_vol(vol);}
@@ -88,7 +87,6 @@ public:
 private:
     LungDetMessenger* fMessenger;
     G4String volChkName;
-    G4int    samplingNum;
 };
 
 #endif
