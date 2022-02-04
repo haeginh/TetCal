@@ -157,6 +157,7 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 	G4int numEle;
 	ifpEle >> numEle  >> tempInt >> tempInt;
 
+	G4int degen(0);
 	for(G4int i=0; i<numEle; i++)
 	{
 		ifpEle >> tempInt;
@@ -170,12 +171,13 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 		materialVector.push_back(tempInt);
 
 		// save the element (tetrahedron) data as the form of std::vector<G4Tet*>
+		G4bool chk;
 		tetVector.push_back(new G4Tet("Tet_Solid",
 							   		  vertexVector[ele[0]]-center,
 									  vertexVector[ele[1]]-center,
 									  vertexVector[ele[2]]-center,
-									  vertexVector[ele[3]]-center));
-
+									  vertexVector[ele[3]]-center, &chk));
+		if(chk) degen++;
 		// calculate the total volume and the number of tetrahedrons for each organ
 		std::map<G4int, G4double>::iterator FindIter = volumeMap.find(materialVector[i]);
 
@@ -189,6 +191,7 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 		}
 	}
 	ifpEle.close();
+	G4cout<<"The number of degenerated tet: "<<degen<<G4endl;
 }
 
 void TETModelImport::MaterialRead(G4String materialFile)

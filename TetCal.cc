@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// External.cc
+// TetCal.cc
 // \file          Tetcal_v2
 // \author        Haegin Han
 
@@ -127,9 +127,9 @@ int main(int argc,char** argv)
 	// detector construction
 	runManager->SetUserInitialization(new TETDetectorConstruction(tetData));
 	// physics list
-	G4PhysListFactory factory;
-//	G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BIC_LIV");
-//	runManager->SetUserInitialization(physList);
+	// G4PhysListFactory factory;
+	// G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BIC_LIV");
+	// runManager->SetUserInitialization(physList);
 	runManager->SetUserInitialization(new PhysicsList());
 	// user action initialisation
 	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer));
