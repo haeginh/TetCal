@@ -27,7 +27,6 @@
 // \file   MRCP_GEANT4/External/src/TETPrimaryGeneratorAction.cc
 // \author Haegin Han
 // \update
-// \
 
 
 #include "PrimaryGeneratorAction.hh"

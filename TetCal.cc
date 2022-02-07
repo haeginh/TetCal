@@ -50,8 +50,8 @@
 #include "G4VModularPhysicsList.hh"
 
 void PrintUsage(){
-	G4cerr<< "Usage: ./TetCal -m [MACRO] -o [OUTPUT] -p [phantom name]"  <<G4endl;
-	G4cerr<< "Example: ./TetCal -m sample.in -o run.out -p ./phantoms/00M" <<G4endl;
+	G4cerr<< "Usage: ./TetCal -m [MACRO] -o [OUTPUT] -p [phantom name] -n [posture option(node)]"  <<G4endl;
+	G4cerr<< "Example: ./TetCal -m sample.in -o run.out -p ./phantoms/00M -n _sitting" <<G4endl;
 }
 
 int main(int argc,char** argv) 
@@ -60,27 +60,20 @@ int main(int argc,char** argv)
 	//
 	G4Timer* initTimer = new G4Timer;
 	initTimer->Start();
-	G4String macro;
-	G4String output;
-	G4String phantomName;
+	G4String macro, output, phantomName, nodeOpt;
 	G4UIExecutive* ui = 0;
-
+	
 	for ( G4int i=1; i<argc; i++ ) {
 		// macro file name
-		if ( G4String(argv[i]) == "-m" ) {
-			macro = argv[i+1];
-			i++;
-		}
+		if ( G4String(argv[i]) == "-m" ) 
+			macro = argv[++i];
 		// output file name
-		else if ( G4String(argv[i]) == "-o" ) {
-			output = argv[i+1];
-			i++;
-		}
-		// switch for MRCP-AF phantom
-		else if ( G4String(argv[i]) == "-p" ) {
-			phantomName = argv[i+1];
-			i++;
-		}
+		else if ( G4String(argv[i]) == "-o" )
+			output = argv[++i];
+		else if ( G4String(argv[i]) == "-p" ) 
+			phantomName = argv[++i];
+		else if ( G4String(argv[i]) == "-n")
+			nodeOpt = argv[++i];
 		else {
 			PrintUsage();
 			return 1;
@@ -88,7 +81,7 @@ int main(int argc,char** argv)
 	}
 
 	// print usage when there are more than six arguments
-	if ( argc>7 || macro.empty() || phantomName.empty()){
+	if ( argc>9 || macro.empty() || phantomName.empty()){
 		PrintUsage();
 		return 1;
 	}
@@ -120,7 +113,7 @@ int main(int argc,char** argv)
 
 	// Set a class to import phantom data
 	//
-	TETModelImport* tetData = new TETModelImport(phantomName, ui);
+	TETModelImport* tetData = new TETModelImport(phantomName, nodeOpt, ui);
 
 	// Set mandatory initialisation classes
 	//
@@ -152,12 +145,12 @@ int main(int argc,char** argv)
 		// interactive mode
 		UImanager->ApplyCommand("/control/execute init_vis.mac");
 		ui->SessionStart();
-		delete visManager;
 		delete ui;
 	}
 
 	// Job termination
 	//
+	delete visManager;
 	delete runManager;
 }
 

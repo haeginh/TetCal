@@ -73,9 +73,9 @@ void TETDetectorConstruction::SetupWorldGeometry()
 
 	// Define the phantom container (10-cm margins from the bounding box of phantom)
 	//
-	G4Box* containerSolid = new G4Box("phantomBox", phantomSize.x()/2 + 1.*cm,
-										            phantomSize.y()/2 + 1.*cm,
-										            phantomSize.z()/2 + 1.*cm);
+	G4Box* containerSolid = new G4Box("phantomBox", phantomSize.x()*0.5 + 1.*cm,
+										            phantomSize.y()*0.5 + 1.*cm,
+										            phantomSize.z()*0.5 + 1.*cm);
 
 	container_logic = new G4LogicalVolume(containerSolid, vacuum, "phantomLogical");
 

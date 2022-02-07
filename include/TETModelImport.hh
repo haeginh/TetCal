@@ -65,7 +65,7 @@
 class TETModelImport
 {
 public:
-	TETModelImport(G4String phantomName, G4UIExecutive* ui);
+	TETModelImport(G4String phantomName, G4String nodeOpt, G4UIExecutive* ui);
     virtual ~TETModelImport() {}
 
 	// get methods
@@ -76,9 +76,9 @@ public:
 	std::map<G4int, G4double> GetDoseMassMap(){ return doseMassMap; }
 
     G4String      GetPhantomName()           { return phantomName; }
-	G4Material*   GetMaterial(G4int idx)     { return materialMap[idx];}
+	G4Material*   GetMaterial(G4int tetID)   { return materialMap[materialIdxVector[tetID]];}
 	G4int         GetNumTetrahedron()        { return tetVector.size();}
-	G4int         GetMaterialIndex(G4int idx){ return materialVector[idx]; }
+	G4int         GetMaterialIndex(G4int idx){ return materialIdxVector[idx].first; }
 	G4Tet*        GetTetrahedron(G4int idx)  { return tetVector[idx]; }
 	G4double      GetVolume(G4int idx)       { return volumeMap[idx]; }
 	std::map<G4int, G4double> GetMassMap()   { return massMap; }
@@ -94,8 +94,8 @@ public:
 
     std::vector<std::vector<G4int>> GetElements(G4int organID){
         std::vector<std::vector<G4int>> eleVec;
-        for(size_t i=0;i<materialVector.size();i++){
-            if(materialVector[i]!=organID) continue;
+        for(size_t i=0;i<materialIdxVector.size();i++){
+            if(materialIdxVector[i].first!=organID) continue;
             std::vector<G4int> ele = {eleVector[i][0],
                                       eleVector[i][1],
                                       eleVector[i][2],
@@ -107,10 +107,9 @@ public:
     }
 
 private:
-
 	// private methods
 	void DoseRead(G4String);
-    void DataRead(G4String, G4String);
+    void DataRead(G4String eleFile, G4String nodeFile, G4String volFile);
 	void MaterialRead(G4String);
 	void RBMBSRead(G4String);
 	void DRFRead(G4String);
@@ -142,7 +141,7 @@ private:
 	std::vector<G4ThreeVector> vertexVector;
 	std::vector<G4Tet*>        tetVector;
 	std::vector<G4int*>        eleVector;
-	std::vector<G4int>         materialVector;
+	std::vector<G4int>         materialIndex;
 	std::map<G4int, G4int>     numTetMap;
 	std::map<G4int, G4double>  volumeMap;
 	std::map<G4int, G4double>  massMap;
@@ -153,8 +152,8 @@ private:
 	std::map<G4int, std::vector<G4double>> bsDRF;
 
 	std::map<G4int, std::vector<std::pair<G4int, G4double>>> materialIndexMap;
-	std::vector<G4int>                                       materialIndex;
-	std::map<G4int, G4Material*>                             materialMap;
+	std::vector<std::pair<G4int, G4int>>                     materialIdxVector;
+	std::map<std::pair<G4int, G4int>, G4Material*>           materialMap; //(matID, densityRatio*10)
 	std::map<G4int, G4double>                                densityMap;
 	std::map<G4int, G4String>                                organNameMap;
 

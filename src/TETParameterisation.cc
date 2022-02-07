@@ -71,7 +71,7 @@ G4Material* TETParameterisation::ComputeMaterial(const G4int copyNo,
 	}
 
 	// return the material data for each material index
-	return tetData->GetMaterial(tetData->GetMaterialIndex(copyNo));
+	return tetData->GetMaterial(copyNo);
 }
 
 
