@@ -308,11 +308,13 @@ void TETModelImport::MaterialRead(G4String materialFile)
 			else mat->AddElement(nistManager->FindOrBuildElement(materialIndexMap[idx][j].first), materialIndexMap[idx][j].second);
 		}
 		materialMap[std::make_pair(idx, 1)]=mat;
-		massMap[idx]=densityMap[idx]*volumeMap[idx];
+		// massMap[idx]=densityMap[idx]*volumeMap[idx];
 	}
 
+	G4int idx(0);
 	for(auto iter:materialIdxVector)
 	{
+		massMap[iter.first] += densityMap[iter.first] * (G4double)iter.second * 0.1 * tetVector[idx++]->GetCubicVolume();
 		if(materialMap.find(iter)!= materialMap.end()) continue;
 		materialMap[iter] = 
 		new G4Material(organNameMap[iter.first] + "_" + std::to_string(iter.second), densityMap[iter.first] * (G4double)iter.second * 0.1, materialMap[std::make_pair(iter.first, 1)]);
