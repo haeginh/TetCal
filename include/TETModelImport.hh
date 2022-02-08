@@ -157,6 +157,7 @@ private:
 	std::map<G4int, G4double>                                densityMap;
 	std::map<G4int, G4String>                                organNameMap;
 
+	std::map<G4int, G4double> matDenK; // not rounded , rounded & abs
 };
 
 #endif
