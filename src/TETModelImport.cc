@@ -102,8 +102,30 @@ void TETModelImport::DoseRead(G4String doseFile)
 
 void TETModelImport::DataRead(G4String eleFile, G4String nodeFile, G4String volFile)
 {
+	//read *.density file
 	G4String tempStr;
 	G4int tempInt;
+	std::ifstream ifsVol(volFile);
+	if (!ifsVol.is_open())
+	{
+		// exception for the case when there is no *.vol file
+		G4Exception("TETModelImport::DataRead", "", FatalErrorInArgument,
+					G4String("      There is no " + volFile).c_str());					
+	}
+	G4int volNum;
+	ifsVol>>tempInt>>volNum;
+	materialIdxVector.resize(volNum);
+	std::vector<G4double> densityR(volNum); //originalV/newV
+	for(G4int i=0;i<volNum;i++)
+	{
+		ifsVol>> densityR[i];
+		G4int ratio10 = floor(densityR[i] * 10 + 0.5);
+		if(ratio10 ==0) ratio10 = 1;
+		materialIdxVector[i].second = ratio10;
+		// if(densityRatio[i]>2) densityRatio[i] = 10;
+		// else if(densityRatio[i]<0.5) densityRatio[i] = 0.1;
+	}
+	ifsVol.close();
 
 	// Read *.node file
 	//
@@ -175,9 +197,12 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile, G4String volF
 
 	G4int numEle;
 	ifpEle >> numEle >> tempInt >> tempInt;
+	if(numEle != volNum)
+		G4Exception("TETModelImport::DataRead", "", FatalErrorInArgument,
+					G4String("      numEle != volNum ").c_str());					
 
 	G4int degen(0);
-	materialIdxVector.resize(numEle);
+	std::map<G4int, G4double> originalVol, roundedVol;
 	for (G4int i = 0; i < numEle; i++)
 	{
 		ifpEle >> tempInt;
@@ -198,8 +223,7 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile, G4String volF
 									  vertexVector[ele[1]] - center,
 									  vertexVector[ele[2]] - center,
 									  vertexVector[ele[3]] - center, &chk));
-		if (chk)
-			degen++;
+		if (chk) degen++;
 		// calculate the total volume and the number of tetrahedrons for each organ
 		std::map<G4int, G4double>::iterator FindIter = volumeMap.find(materialIdxVector[i].first);
 
@@ -207,39 +231,22 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile, G4String volF
 		{
 			FindIter->second += tetVector[i]->GetCubicVolume();
 			numTetMap[materialIdxVector[i].first]++;
+			originalVol[materialIdxVector[i].first] += tetVector[i]->GetCubicVolume()/densityR[i];
+			roundedVol[materialIdxVector[i].first] += tetVector[i]->GetCubicVolume()*(G4double)materialIdxVector[i].second*0.1;
 		}
 		else
 		{
 			volumeMap[materialIdxVector[i].first] = tetVector[i]->GetCubicVolume();
 			numTetMap[materialIdxVector[i].first] = 1;
+			originalVol[materialIdxVector[i].first] = tetVector[i]->GetCubicVolume()/densityR[i];
+			roundedVol[materialIdxVector[i].first] = tetVector[i]->GetCubicVolume()*(G4double)materialIdxVector[i].second*0.1;
 		}
 	}
 	ifpEle.close();
 	G4cout << "The number of degenerated tet: " << degen << G4endl;
 
-	std::ifstream ifsVol(volFile);
-	if (!ifsVol.is_open())
-	{
-		// exception for the case when there is no *.vol file
-		G4Exception("TETModelImport::DataRead", "", FatalErrorInArgument,
-					G4String("      There is no " + volFile).c_str());					
-	}
-	G4int volNum;
-	ifsVol>>tempInt>>volNum;
-	if(numEle != volNum)
-		G4Exception("TETModelImport::DataRead", "", FatalErrorInArgument,
-					G4String("      numEle != volNum ").c_str());					
-	for(G4int i=0;i<volNum;i++)
-	{
-		G4double ratio;
-		ifsVol>> ratio;
-		G4int ratio10 = floor(ratio * 10 + 0.5);
-		if(ratio10 ==0) ratio10 = 1;
-		materialIdxVector[i].second = ratio10;
-		// if(densityRatio[i]>2) densityRatio[i] = 10;
-		// else if(densityRatio[i]<0.5) densityRatio[i] = 0.1;
-	}
-	ifsVol.close();
+	for(auto &iter:densityMap)
+		iter.second *= (originalVol[iter.first]/roundedVol[iter.first]);
 }
 
 void TETModelImport::MaterialRead(G4String materialFile)
