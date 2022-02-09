@@ -120,7 +120,7 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile, G4String volF
 	{
 		ifsVol>> densityR[i];
 		G4int ratio10 = floor(abs(densityR[i]) * 10 + 0.5);
-		if(ratio10 < 1) ratio10 = 1;
+		if(ratio10 == 0) ratio10 = 1;
 		materialIdxVector[i].second = ratio10;
 		// if(densityRatio[i]>2) densityRatio[i] = 10;
 		// else if(densityRatio[i]<0.5) densityRatio[i] = 0.1;
