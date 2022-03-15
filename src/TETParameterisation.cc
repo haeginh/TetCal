@@ -65,13 +65,13 @@ G4Material* TETParameterisation::ComputeMaterial(const G4int copyNo,
                                                  const G4VTouchable* )
 {
    // set the colour for each organ if visualization is required
-	if(isforVis){
-		G4int idx = tetData->GetMaterialIndex(copyNo);
-		phy->GetLogicalVolume()->SetVisAttributes(visAttMap[idx]);
-	}
+	// if(isforVis){
+	// 	G4int idx = tetData->GetMaterialIndex(copyNo);
+	// 	phy->GetLogicalVolume()->SetVisAttributes(visAttMap[idx]);
+	// }
 
 	// return the material data for each material index
-	return tetData->GetMaterial(copyNo);
+	return tetData->GetMaterial(tetData->GetMaterialIndex(copyNo));
 }
 
 

@@ -12,8 +12,14 @@
 # Initialize kernel
 /run/initialize
 
+/beam/specDir /data/McDCIR_PDC_chk/spectra
+/beam/kVp 80
+/beam/angle 60
+/beam/radius 40
+/beam/lower 0
+/beam/upper 40
 # Source setting
-/control/execute source.mac
+#/control/execute source.mac
 
 # Visualization setting
 /control/execute vis.mac

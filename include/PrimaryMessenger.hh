@@ -36,6 +36,8 @@
 
 class G4UIdirectory;
 class G4UIcmdWithAString;
+class G4UIcmdWithAnInteger;
+class G4UIcmdWithADoubleAndUnit;
 class PrimaryGeneratorAction;
 
 class PrimaryMessenger: public G4UImessenger
@@ -47,12 +49,14 @@ public:
 	virtual void SetNewValue(G4UIcommand*, G4String);
 
 private:
-	PrimaryGeneratorAction* fPrimary;
-	G4UIdirectory*             fExternalDir;
-	G4UIcmdWithAString*        fBeamDirCmd;
-	G4UIdirectory*             fInternalDir;
-	G4UIcmdWithAString*        fSourceOrganCmd;
-	G4UIcmdWithAString*        fSurfaceSourceCmd;
+	PrimaryGeneratorAction*    fPrimary;
+	G4UIdirectory*             fBeamDir;
+	G4UIcmdWithAString*        fSpecDirCmd;
+	G4UIcmdWithAnInteger*      fPeakEnergyCmd;
+	G4UIcmdWithADoubleAndUnit* fAngleCmd;
+	G4UIcmdWithADoubleAndUnit* fRadiusCmd;
+	G4UIcmdWithADoubleAndUnit* fLowerBoundCmd;
+	G4UIcmdWithADoubleAndUnit* fUpperBoundCmd;
 };
 
 #endif

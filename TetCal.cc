@@ -81,7 +81,7 @@ int main(int argc,char** argv)
 	}
 
 	// print usage when there are more than six arguments
-	if ( argc>9 || macro.empty() || phantomName.empty()){
+	if ( argc>9 || phantomName.empty()){
 		PrintUsage();
 		return 1;
 	}
@@ -89,9 +89,7 @@ int main(int argc,char** argv)
 	// Detect interactive mode (if no macro file name) and define UI session
 	//
 	if ( !macro.size() ) {
-		ui = new G4UIExecutive(argc, argv, "csh");
-		G4cerr<<"ERROR: Interactive mode is not available. Please provide macro file."<<G4endl;
-		return 1;
+		ui = new G4UIExecutive(argc, argv, "Qt");
 	}
 	// default output file name
 	else if ( !output.size() ) output = macro + ".out";
@@ -113,7 +111,7 @@ int main(int argc,char** argv)
 
 	// Set a class to import phantom data
 	//
-	TETModelImport* tetData = new TETModelImport(phantomName, nodeOpt, ui);
+	TETModelImport* tetData = new TETModelImport(phantomName, ui);
 
 	// Set mandatory initialisation classes
 	//
@@ -125,7 +123,7 @@ int main(int argc,char** argv)
 	// runManager->SetUserInitialization(physList);
 	runManager->SetUserInitialization(new PhysicsList());
 	// user action initialisation
-	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer));
+	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer, tetData->GetCenterZ()));
     
 	// Visualization manager
 	//

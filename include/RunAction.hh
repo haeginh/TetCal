@@ -68,14 +68,11 @@ public:
 
 	void SetDoses();
 	void SetEffectiveDose();
-	void PrintResultExternal(std::ostream &out);
-	void PrintResultInternal(std::ostream &out);
-	void PrintLineExternal(std::ostream &out);
-	void PrintLineInternal(std::ostream &out);
+	void PrintResult(std::ostream &out);
+	void PrintALine(std::ostream &out);
 
 	std::pair<G4double, G4double> PropagateError(std::vector<std::pair<G4double, G4double>> doses,
 												 std::vector<G4double> ratio);
-	G4double GetRadiationWeighting(G4ParticleDefinition* _particle, G4double _energy);
 
 private:
 	TETModelImport* tetData;
@@ -85,19 +82,13 @@ private:
 	G4String        outputFile;
 	G4Timer*        initTimer;
 	G4Timer*        runTimer;
+	G4String        source;
+	G4double        factor;
 
-	G4String primaryParticle;
-	G4String primarySourceName;
-	G4double primaryEnergy;
-	G4double beamArea;
-	G4int    prevNPS;
-	G4bool   isExternal;
-	G4bool   sameToPrev;
 	std::map<G4int, G4double> massMap;
 	std::map<G4int, std::pair<G4double,G4double>> doses;
 	std::map<G4int, G4String> nameMap;
 	std::pair<G4double, G4double> effective, effective_DRF;
-	G4double weight;
 };
 
 #endif

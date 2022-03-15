@@ -129,12 +129,9 @@ void Run::Merge(const G4Run* run)
 	// merge the data from each thread
 	EDEPMAP localMap = localRun->edepMap;
 
-	primary = localRun->primary;
-	dir = localRun->dir;
-	primaryE = localRun->primaryE;
-	beamArea = localRun->beamArea;
-	isExternal = localRun->isExternal;
-
+	source = localRun->source;
+	factor = localRun->factor;
+	
 	for(auto itr : localMap){
 		edepMap[itr.first].first  += itr.second.first;
 		edepMap[itr.first].second += itr.second.second;

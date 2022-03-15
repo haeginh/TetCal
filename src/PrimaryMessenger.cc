@@ -29,6 +29,8 @@
 
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithAString.hh"
+#include "G4UIcmdWithAnInteger.hh"
+#include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4RunManager.hh"
 #include <sstream>
 #include <vector>
@@ -38,60 +40,47 @@
 PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
 :G4UImessenger(), fPrimary(_primary)
 {
-	fExternalDir = new G4UIdirectory("/external/");
-	fBeamDirCmd = new G4UIcmdWithAString("/external/dir", this);
-	fBeamDirCmd->SetCandidates("AP PA LLAT RLAT ROT ISO");
-
-	fInternalDir      = new G4UIdirectory("/internal/");
-	fSourceOrganCmd   = new G4UIcmdWithAString("/internal/source", this);
-	fSurfaceSourceCmd = new G4UIcmdWithAString("/internal/surface", this);
+	fBeamDir = new G4UIdirectory("/beam/");
+	fSpecDirCmd = new G4UIcmdWithAString("/beam/specDir", this);
+	fPeakEnergyCmd = new G4UIcmdWithAnInteger("/beam/kVp", this);
+	fAngleCmd = new G4UIcmdWithADoubleAndUnit("/beam/angle", this);
+	fAngleCmd->SetDefaultUnit("degree");
+	fRadiusCmd = new G4UIcmdWithADoubleAndUnit("/beam/radius", this);
+	fRadiusCmd->SetDefaultUnit("cm");
+	fLowerBoundCmd = new G4UIcmdWithADoubleAndUnit("/beam/lower", this);
+	fLowerBoundCmd->SetDefaultUnit("cm");
+	fUpperBoundCmd = new G4UIcmdWithADoubleAndUnit("/beam/upper", this);
+	fUpperBoundCmd->SetDefaultUnit("cm");
 }
 
 PrimaryMessenger::~PrimaryMessenger() {
-	delete fExternalDir;
-	delete fBeamDirCmd;
-	delete fInternalDir;
-	delete fSourceOrganCmd;
+	delete fBeamDir;
+	delete fSpecDirCmd;
+	delete fAngleCmd;
+	delete fRadiusCmd;
+	delete fLowerBoundCmd;
+	delete fUpperBoundCmd;
 }
 
 void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 {
-	if(command == fBeamDirCmd){
-		fPrimary->SetExternalBeam();
-		fPrimary->SetSourceName(newValue);
-		ExternalBeam* fExternal = fPrimary->GetExternalBeamGenerator();
-		if(newValue=="AP")	      	fExternal->SetBeamDirection(AP);
-		else if(newValue=="PA")	    fExternal->SetBeamDirection(PA);
-		else if(newValue=="RLAT")	fExternal->SetBeamDirection(RLAT);
-		else if(newValue=="LLAT")	fExternal->SetBeamDirection(LLAT);
-		else if(newValue=="ROT")	fExternal->SetBeamDirection(ROT);
-		else if(newValue=="ISO")	fExternal->SetBeamDirection(ISO);
+	if(command == fSpecDirCmd){
+		fPrimary->SetSpecDir(newValue);
 	}
-	if(command == fSourceOrganCmd){
-		fPrimary->SetInternalBeam();
-		InternalSource* fInternal = fPrimary->GetInternalBeamGenerator();
-        if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);
-
-		fPrimary->SetSourceName("(V) "+newValue);
-
-		std::stringstream ss(newValue);
-		std::vector<G4int> organIDs;
-		G4int intTemp;
-		while(ss>>intTemp) organIDs.push_back(intTemp);
-		fInternal->SetSource(organIDs);
+	else if(command == fPeakEnergyCmd){
+		fPrimary->SetPeakEnergy(fPeakEnergyCmd->GetNewIntValue(newValue));
 	}
-    if(command == fSurfaceSourceCmd){
-        fPrimary->SetSurfaceSource();
-        SurfaceSource* fSurface = fPrimary->GetSurfaceSourceGenerator();
-        if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);
-
-        fPrimary->SetSourceName("(S) "+newValue);
-
-        std::stringstream ss(newValue);
-        std::vector<G4int> organIDs;
-        G4int intTemp;
-        while(ss>>intTemp) organIDs.push_back(intTemp);
-        fSurface->SetSource(organIDs);
+	else if(command == fAngleCmd){
+		fPrimary->SetAngle(fAngleCmd->GetNewDoubleValue(newValue));
+	}
+    else if(command == fRadiusCmd){
+        fPrimary->SetRadius(fRadiusCmd->GetNewDoubleValue(newValue));
+    }
+    else if(command == fLowerBoundCmd){
+        fPrimary->SetLowerBound(fLowerBoundCmd->GetNewDoubleValue(newValue));
+    }
+    else if(command == fUpperBoundCmd){
+        fPrimary->SetUpperBound(fUpperBoundCmd->GetNewDoubleValue(newValue));
     }
 }
 

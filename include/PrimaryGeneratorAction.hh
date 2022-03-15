@@ -37,50 +37,51 @@
 #include "G4ParticleGun.hh"
 #include "G4SystemOfUnits.hh"
 #include "PrimaryMessenger.hh"
-#include "SourceGenerator.hh"
 
 class TETModelImport;
 
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
   public:
-	PrimaryGeneratorAction(TETModelImport* tetData);
+	PrimaryGeneratorAction(G4double centerZ);
 	virtual ~PrimaryGeneratorAction();
 
     //GENERAL
   public:
     virtual void   GeneratePrimaries(G4Event* anEvent);
 
-    void SetExternalBeam(){
-       if(!fExternal) fExternal = new ExternalBeam();
-        fSourceGenerator = fExternal; fSourceGenerator->SetExternal();
-    }
-    void SetInternalBeam(){
-        if(!fInternal) fInternal = new InternalSource(tetData);
-        fSourceGenerator = fInternal; fSourceGenerator->SetInternal();
-    }
-    void SetSurfaceSource(){
-        if(!fSurface) fSurface = new SurfaceSource(tetData);
-        fSourceGenerator = fSurface; fSourceGenerator->SetInternal();
-    }
+    // G4ParticleGun*  GetParticleGun()            const {return fParticleGun;}
+    void SetSpecDir(G4String _specDir) {specDir = _specDir;}
+    void SetPeakEnergy(G4int _kVp);
+    void SetAngle(G4double _angle) {angle = _angle;}
+    void SetRadius(G4double _radius) {radius = _radius;}
+    void SetLowerBound(G4double _lb) {lowerBound = _lb-centerZ;}
+    void SetUpperBound(G4double _ub) {upperBound = _ub-centerZ;}
+    
+    G4String GetSourceName() const {
+      return std::to_string(kVp)+"kVp_"+std::to_string(int(angle/deg+0.5))+"deg_R"+
+             std::to_string(int(radius/cm+0.5))+"cm_H"+
+             std::to_string(int(lowerBound/cm+0.5))+"-"+std::to_string(int(upperBound/cm+0.5))+"cm";
+      }
 
-    void SetSourceName(G4String _sourceN) {sourceName = _sourceN;}
-    G4ParticleGun*  GetParticleGun()            const {return fParticleGun;}
-    SourceGenerator* GetSourceGenerator()       const {return fSourceGenerator;}
-    ExternalBeam*   GetExternalBeamGenerator()  const {return fExternal;}
-    InternalSource* GetInternalBeamGenerator()  const {return fInternal;}
-    SurfaceSource*  GetSurfaceSourceGenerator() const {return fSurface;}
-    G4String        GetSourceName() const {return sourceName;}
-
+    G4double GetFactor() const
+    {
+      return specSum * (1*m*angle*rad*(upperBound-lowerBound))/cm2;
+    }
+    
   private:
-    TETModelImport*      tetData;
+    G4String             specDir;
+    G4int                kVp;
+    G4double             angle;
+    G4double             radius;
+    G4double             lowerBound;
+    G4double             upperBound;
+    G4double             centerZ;
+    G4double             specSum;
     G4ParticleGun*       fParticleGun;
     PrimaryMessenger*    fMessenger;
-    SourceGenerator*     fSourceGenerator;
-    ExternalBeam*        fExternal;
-    InternalSource*      fInternal;
-    SurfaceSource*       fSurface;
-    G4String             sourceName;
+
+    std::map<G4double, G4double> cdf;
 };
 
 #endif

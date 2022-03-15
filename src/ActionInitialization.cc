@@ -30,8 +30,8 @@
 
 #include "ActionInitialization.hh"
 
-ActionInitialization::ActionInitialization(TETModelImport* _tetData, G4String _output, G4Timer* _init)
- : G4VUserActionInitialization(), tetData(_tetData), output(_output), initTimer(_init)
+ActionInitialization::ActionInitialization(TETModelImport* _tetData, G4String _output, G4Timer* _init, G4double _centerZ)
+ : G4VUserActionInitialization(), tetData(_tetData), output(_output), initTimer(_init), centerZ(_centerZ)
 {}
 
 ActionInitialization::~ActionInitialization()
@@ -45,7 +45,7 @@ void ActionInitialization::BuildForMaster() const
 void ActionInitialization::Build() const
 {
 	// initialise UserAction classes
-	SetUserAction(new PrimaryGeneratorAction(tetData));
+	SetUserAction(new PrimaryGeneratorAction(centerZ));
 	SetUserAction(new RunAction(tetData, output, initTimer));
 	SetUserAction(new TETSteppingAction);
 }  

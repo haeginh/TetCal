@@ -1,0 +1,18 @@
+# Set the verbose
+/run/verbose 2
+
+# Set the number of threads for multi-threading mode
+/run/numberOfThreads  1
+
+# Initialize
+/run/initialize
+
+# external irradiation
+/beam/specDir /data/McDCIR_PDC_chk/spectra
+/beam/kVp 120
+/beam/angle 60
+/beam/radius 47.5 #diameter 95 cm
+#abdominal
+/beam/lower 0.5
+/beam/upper 45
+/run/beamOn 100000
