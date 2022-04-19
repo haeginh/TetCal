@@ -43,8 +43,10 @@ PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
 	fBeamDir = new G4UIdirectory("/beam/");
 	fSpecDirCmd = new G4UIcmdWithAString("/beam/specDir", this);
 	fPeakEnergyCmd = new G4UIcmdWithAnInteger("/beam/kVp", this);
-	fAngleCmd = new G4UIcmdWithADoubleAndUnit("/beam/angle", this);
-	fAngleCmd->SetDefaultUnit("degree");
+	fFanAngleCmd = new G4UIcmdWithADoubleAndUnit("/beam/fanAngle", this);
+	fFanAngleCmd->SetDefaultUnit("degree");
+	fConeAngleCmd = new G4UIcmdWithADoubleAndUnit("/beam/coneAngle", this);
+	fConeAngleCmd->SetDefaultUnit("degree");
 	fRadiusCmd = new G4UIcmdWithADoubleAndUnit("/beam/radius", this);
 	fRadiusCmd->SetDefaultUnit("cm");
 	fLowerBoundCmd = new G4UIcmdWithADoubleAndUnit("/beam/lower", this);
@@ -56,7 +58,8 @@ PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
 PrimaryMessenger::~PrimaryMessenger() {
 	delete fBeamDir;
 	delete fSpecDirCmd;
-	delete fAngleCmd;
+	delete fFanAngleCmd;
+	delete fConeAngleCmd;
 	delete fRadiusCmd;
 	delete fLowerBoundCmd;
 	delete fUpperBoundCmd;
@@ -70,8 +73,11 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 	else if(command == fPeakEnergyCmd){
 		fPrimary->SetPeakEnergy(fPeakEnergyCmd->GetNewIntValue(newValue));
 	}
-	else if(command == fAngleCmd){
-		fPrimary->SetAngle(fAngleCmd->GetNewDoubleValue(newValue));
+	else if(command == fFanAngleCmd){
+		fPrimary->SetFanAngle(fFanAngleCmd->GetNewDoubleValue(newValue));
+	}
+	else if(command == fConeAngleCmd){
+		fPrimary->SetConeAngle(fConeAngleCmd->GetNewDoubleValue(newValue));
 	}
     else if(command == fRadiusCmd){
         fPrimary->SetRadius(fRadiusCmd->GetNewDoubleValue(newValue));

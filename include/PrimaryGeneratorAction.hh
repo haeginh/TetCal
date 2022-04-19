@@ -53,7 +53,8 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     // G4ParticleGun*  GetParticleGun()            const {return fParticleGun;}
     void SetSpecDir(G4String _specDir) {specDir = _specDir;}
     void SetPeakEnergy(G4int _kVp);
-    void SetAngle(G4double _angle) {angle = _angle;}
+    void SetFanAngle(G4double _angle) {angle = _angle;}
+    void SetConeAngle(G4double _angle) {coneAngle = _angle;}
     void SetRadius(G4double _radius) {radius = _radius;}
     void SetLowerBound(G4double _lb) {lowerBound = _lb-centerZ;}
     void SetUpperBound(G4double _ub) {upperBound = _ub-centerZ;}
@@ -66,13 +67,13 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
     G4double GetFactor() const
     {
-      return specSum * (1*m*angle*1*cm)/cm2; //1cm meter thickness assumed
+      return specSum * (1*m*angle*1*m*coneAngle)/cm2; //1cm meter thickness assumed
     }
     
   private:
     G4String             specDir;
     G4int                kVp;
-    G4double             angle;
+    G4double             angle, coneAngle;
     G4double             radius;
     G4double             lowerBound;
     G4double             upperBound;

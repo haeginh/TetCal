@@ -53,7 +53,8 @@ private:
 	G4UIdirectory*             fBeamDir;
 	G4UIcmdWithAString*        fSpecDirCmd;
 	G4UIcmdWithAnInteger*      fPeakEnergyCmd;
-	G4UIcmdWithADoubleAndUnit* fAngleCmd;
+	G4UIcmdWithADoubleAndUnit* fFanAngleCmd;
+	G4UIcmdWithADoubleAndUnit* fConeAngleCmd;
 	G4UIcmdWithADoubleAndUnit* fRadiusCmd;
 	G4UIcmdWithADoubleAndUnit* fLowerBoundCmd;
 	G4UIcmdWithADoubleAndUnit* fUpperBoundCmd;
