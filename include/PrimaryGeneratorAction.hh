@@ -66,7 +66,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
     G4double GetFactor() const
     {
-      return specSum * (1*m*angle*rad*(upperBound-lowerBound))/cm2;
+      return specSum * (1*m*angle*1*cm)/cm2; //1cm meter thickness assumed
     }
     
   private:
