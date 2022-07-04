@@ -37,6 +37,19 @@ add_executable(TetCal TetCal.cc ${sources} ${headers})
 target_link_libraries(TetCal ${Geant4_LIBRARIES})
 
 #----------------------------------------------------------------------------
-# Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
+# copy macro files
 #
-install(TARGETS TetCal DESTINATION bin)
+set(TETCAL_SCRIPTS
+  sample.in
+  init_vis.mac
+  vis.mac
+  )
+
+foreach(_script ${TETCAL_SCRIPTS})
+  configure_file(
+    ${PROJECT_SOURCE_DIR}/${_script}
+    ${PROJECT_BINARY_DIR}/${_script}
+    COPYONLY
+    )
+endforeach()
+
