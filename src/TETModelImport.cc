@@ -210,13 +210,14 @@ void TETModelImport::MaterialRead(G4String materialFile)
 	char* token;
 	G4double zaid;
 	G4double fraction;
-	G4String MaterialName;
 	G4double density;
 
 	while(!ifpMat.eof())
 	{
 		ifpMat >> read_data;                   //ex) 'C' RBM
+		G4String MaterialName;
 		ifpMat >> MaterialName;                //ex)  C 'RBM'
+		if(MaterialName.empty()) continue;
 		ifpMat >> read_data;
 		density = std::atof(read_data);        //ex) 1.30
 		ifpMat >> read_data;                   //ex) g/cm3

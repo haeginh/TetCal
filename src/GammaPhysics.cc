@@ -38,8 +38,10 @@
 
 // Processes
 
-#include "G4PhotoNuclearProcess.hh"
+#include "G4HadronInelasticProcess.hh"
 #include "G4CascadeInterface.hh"
+
+#include "G4PhotoNuclearCrossSection.hh"
 
 #include "G4SystemOfUnits.hh"
 
@@ -57,7 +59,8 @@ void GammaPhysics::ConstructProcess()
 {
 	G4ProcessManager* pManager = G4Gamma::Gamma()->GetProcessManager();
 	//
-	G4PhotoNuclearProcess* process = new G4PhotoNuclearProcess();
+	G4HadronInelasticProcess* process = new G4HadronInelasticProcess("photonNuclear", G4Gamma::Definition());
+	process->AddDataSet(new G4PhotoNuclearCrossSection);
 	//
 	G4CascadeInterface* bertini = new G4CascadeInterface();
 	bertini->SetMaxEnergy(10*GeV);

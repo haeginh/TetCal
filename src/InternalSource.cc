@@ -37,7 +37,11 @@ void InternalSource::SetSource(std::vector<G4int> sources)
 		if(sourceSet.find(tetData->GetMaterialIndex(i)) != sourceSet.end())
 			tetPick.push_back(VOLPICK(tetData->GetTetrahedron(i)->GetCubicVolume(), i));
 	}
-        ss<<" -> "<<tetPick.size()<<G4endl;
+    ss<<" -> "<<tetPick.size()<<G4endl;
+	if(tetPick.size()==0){
+		G4Exception("InternalSource::SetSource","",FatalErrorInArgument,
+				G4String("       Wrong source ID wad defined" ).c_str());
+	}
 
 	//Arrange volumes
 	std::sort(tetPick.begin(), tetPick.end());

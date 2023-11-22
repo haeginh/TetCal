@@ -28,6 +28,8 @@
 /vis/verbose errors
 #
 # Draw geometry:
+/vis/viewer/set/specialMeshRendering
+/vis/viewer/set/specialMeshRenderingOption surfaces
 /vis/drawVolume
 #
 #

@@ -44,7 +44,6 @@
 #include "G4DecayPhysics.hh"
 #include "G4RadioactiveDecayPhysics.hh"
 
-
 PhysicsList::PhysicsList()
 :G4VModularPhysicsList()
 {

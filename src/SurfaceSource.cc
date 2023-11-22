@@ -35,6 +35,7 @@ void SurfaceSource::SetSource(std::vector<G4int> sources)
             facePool.push_back({ele[0], ele[2], ele[3]});
             facePool.push_back({ele[1], ele[2], ele[3]});
         }
+
         sort(facePool.begin(), facePool.end());
         for(size_t i=0;i<facePool.size()-1;i++){
             if(facePool[i]==facePool[i+1]){
@@ -50,6 +51,11 @@ void SurfaceSource::SetSource(std::vector<G4int> sources)
             }
         }
     }
+    if(facePick.empty()){
+  		G4Exception("SurfaceSource::SetSource","",FatalErrorInArgument,
+		G4String("       Wrong source ID wad defined" ).c_str());
+    }
+
     std::sort(facePick.begin(), facePick.end());
     std::reverse(facePick.begin(), facePick.end());
 

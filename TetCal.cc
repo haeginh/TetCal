@@ -32,11 +32,7 @@
 #include "TETDetectorConstruction.hh"
 #include "TETModelImport.hh"
 
-#ifdef G4MULTITHREADED
-#include "G4MTRunManager.hh"
-#else
-#include "G4RunManager.hh"
-#endif
+#include "G4RunManagerFactory.hh"
 
 #include "G4UImanager.hh"
 #include "G4UIterminal.hh"
@@ -46,8 +42,6 @@
 
 #include "Randomize.hh"
 #include "G4Timer.hh"
-#include "G4PhysListFactory.hh"
-#include "G4VModularPhysicsList.hh"
 
 void PrintUsage(){
 	G4cerr<< "Usage: ./TetCal -m [MACRO] -o [OUTPUT] -p [phantom name]"  <<G4endl;
@@ -88,17 +82,18 @@ int main(int argc,char** argv)
 	}
 
 	// print usage when there are more than six arguments
-	if ( argc>7 || macro.empty() || phantomName.empty()){
-		PrintUsage();
-		return 1;
-	}
+	// if ( argc>7 || macro.empty() || phantomName.empty()){
+	// 	PrintUsage();
+	// 	return 1;
+	// }
+	macro = "/Users/hanh4/workspace/TetCal/build/sample.in";
+	output = "/Users/hanh4/workspace/TetCal/build/oo";
+	phantomName = "/Users/hanh4/workspace/phantomData/MRCP/MRCP_AM";
 
 	// Detect interactive mode (if no macro file name) and define UI session
 	//
 	if ( !macro.size() ) {
-		ui = new G4UIExecutive(argc, argv, "csh");
-		G4cerr<<"ERROR: Interactive mode is not available. Please provide macro file."<<G4endl;
-		return 1;
+		ui = new G4UIExecutive(argc, argv);
 	}
 	// default output file name
 	else if ( !output.size() ) output = macro + ".out";
@@ -110,13 +105,7 @@ int main(int argc,char** argv)
 
 	// Construct the default run manager
 	//
-#ifdef G4MULTITHREADED
-	G4MTRunManager * runManager = new G4MTRunManager;
-	// set the default number of threads as one
-	runManager->SetNumberOfThreads(1);
-#else
-	G4RunManager * runManager = new G4RunManager;
-#endif
+	auto runManager = G4RunManagerFactory::CreateRunManager();
 
 	// Set a class to import phantom data
 	//
@@ -127,9 +116,7 @@ int main(int argc,char** argv)
 	// detector construction
 	runManager->SetUserInitialization(new TETDetectorConstruction(tetData));
 	// physics list
-	G4PhysListFactory factory;
-//	G4VModularPhysicsList* physList = factory.GetReferencePhysList("QGSP_BIC_LIV");
-//	runManager->SetUserInitialization(physList);
+	// runManager->SetUserInitialization(new QBBC);
 	runManager->SetUserInitialization(new PhysicsList());
 	// user action initialisation
 	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer));
@@ -142,7 +129,6 @@ int main(int argc,char** argv)
 	// Process macro or start UI session
 	//
 	G4UImanager* UImanager = G4UImanager::GetUIpointer();
-
 	if ( ! ui ){
 		// batch mode
 		G4String command = "/control/execute ";
@@ -152,12 +138,12 @@ int main(int argc,char** argv)
 		// interactive mode
 		UImanager->ApplyCommand("/control/execute init_vis.mac");
 		ui->SessionStart();
-		delete visManager;
 		delete ui;
 	}
 
 	// Job termination
 	//
+	delete visManager;
 	delete runManager;
 }
 

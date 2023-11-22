@@ -43,11 +43,11 @@ class GammaPhysics : public G4VPhysicsConstructor
 {
   public:
 	GammaPhysics(const G4String& name="gamma");
-	virtual ~GammaPhysics();
+	~GammaPhysics() override;
 
   public:
-    virtual void ConstructParticle() { };
-    virtual void ConstructProcess();
+    void ConstructParticle() override { };
+    void ConstructProcess() override;
 };
 
 

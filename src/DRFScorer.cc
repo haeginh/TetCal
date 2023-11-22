@@ -120,7 +120,11 @@ G4double DRFScorer::GetRBMdose(G4double energy, G4double cellFlux, G4int organID
 					* log10(NextRBMDRF/RBMDRF)
 					/ log10((energyBin)[eIdx+1]/(energyBin)[eIdx]);
 
+#if defined(__APPLE__)
+	G4double RBMDose = __exp10(DRF) * 1e6 * cellFlux * RBM; //Convert to Gy
+#else
 	G4double RBMDose = exp10(DRF) * 1e6 * cellFlux * RBM; //Convert to Gy
+#endif
 
     return RBMDose;
 }
@@ -138,7 +142,11 @@ G4double DRFScorer::GetBSdose(G4double energy, G4double cellFlux, G4int organID)
 					* log10(NextBSDRF/BSDRF)
 					/ log10((energyBin)[eIdx+1]/(energyBin)[eIdx]);
 
+#if defined(__APPLE__)
+	G4double BSDose = __exp10(DRF) * 1e6 * cellFlux * BS; //Convert to Gy
+#else
 	G4double BSDose = exp10(DRF) * 1e6 * cellFlux * BS; //Convert to Gy
+#endif
 
     return BSDose;
 }
