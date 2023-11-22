@@ -59,7 +59,7 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	// read bone file (*.DRF)
 	DRFRead(drfFile);
 	// read colour data file (colour.dat) if this is interactive mode
-	if(ui) ColourRead(mtlFile);
+	if(ui) ColourRead();
 	// print the summary of phantom information
 	PrintMaterialInfomation();
 }
@@ -325,39 +325,30 @@ void TETModelImport::DRFRead(G4String DRFfile){
     ifp.close();
 }
 
-void TETModelImport::ColourRead(G4String mtlFile)
+void TETModelImport::ColourRead()
 {
-	// Read colour data file (colour.dat)
-	//
-	std::ifstream ifpColour;
+  // Read colour data file (colour.dat)
+  //
+  std::ifstream ifpColour;
 
-	ifpColour.open(mtlFile);
-	if(!ifpColour.is_open()) {
-		// exception for the case when there is no colour.dat file
-		G4Exception("TETModelImport::DataRead","",FatalErrorInArgument,
-				G4String(mtlFile + " file was not found ").c_str());
-	}
+  ifpColour.open( "colour.dat");
+  if(!ifpColour.is_open())
+  {
+    // exception for the case when there is no colour.dat file
+    G4Exception("TETModelImport::DataRead","",FatalErrorInArgument,
+                G4String("Colour data file was not found ").c_str());
+  }
 
-	G4cout << "  Opening colour data file "+mtlFile <<G4endl;
+  G4cout << "  Opening colour data file 'colour.dat'" <<G4endl;
 
-	G4int organID;
-	G4ThreeVector rgb;
-	G4String dump;
-	while( ifpColour >> dump ){
-		if(dump=="newmtl"){
-			ifpColour>>dump;
-			organID=GetID(dump);
-		}
-		else if(dump=="Kd"){
-			ifpColour>>rgb;
-			colourMap[organID] = G4Colour(rgb.getX(), rgb.getY(), rgb.getZ(), 0.);
-		}
-	}
-	ifpColour.close();
-	colourMap[160].SetAlpha(0.1);
-	colourMap[140].SetAlpha(0.1);
-	colourMap[141].SetAlpha(0.1);
-	colourMap[142].SetAlpha(0.1);
+  G4int organID;
+  G4double red, green, blue, alpha;
+  while( ifpColour >> organID >> red >> green >> blue >> alpha )
+  {
+    colourMap[organID] = G4Colour(red, green, blue, alpha);
+  }
+
+  ifpColour.close();
 }
 
 void TETModelImport::PrintMaterialInfomation()

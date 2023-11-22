@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------
 # Setup the project
 #
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16)
 project(TetCal)
 
 #----------------------------------------------------------------------------
@@ -43,6 +43,7 @@ set(TETCAL_SCRIPTS
   sample.in
   init_vis.mac
   vis.mac
+  colour.dat
   )
 
 foreach(_script ${TETCAL_SCRIPTS})

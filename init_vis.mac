@@ -13,7 +13,9 @@
 /run/initialize
 
 # Source setting
-/control/execute source.mac
+/internal/surface "9500 9700"
+/gun/particle gamma
+/gun/energy 0.1 MeV
 
 # Visualization setting
 /control/execute vis.mac

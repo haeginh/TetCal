@@ -83,9 +83,6 @@
 #/vis/set/colour        # Revert to default colour (white)
 /vis/set/lineWidth     # Revert to default line width (1.)
 #
-# Set display list limit larger than the number of tetrahedrons
-/vis/ogl/set/displayListLimit 100000000
-#
 # To get nice view
 # Make the "World" box invisible
 /vis/geometry/set/visibility worldLogical 0 false

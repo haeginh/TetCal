@@ -55,7 +55,7 @@ int main(int argc,char** argv)
 	G4Timer* initTimer = new G4Timer;
 	initTimer->Start();
 	G4String macro;
-	G4String output;
+	G4String output("output");
 	G4String phantomName;
 	G4UIExecutive* ui = 0;
 
@@ -82,30 +82,24 @@ int main(int argc,char** argv)
 	}
 
 	// print usage when there are more than six arguments
-	// if ( argc>7 || macro.empty() || phantomName.empty()){
-	// 	PrintUsage();
-	// 	return 1;
-	// }
-	macro = "/Users/hanh4/workspace/TetCal/build/sample.in";
-	output = "/Users/hanh4/workspace/TetCal/build/oo";
-	phantomName = "/Users/hanh4/workspace/phantomData/MRCP/MRCP_AM";
+	if (phantomName.empty()){
+		G4cout<<"Phantom name is mandatory"<<G4endl;
+		PrintUsage();
+		return 1;
+	}
 
 	// Detect interactive mode (if no macro file name) and define UI session
 	//
+	G4RunManager* runManager;
 	if ( !macro.size() ) {
 		ui = new G4UIExecutive(argc, argv);
+		runManager = new G4MTRunManager();
 	}
-	// default output file name
-	else if ( !output.size() ) output = macro + ".out";
-
+	else runManager = G4RunManagerFactory::CreateRunManager();
 	// Choose the Random engine
 	//
 	G4Random::setTheEngine(new CLHEP::RanecuEngine);
 	G4Random::setTheSeed(time(0));
-
-	// Construct the default run manager
-	//
-	auto runManager = G4RunManagerFactory::CreateRunManager();
 
 	// Set a class to import phantom data
 	//

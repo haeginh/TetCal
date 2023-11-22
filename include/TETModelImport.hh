@@ -114,7 +114,7 @@ private:
 	void MaterialRead(G4String);
 	void RBMBSRead(G4String);
 	void DRFRead(G4String);
-	void ColourRead(G4String);
+	void ColourRead();
 	void PrintMaterialInfomation();
 
 	G4int GetID(G4String str) {
