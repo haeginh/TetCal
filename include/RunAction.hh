@@ -58,7 +58,7 @@
 class RunAction : public G4UserRunAction
 {
 public:
-	RunAction(TETModelImport* tetData, G4String output, G4Timer* initTimer);
+	RunAction(TETModelImport* tetData, G4String output, G4Timer* initTimer, G4bool useGPS);
 	virtual ~RunAction();
 
 public:
@@ -68,8 +68,10 @@ public:
 
 	void SetDoses();
 	void SetEffectiveDose();
+	void PrintResultGPS(std::ostream &out);
 	void PrintResultExternal(std::ostream &out);
 	void PrintResultInternal(std::ostream &out);
+	void PrintLineGPS(std::ostream &out);
 	void PrintLineExternal(std::ostream &out);
 	void PrintLineInternal(std::ostream &out);
 
@@ -79,7 +81,7 @@ public:
 
 private:
 	TETModelImport* tetData;
-	Run*         fRun;
+	Run*            fRun;
 	G4int           numOfEvent;
 	G4int           runID;
 	G4String        outputFile;
@@ -91,7 +93,7 @@ private:
 	G4double primaryEnergy;
 	G4double beamArea;
 	G4int    prevNPS;
-	G4bool   isExternal;
+	G4bool   isExternal, useGPS;
 	G4bool   sameToPrev;
 	std::map<G4int, G4double> massMap;
 	std::map<G4int, std::pair<G4double,G4double>> doses;

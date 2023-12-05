@@ -35,9 +35,9 @@
 #include <iostream>
 #include "../include/RunAction.hh"
 
-RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
+RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init, G4bool _useGPS)
 :tetData(_tetData), fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0),
- primaryEnergy(-1.), beamArea(-1.), isExternal(true)
+ primaryEnergy(-1.), beamArea(-1.), isExternal(true), useGPS(_useGPS)
 {
 	if(!isMaster) return;
 
@@ -57,8 +57,16 @@ RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
 	nameMap[-2] = "RBM"     ; nameMap[-1] = "BS"     ;
 
     //massMap will be initialized for negative IDs (RBM and BS) in the for loop
-	ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
-	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
+	if(useGPS)
+	{
+		ofs<<"[GPS: pGy]"<<G4endl;
+		ofs<<"run#\tnps\tinitT\trunT\t";
+	}
+	else
+	{
+		ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
+		ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
+	}
 	for(auto name:nameMap) ofs<<std::to_string(name.first)+"_"+name.second<<"\t"<<massMap[name.first]/g<<"\t";
 	if(tetData->DoseWasOrganized()) ofs<<"eff. dose (DRF)"<<"\t\t"<< "eff. dose";
 	ofs<<G4endl;
@@ -134,16 +142,18 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 
 	// set doses
 	SetDoses();
-	if(isExternal & tetData->DoseWasOrganized()) SetEffectiveDose();
+	if((isExternal||useGPS) && tetData->DoseWasOrganized()) SetEffectiveDose();
 
 	// print by G4cout
-	if(isExternal) PrintResultExternal(G4cout);
-	else           PrintResultInternal(G4cout);
+	if(useGPS)          PrintResultGPS(G4cout);
+	else if(isExternal) PrintResultExternal(G4cout);
+	else                PrintResultInternal(G4cout);
 
 	// print by std::ofstream
 	std::ofstream ofs(outputFile.c_str(), std::ios::app);
-	if(isExternal)PrintLineExternal(ofs);
-	else          PrintLineInternal(ofs);
+	if(useGPS)         PrintLineGPS(ofs);
+	else if(isExternal)PrintLineExternal(ofs);
+	else               PrintLineInternal(ofs);
 	ofs.close();
 
 	initTimer->Start();
@@ -223,6 +233,47 @@ void RunAction::SetEffectiveDose()
 	effective_DRF.first *= weight;
 }
 
+void RunAction::PrintResultGPS(std::ostream &out)
+{
+	// Print run result
+	//
+	using namespace std;
+
+	out << G4endl
+	    << "=======================================================================" << G4endl
+	    << " Run #" << runID << " / Number of event processed : "<< numOfEvent     << G4endl
+	    << "=======================================================================" << G4endl
+		<< " Init time: " << initTimer->GetRealElapsed() << " s / Run time: "<< runTimer->GetRealElapsed()<<" s"<< G4endl
+	    << "=======================================================================" << G4endl
+	    << setw(27) << "organ ID| "
+		<< setw(15) << "Organ Mass (g)"
+		<< setw(15) << "Dose (pGy)"
+		<< setw(15) << "Relative Error" << G4endl;
+
+	out.precision(3);
+
+	for(auto itr : massMap){
+		if(tetData->DoseWasOrganized()||itr.first<0) out << setw(25) << nameMap[itr.first]<< "| ";
+		else                            out << setw(25) << tetData->GetMaterial(itr.first)->GetName()<< "| ";
+		out	<< setw(15) << fixed      << itr.second/g;
+        out	<< setw(15) << scientific << doses[itr.first].first/(joule/kg)*1e12;
+		out	<< setw(15) << fixed      << doses[itr.first].second << G4endl;
+	}
+
+	//effective dose
+	out << setw(25) << "eff. dose (DRF)" << "| ";
+	out	<< setw(15) << " "                ;
+    out	<< setw(15) << scientific << effective_DRF.first/(joule/kg)*1e12;
+	out	<< setw(15) << fixed      << effective_DRF.second << G4endl;
+
+	out << setw(25) << "eff. dose" << "| ";
+	out	<< setw(15) << " "                ;
+    out	<< setw(15) << scientific << effective.first/(joule/kg)*1e12;
+	out	<< setw(15) << fixed      << effective.second << G4endl;
+
+	out << "=======================================================================" << G4endl << G4endl;
+}
+
 void RunAction::PrintResultExternal(std::ostream &out)
 {
 	// Print run result
@@ -296,6 +347,25 @@ void RunAction::PrintResultInternal(std::ostream &out)
 		out	<< setw(15) << fixed      << doses[itr.first].second << G4endl;
 	}
 	out << "=======================================================================" << G4endl << G4endl;
+}
+
+void RunAction::PrintLineGPS(std::ostream &out)
+{
+	// Print run result
+	//
+	using namespace std;
+	EDEPMAP edepMap = *fRun->GetEdepMap();
+
+	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t";
+
+	for(auto itr:doses){
+        out << itr.second.first/(joule/kg)*1e12 <<"\t" << itr.second.second << "\t";
+    }
+    if(tetData->DoseWasOrganized()) {
+        out<<effective_DRF.first/(joule/kg)*1e12 << "\t" <<effective_DRF.second <<"\t";
+        out<<effective.first/(joule/kg)*1e12 << "\t" <<effective.second ;
+    }
+	out<<G4endl;
 }
 
 void RunAction::PrintLineExternal(std::ostream &out)

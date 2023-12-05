@@ -44,7 +44,7 @@
 #include "G4Timer.hh"
 
 void PrintUsage(){
-	G4cerr<< "Usage: ./TetCal -m [MACRO] -o [OUTPUT] -p [phantom name]"  <<G4endl;
+	G4cerr<< "Usage: ./TetCal -m [MACRO] -o [OUTPUT] -p [phantom name] (--usegps)"  <<G4endl;
 	G4cerr<< "Example: ./TetCal -m sample.in -o run.out -p ./phantoms/00M" <<G4endl;
 }
 
@@ -58,22 +58,23 @@ int main(int argc,char** argv)
 	G4String output("output");
 	G4String phantomName;
 	G4UIExecutive* ui = 0;
+	G4bool useGPS(false);
 
-	for ( G4int i=1; i<argc; i++ ) {
+	for ( G4int i=1; i<argc; i++) {
 		// macro file name
 		if ( G4String(argv[i]) == "-m" ) {
-			macro = argv[i+1];
-			i++;
+			macro = argv[++i];
 		}
 		// output file name
 		else if ( G4String(argv[i]) == "-o" ) {
-			output = argv[i+1];
-			i++;
+			output = argv[++i];
 		}
 		// switch for MRCP-AF phantom
 		else if ( G4String(argv[i]) == "-p" ) {
-			phantomName = argv[i+1];
-			i++;
+			phantomName = argv[++i];
+		}
+		else if ( G4String(argv[i]) == "--usegps" ) {
+			useGPS = true;
 		}
 		else {
 			PrintUsage();
@@ -113,7 +114,7 @@ int main(int argc,char** argv)
 	// runManager->SetUserInitialization(new QBBC);
 	runManager->SetUserInitialization(new PhysicsList());
 	// user action initialisation
-	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer));
+	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer, useGPS));
     
 	// Visualization manager
 	//
