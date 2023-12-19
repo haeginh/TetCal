@@ -32,11 +32,12 @@
 #include "G4Event.hh"
 #include "G4GeneralParticleSource.hh"
 #include "G4SystemOfUnits.hh"
+#include "TETModelImport.hh"
 
-
-GpsPrimaryGeneratorAction::GpsPrimaryGeneratorAction()
+GpsPrimaryGeneratorAction::GpsPrimaryGeneratorAction(TETModelImport* tetData)
 {
   fGeneralParticleSource  = new G4GeneralParticleSource();
+  center = (tetData->GetPhantomBoxMin()+tetData->GetPhantomBoxMax())*0.5;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -51,7 +52,7 @@ GpsPrimaryGeneratorAction::~GpsPrimaryGeneratorAction()
 void GpsPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   // this function is called at the begining of event
-
+  fGeneralParticleSource->SetParticlePosition(fGeneralParticleSource->GetParticlePosition()-center);
   fGeneralParticleSource->GeneratePrimaryVertex(anEvent);
 }
 

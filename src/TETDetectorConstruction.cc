@@ -129,9 +129,9 @@ void TETDetectorConstruction::PrintPhantomInformation()
 	// print brief information on the imported phantom
 	G4cout<< G4endl;
 	G4cout.precision(3);
-	G4cout<<"   Phantom name               "<<tetData->GetPhantomName() << " TET phantom"<<G4endl;
-	G4cout<<"   Phantom size               "<<phantomSize.x()<<" * "<<phantomSize.y()<<" * "<<phantomSize.z()<<" mm3"<<G4endl;
-	G4cout<<"   Phantom box position (min) "<<phantomBoxMin.x()<<" mm, "<<phantomBoxMin.y()<<" mm, "<<phantomBoxMin.z()<<" mm"<<G4endl;
-	G4cout<<"   Phantom box position (max) "<<phantomBoxMax.x()<<" mm, "<<phantomBoxMax.y()<<" mm, "<<phantomBoxMax.z()<<" mm"<<G4endl;
-	G4cout<<"   Number of tetrahedrons     "<<nOfTetrahedrons<<G4endl<<G4endl;
+	G4cout<<"   Phantom name                "<<tetData->GetPhantomName() << " TET phantom"<<G4endl;
+	G4cout<<"   Phantom size                "<<phantomSize.x()<<" * "<<phantomSize.y()<<" * "<<phantomSize.z()<<" mm3"<<G4endl;
+	G4cout<<"   Phantom box position (min)  "<<phantomBoxMin.x()<<" mm, "<<phantomBoxMin.y()<<" mm, "<<phantomBoxMin.z()<<" mm"<<G4endl;
+	G4cout<<"   Phantom box position (max)  "<<phantomBoxMax.x()<<" mm, "<<phantomBoxMax.y()<<" mm, "<<phantomBoxMax.z()<<" mm"<<G4endl;
+	G4cout<<"   Number of tetrahedrons      "<<nOfTetrahedrons<<G4endl<<G4endl;
 }

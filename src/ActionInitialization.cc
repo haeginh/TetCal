@@ -46,7 +46,7 @@ void ActionInitialization::BuildForMaster() const
 void ActionInitialization::Build() const
 {
 	// initialise UserAction classes
-	if(useGPS) SetUserAction(new GpsPrimaryGeneratorAction());
+	if(useGPS) SetUserAction(new GpsPrimaryGeneratorAction(tetData));
 	else SetUserAction(new PrimaryGeneratorAction(tetData));
 	SetUserAction(new RunAction(tetData, output, initTimer, useGPS));
 	SetUserAction(new TETSteppingAction);
