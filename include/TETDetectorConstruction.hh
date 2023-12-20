@@ -72,7 +72,7 @@
 class TETDetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
-	TETDetectorConstruction(TETModelImport* tetData);
+	TETDetectorConstruction(TETModelImport* tetData, G4bool useGPS);
 	virtual ~TETDetectorConstruction();
 
 	virtual G4VPhysicalVolume* Construct();
@@ -92,6 +92,8 @@ private:
 	G4int              nOfTetrahedrons;
 
 	G4LogicalVolume*   tetLogic;
+
+	G4bool useGPS;
 };
 
 #endif

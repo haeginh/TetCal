@@ -46,7 +46,7 @@ class G4Event;
 class GpsPrimaryGeneratorAction: public G4VUserPrimaryGeneratorAction
 {
   public:
-    GpsPrimaryGeneratorAction(TETModelImport* tetData);
+    GpsPrimaryGeneratorAction();
     ~GpsPrimaryGeneratorAction() override;
 
     // methods
@@ -55,7 +55,6 @@ class GpsPrimaryGeneratorAction: public G4VUserPrimaryGeneratorAction
   private:
     // data members
     G4GeneralParticleSource*  fGeneralParticleSource = nullptr;
-    G4ThreeVector center;
 };
 
 #endif

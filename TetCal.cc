@@ -109,7 +109,7 @@ int main(int argc,char** argv)
 	// Set mandatory initialisation classes
 	//
 	// detector construction
-	runManager->SetUserInitialization(new TETDetectorConstruction(tetData));
+	runManager->SetUserInitialization(new TETDetectorConstruction(tetData, useGPS));
 	// physics list
 	// runManager->SetUserInitialization(new QBBC);
 	runManager->SetUserInitialization(new PhysicsList());
