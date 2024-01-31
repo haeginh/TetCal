@@ -5,7 +5,7 @@
  *      Author: hhg
  */
 
-#include "TETModelImport.hh"
+#include "SeedParallel.hh"
 #include "Randomize.hh"
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
@@ -15,8 +15,8 @@
 #include <fstream>
 #include "SourceGenerator.hh"
 
-InternalSource::InternalSource(TETModelImport* _tetData)
-:tetData(_tetData)
+InternalSource::InternalSource(SeedParallel* _seedParallel)
+:seedParallel(_seedParallel)
 {}
 
 InternalSource::~InternalSource()
@@ -33,9 +33,9 @@ void InternalSource::SetSource(std::vector<G4int> sources)
 	for(auto source:sourceSet) ss<<source<<" ";
 
 	//Extract source tet IDs
-	for(G4int i=0;i<tetData->GetNumTetrahedron();i++){
-		if(sourceSet.find(tetData->GetMaterialIndex(i)) != sourceSet.end())
-			tetPick.push_back(VOLPICK(tetData->GetTetrahedron(i)->GetCubicVolume(), i));
+	for(G4int i=0;i<seedParallel->GetNumOfTet();i++){
+		if(sourceSet.find(seedParallel->GetId(i)) != sourceSet.end())
+			tetPick.push_back(VOLPICK(seedParallel->GetTet(i)->GetCubicVolume(), i));
 	}
     ss<<" -> "<<tetPick.size()<<G4endl;
 	if(tetPick.size()==0){
@@ -62,7 +62,7 @@ void InternalSource::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &d
 	G4double rand = G4UniformRand();
 	for(auto tp:tetPick){
 		if(rand>tp.first) continue;
-		position = RandomSamplingInTet(tetData->GetTetrahedron(tp.second)); break;
+		position = RandomSamplingInTet(seedParallel->GetTet(tp.second)); break;
 	}
 	direction = G4RandomDirection();
 }
@@ -96,7 +96,7 @@ G4ThreeVector InternalSource::RandomSamplingInTet(G4Tet* tet){
 	G4ThreeVector v1, v2, v3, v4;
 	tet->GetVertices(v1, v2, v3, v4);
 	G4ThreeVector SampledPosition = a*v1+varS*v2+varT*v3+varU*v4;
-	return SampledPosition;
+	return SampledPosition + seedParallel->GetCenter();
 }
 
 

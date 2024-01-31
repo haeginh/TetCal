@@ -32,8 +32,8 @@
 #include "DRFScorer.hh"
 #include "G4VisAttributes.hh"
 
-TETDetectorConstruction::TETDetectorConstruction(TETModelImport* _tetData, G4bool _useGPS)
-:worldPhysical(0), container_logic(0), tetData(_tetData), tetLogic(0), useGPS(_useGPS)
+TETDetectorConstruction::TETDetectorConstruction(TETModelImport* _tetData)
+:worldPhysical(0), container_logic(0), tetData(_tetData), tetLogic(0)
 {
 	// initialisation of the variables for phantom information
 	phantomSize     = tetData -> GetPhantomSize();
@@ -79,12 +79,12 @@ void TETDetectorConstruction::SetupWorldGeometry()
 
 	container_logic = new G4LogicalVolume(containerSolid, vacuum, "phantomLogical");
 
-	G4ThreeVector center;
-	if(useGPS) center = (phantomBoxMax+phantomBoxMin)*0.5;
+	G4ThreeVector center = (phantomBoxMax+phantomBoxMin)*0.5;
 	new G4PVPlacement(0, center, container_logic, "PhantomPhysical",
 			          worldLogical, false, 0);
 	container_logic->SetOptimisation(TRUE);
 	container_logic->SetSmartless( 0.5 ); // for optimization (default=2)
+
 }
 
 void TETDetectorConstruction::ConstructPhantom()

@@ -38,13 +38,14 @@
 #include "G4SystemOfUnits.hh"
 #include "PrimaryMessenger.hh"
 #include "SourceGenerator.hh"
+#include "SeedParallel.hh"
 
 class TETModelImport;
 
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
   public:
-	PrimaryGeneratorAction(TETModelImport* tetData);
+	PrimaryGeneratorAction(TETModelImport* tetData, SeedParallel*);
 	virtual ~PrimaryGeneratorAction();
 
     //GENERAL
@@ -56,7 +57,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         fSourceGenerator = fExternal; fSourceGenerator->SetExternal();
     }
     void SetInternalBeam(){
-        if(!fInternal) fInternal = new InternalSource(tetData);
+        if(!fInternal) fInternal = new InternalSource(seedParallel);
         fSourceGenerator = fInternal; fSourceGenerator->SetInternal();
     }
     void SetSurfaceSource(){
@@ -74,6 +75,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
   private:
     TETModelImport*      tetData;
+    SeedParallel*        seedParallel;
     G4ParticleGun*       fParticleGun;
     PrimaryMessenger*    fMessenger;
     SourceGenerator*     fSourceGenerator;

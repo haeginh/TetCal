@@ -30,8 +30,8 @@
 
 #include "TETModelImport.hh"
 
-TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
-:doseOrganized(false)
+TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui, G4double _upperLim)
+:doseOrganized(false), upperLim(_upperLim)
 {
 	// set phantom name
 	phantomName = _phantomName;
@@ -135,10 +135,10 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 	}
 
 	// set the variables for the bounding box and phantom size
-	boundingBox_Min = G4ThreeVector(xMin,yMin,zMin);
+	boundingBox_Min = G4ThreeVector(xMin,yMin,(1-upperLim)*zMax+upperLim*zMin);
 	boundingBox_Max = G4ThreeVector(xMax,yMax,zMax);
 	G4ThreeVector center = (boundingBox_Max+boundingBox_Min)*0.5;
-	phantomSize = G4ThreeVector(xMax-xMin,yMax-yMin,zMax-zMin);
+	phantomSize = boundingBox_Max-boundingBox_Min;
 
 	ifpNode.close();
 
@@ -157,7 +157,7 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 	G4int numEle;
 	ifpEle >> numEle  >> tempInt >> tempInt;
 
-	for(G4int i=0; i<numEle; i++)
+	for(G4int i=0, e=0; i<numEle; i++)
 	{
 		ifpEle >> tempInt;
 		G4int* ele = new G4int[4];
@@ -167,6 +167,12 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 		}
 		eleVector.push_back(ele);
 		ifpEle >> tempInt;
+
+		if(vertexVector[ele[0]].getZ()<boundingBox_Min.getZ()) continue;
+		if(vertexVector[ele[1]].getZ()<boundingBox_Min.getZ()) continue;
+		if(vertexVector[ele[2]].getZ()<boundingBox_Min.getZ()) continue;
+		if(vertexVector[ele[3]].getZ()<boundingBox_Min.getZ()) continue;
+	
 		materialVector.push_back(tempInt);
 
 		// save the element (tetrahedron) data as the form of std::vector<G4Tet*>
@@ -177,16 +183,18 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 									  vertexVector[ele[3]]-center));
 
 		// calculate the total volume and the number of tetrahedrons for each organ
-		std::map<G4int, G4double>::iterator FindIter = volumeMap.find(materialVector[i]);
-
+		std::map<G4int, G4double>::iterator FindIter = volumeMap.find(materialVector[e]);
+		
 		if(FindIter!=volumeMap.end()){
-			FindIter->second += tetVector[i]->GetCubicVolume();
-			numTetMap[materialVector[i]]++;
+			FindIter->second += tetVector[e]->GetCubicVolume();
+			numTetMap[materialVector[e]]++;
+
 		}
 		else {
-			volumeMap[materialVector[i]] = tetVector[i]->GetCubicVolume();
-			numTetMap[materialVector[i]] = 1;
+			volumeMap[materialVector[e]] = tetVector[e]->GetCubicVolume();
+			numTetMap[materialVector[e]] = 1;
 		}
+		e++;
 	}
 	ifpEle.close();
 }
@@ -379,4 +387,9 @@ void TETModelImport::PrintMaterialInfomation()
 			   << std::setw(11) << massMap[idx]/g              // organ mass
 			   << "\t"<<materialMap[idx]->GetName() << G4endl; // organ name
 	}
+
+	G4cout<<"BOX MAX (cm): "<<boundingBox_Max/cm<<G4endl;
+	G4cout<<"BOX MIN (cm): "<<boundingBox_Min/cm<<G4endl;
+	G4cout<<"BOX CENTER (cm): "<<(boundingBox_Max+boundingBox_Min)/cm<<G4endl;
+	G4cout<<"BOX SIZE (cm): "<<(boundingBox_Max-boundingBox_Min)/cm<<G4endl;
 }

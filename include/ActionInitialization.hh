@@ -37,6 +37,7 @@
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
 #include "TETSteppingAction.hh"
+#include "SeedParallel.hh"
 
 class TETModelImport;
 
@@ -52,10 +53,9 @@ class TETModelImport;
 class ActionInitialization : public G4VUserActionInitialization
 {
 public:
-	ActionInitialization(TETModelImport*    tetData,
+	ActionInitialization(TETModelImport*    tetData, SeedParallel*,
 			                G4String        outputFileName,
-							G4Timer*        initTimer,
-							G4bool          useGPS);
+							G4Timer*        initTimer);
 	virtual ~ActionInitialization();
 
 	virtual void BuildForMaster() const;
@@ -63,9 +63,9 @@ public:
 
 private:
 	TETModelImport* tetData;
+	SeedParallel* seedParallel;
 	G4String output;
 	G4Timer* initTimer;
-	G4bool useGPS;
 };
 
 #endif

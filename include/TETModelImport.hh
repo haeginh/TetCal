@@ -65,7 +65,7 @@
 class TETModelImport
 {
 public:
-	TETModelImport(G4String phantomName, G4UIExecutive* ui);
+	TETModelImport(G4String phantomName, G4UIExecutive* ui, G4double upperLim);
     virtual ~TETModelImport() {}
 
 	// get methods
@@ -158,6 +158,7 @@ private:
 	std::map<G4int, G4double>                                densityMap;
 	std::map<G4int, G4String>                                organNameMap;
 
+	G4double upperLim;
 };
 
 #endif

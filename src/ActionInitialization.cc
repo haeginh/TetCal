@@ -31,8 +31,8 @@
 #include "ActionInitialization.hh"
 #include "GpsPrimaryGeneratorAction.hh"
 
-ActionInitialization::ActionInitialization(TETModelImport* _tetData, G4String _output, G4Timer* _init, G4bool _useGPS)
- : G4VUserActionInitialization(), tetData(_tetData), output(_output), initTimer(_init), useGPS(_useGPS)
+ActionInitialization::ActionInitialization(TETModelImport* _tetData, SeedParallel* _seedParallel, G4String _output, G4Timer* _init)
+ : G4VUserActionInitialization(), tetData(_tetData), seedParallel(_seedParallel), output(_output), initTimer(_init)
 {}
 
 ActionInitialization::~ActionInitialization()
@@ -40,15 +40,15 @@ ActionInitialization::~ActionInitialization()
 
 void ActionInitialization::BuildForMaster() const
 {
-	SetUserAction(new RunAction(tetData, output, initTimer, useGPS));
+	SetUserAction(new RunAction(tetData, output, initTimer));
 }
 
 void ActionInitialization::Build() const
 {
 	// initialise UserAction classes
-	if(useGPS) SetUserAction(new GpsPrimaryGeneratorAction());
-	else SetUserAction(new PrimaryGeneratorAction(tetData));
-	SetUserAction(new RunAction(tetData, output, initTimer, useGPS));
+	SetUserAction(new PrimaryGeneratorAction(tetData, seedParallel));
+	// SetUserAction(new GpsPrimaryGeneratorAction());
+	SetUserAction(new RunAction(tetData, output, initTimer));
 	SetUserAction(new TETSteppingAction);
 }  
 

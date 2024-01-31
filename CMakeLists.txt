@@ -44,6 +44,7 @@ set(TETCAL_SCRIPTS
   init_vis.mac
   vis.mac
   colour.dat
+  boxScorer.mac
   )
 
 foreach(_script ${TETCAL_SCRIPTS})

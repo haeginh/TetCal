@@ -51,11 +51,12 @@ private:
 };
 
 class    TETModelImport;
+class    SeedParallel;
 typedef  std::pair<G4double, G4int> VOLPICK;
 class InternalSource: public SourceGenerator
 {
 public:
-	InternalSource(TETModelImport* tetData);
+	InternalSource(SeedParallel*);
 	virtual ~InternalSource();
 
 	void SetSource(std::vector<G4int> sources);
@@ -68,7 +69,7 @@ private:
 
 private:
     std::vector<G4int>    sourceIDs;
-    TETModelImport*       tetData;
+	SeedParallel*         seedParallel;
     std::vector<VOLPICK>  tetPick;
 };
 

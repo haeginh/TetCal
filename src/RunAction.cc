@@ -35,9 +35,9 @@
 #include <iostream>
 #include "../include/RunAction.hh"
 
-RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init, G4bool _useGPS)
+RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
 :tetData(_tetData), fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0),
- primaryEnergy(-1.), beamArea(-1.), isExternal(true), useGPS(_useGPS)
+ primaryEnergy(-1.), beamArea(-1.), isExternal(true)
 {
 	if(!isMaster) return;
 
@@ -57,16 +57,8 @@ RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init,
 	nameMap[-2] = "RBM"     ; nameMap[-1] = "BS"     ;
 
     //massMap will be initialized for negative IDs (RBM and BS) in the for loop
-	if(useGPS)
-	{
-		ofs<<"[GPS: pGy]"<<G4endl;
-		ofs<<"run#\tnps\tinitT\trunT\t";
-	}
-	else
-	{
-		ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
-		ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
-	}
+	ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
+	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
 	for(auto name:nameMap) ofs<<std::to_string(name.first)+"_"+name.second<<"\t"<<massMap[name.first]/g<<"\t";
 	if(tetData->DoseWasOrganized()) ofs<<"eff. dose (DRF)"<<"\t\t"<< "eff. dose";
 	ofs<<G4endl;
@@ -142,18 +134,16 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 
 	// set doses
 	SetDoses();
-	if((isExternal||useGPS) && tetData->DoseWasOrganized()) SetEffectiveDose();
+	if(isExternal && tetData->DoseWasOrganized()) SetEffectiveDose();
 
 	// print by G4cout
-	if(useGPS)          PrintResultGPS(G4cout);
-	else if(isExternal) PrintResultExternal(G4cout);
-	else                PrintResultInternal(G4cout);
+	if(isExternal) PrintResultExternal(G4cout);
+	else                PrintResultGPS(G4cout);
 
 	// print by std::ofstream
 	std::ofstream ofs(outputFile.c_str(), std::ios::app);
-	if(useGPS)         PrintLineGPS(ofs);
-	else if(isExternal)PrintLineExternal(ofs);
-	else               PrintLineInternal(ofs);
+	if(isExternal)PrintLineExternal(ofs);
+	else               PrintLineGPS(ofs);
 	ofs.close();
 
 	initTimer->Start();

@@ -39,9 +39,13 @@
 
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
+#include "G4ScoringManager.hh"
 
 #include "Randomize.hh"
 #include "G4Timer.hh"
+
+#include "G4ParallelWorldPhysics.hh"
+#include "SeedParallel.hh"
 
 void PrintUsage(){
 	G4cerr<< "Usage: ./TetCal -m [MACRO] -o [OUTPUT] -p [phantom name] (--usegps)"  <<G4endl;
@@ -57,8 +61,8 @@ int main(int argc,char** argv)
 	G4String macro;
 	G4String output("output");
 	G4String phantomName;
+	G4double upperLim(0.5);
 	G4UIExecutive* ui = 0;
-	G4bool useGPS(false);
 
 	for ( G4int i=1; i<argc; i++) {
 		// macro file name
@@ -69,12 +73,11 @@ int main(int argc,char** argv)
 		else if ( G4String(argv[i]) == "-o" ) {
 			output = argv[++i];
 		}
-		// switch for MRCP-AF phantom
 		else if ( G4String(argv[i]) == "-p" ) {
 			phantomName = argv[++i];
 		}
-		else if ( G4String(argv[i]) == "--usegps" ) {
-			useGPS = true;
+		else if ( G4String(argv[i]) == "-l" ) {
+			upperLim=G4UIcommand::ConvertToDouble(G4String(argv[++i]));
 		}
 		else {
 			PrintUsage();
@@ -102,19 +105,29 @@ int main(int argc,char** argv)
 	G4Random::setTheEngine(new CLHEP::RanecuEngine);
 	G4Random::setTheSeed(time(0));
 
+	//activate UI-based scorer
+	G4ScoringManager * scManager = G4ScoringManager::GetScoringManager();
+ 	scManager->SetVerboseLevel(1);
+
 	// Set a class to import phantom data
 	//
-	TETModelImport* tetData = new TETModelImport(phantomName, ui);
+	TETModelImport* tetData = new TETModelImport(phantomName, ui, upperLim);
 
 	// Set mandatory initialisation classes
 	//
 	// detector construction
-	runManager->SetUserInitialization(new TETDetectorConstruction(tetData, useGPS));
-	// physics list
+	auto detector = new TETDetectorConstruction(tetData);
+    G4String parallelWorldName = "SeedParallel";
+	auto seedParallel = new SeedParallel(parallelWorldName);
+	detector->RegisterParallelWorld(seedParallel);
+	runManager->SetUserInitialization(detector);
+ 	// physics list
 	// runManager->SetUserInitialization(new QBBC);
-	runManager->SetUserInitialization(new PhysicsList());
+	auto physics = new PhysicsList();
+	physics->RegisterPhysics(new G4ParallelWorldPhysics(parallelWorldName, true));
+	runManager->SetUserInitialization(physics);
 	// user action initialisation
-	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer, useGPS));
+	runManager->SetUserInitialization(new ActionInitialization(tetData, seedParallel, output, initTimer));
     
 	// Visualization manager
 	//

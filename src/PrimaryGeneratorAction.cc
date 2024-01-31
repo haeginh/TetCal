@@ -33,8 +33,8 @@
 #include "PrimaryGeneratorAction.hh"
 
 
-PrimaryGeneratorAction::PrimaryGeneratorAction(TETModelImport* _tetData)
-:tetData(_tetData), fSourceGenerator(0)
+PrimaryGeneratorAction::PrimaryGeneratorAction(TETModelImport* _tetData, SeedParallel* _seedParallel)
+:tetData(_tetData), fSourceGenerator(0), seedParallel(_seedParallel)
 {
 	fParticleGun = new G4ParticleGun(1);
 	fMessenger   = new PrimaryMessenger(this);

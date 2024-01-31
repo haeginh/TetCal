@@ -1,0 +1,46 @@
+########################################
+#
+# define scoring mesh
+#
+/score/create/boxMesh boxMesh_1
+#
+/score/mesh/boxSize 15. 15. 15. cm
+/score/mesh/nBin 30 30 30
+/score/mesh/translate/xyz 0 0 77.675 cm
+#
+/score/quantity/cellFlux flux
+/score/quantity/energyDeposit eDep
+
+/score/close
+#
+/score/list
+#
+#/vis/enable
+#
+########################################
+#
+# drawing projections
+#
+/score/drawProjection boxMesh_1 eDep
+#/score/drawProjection boxMesh_1 nOfStepGamma
+#/score/drawProjection boxMesh_1 nOfStepEMinus
+#/score/drawProjection boxMesh_1 nOfStepEPlus
+#
+########################################
+#
+# drawing slices
+#
+# new scene and viewer
+#/vis/open OGL
+#/vis/drawVolume world
+#/vis/viewer/copyViewFrom viewer-0
+#/score/colorMap/setMinMax ! 0. 800.
+#/control/loop drawSlice.mac iColumn 0 29 7
+#
+########################################
+#
+# Dump scorers to a file
+#
+
+#
+#
