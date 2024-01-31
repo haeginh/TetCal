@@ -138,12 +138,12 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 
 	// print by G4cout
 	if(isExternal) PrintResultExternal(G4cout);
-	else                PrintResultGPS(G4cout);
+	else                PrintResultInternal(G4cout);
 
 	// print by std::ofstream
 	std::ofstream ofs(outputFile.c_str(), std::ios::app);
 	if(isExternal)PrintLineExternal(ofs);
-	else               PrintLineGPS(ofs);
+	else               PrintLineInternal(ofs);
 	ofs.close();
 
 	initTimer->Start();
