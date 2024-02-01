@@ -4,9 +4,9 @@
 #
 /score/create/boxMesh boxMesh_1
 #
-/score/mesh/boxSize 15. 15. 15. cm
-/score/mesh/nBin 30 30 30
-/score/mesh/translate/xyz 0 0 77.675 cm
+/score/mesh/boxSize 5. 5. 5. cm
+/score/mesh/nBin 100 100 100
+/score/mesh/translate/xyz 3.55 -6 77.675 cm
 #
 /score/quantity/cellFlux flux
 /score/quantity/energyDeposit eDep

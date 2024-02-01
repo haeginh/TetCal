@@ -83,7 +83,7 @@ void SeedParallel::SetupGeometry()
   materials[4]=new G4Material("coating", 6.003*g/cm3, 2, kStateSolid);
   materials[4]->AddElement(G4NistManager::Instance()->FindOrBuildElement(47), 0.5);
   materials[4]->AddElement(G4NistManager::Instance()->FindOrBuildElement(53), 0.5);
-  materials[5]=G4NistManager::Instance()->FindOrBuildMaterial("G4_TISSUE_SOFT_ICRP");
+  materials[5]=G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
   
   //     
   // World
