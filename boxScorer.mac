@@ -6,8 +6,7 @@
 #
 /score/mesh/boxSize 2. 2. 2. cm
 /score/mesh/nBin 400 400 400
-#/score/mesh/translate/xyz 3.55 -6 77.675 cm    10 cm boxMesh
-/score/mesh/translate/xyz 3.55 -8.11 77.69 cm    10 cm boxMesh
+/score/mesh/translate/xyz 3.55 -8.11 77.69 cm   
 #
 /score/quantity/cellFlux flux
 /score/quantity/energyDeposit eDep
