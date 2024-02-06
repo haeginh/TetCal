@@ -92,6 +92,11 @@ int main(int argc,char** argv)
 		return 1;
 	}
 
+	// Choose the Random engine
+	//
+	G4Random::setTheEngine(new CLHEP::RanecuEngine);
+	G4Random::setTheSeed(time(0));
+
 	// Detect interactive mode (if no macro file name) and define UI session
 	//
 	G4RunManager* runManager;
@@ -100,10 +105,6 @@ int main(int argc,char** argv)
 		runManager = new G4MTRunManager();
 	}
 	else runManager = G4RunManagerFactory::CreateRunManager();
-	// Choose the Random engine
-	//
-	G4Random::setTheEngine(new CLHEP::RanecuEngine);
-	G4Random::setTheSeed(time(0));
 
 	//activate UI-based scorer
 	G4ScoringManager * scManager = G4ScoringManager::GetScoringManager();
