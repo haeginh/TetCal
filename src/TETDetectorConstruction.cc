@@ -60,7 +60,7 @@ void TETDetectorConstruction::SetupWorldGeometry()
 	// Define the world box (size: 10*10*10 m3)
 	//
 	G4double worldXYZ = 10. * m;
-	G4Material* vacuum = G4NistManager::Instance()->FindOrBuildMaterial("G4_Air");
+	G4Material* vacuum = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
 
 	G4VSolid* worldSolid
 	  = new G4Box("worldSolid", worldXYZ/2, worldXYZ/2, worldXYZ/2);
