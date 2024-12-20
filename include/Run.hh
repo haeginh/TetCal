@@ -58,10 +58,11 @@ public:
 	virtual ~Run();
 
 	virtual void RecordEvent(const G4Event*);
-	void ConstructMFD(const G4String& mfdName);
     virtual void Merge(const G4Run*);
 
     EDEPMAP* GetEdepMap()      {return &edepMap;}
+    EDEPMAP* GetDosimeterMap() {return &dosimeterMap;}
+    std::map<G4int, G4double>* GetSpecMap() {return &specMap;}
     G4String GetParticleName() {return primary;}
     G4String GetBeamDirName()  {return dir;}
     G4double GetBeamEnergy()   {return primaryE;}
@@ -79,9 +80,11 @@ public:
     }
 
 private:
-    EDEPMAP edepMap;
+    EDEPMAP edepMap, dosimeterMap;
+    std::map<G4int, G4double> specMap;
     G4int   fCollID;
     G4int   fCollID_DRF;
+    G4int   fCollID_dosimeter;
     G4String primary;
     G4String dir;
     G4double primaryE;

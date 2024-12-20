@@ -31,6 +31,7 @@
 #include "TETDetectorConstruction.hh"
 #include "DRFScorer.hh"
 #include "G4VisAttributes.hh"
+#include "DosimeterScorer.hh"
 
 TETDetectorConstruction::TETDetectorConstruction(TETModelImport* _tetData, G4bool _useGPS)
 :worldPhysical(0), container_logic(0), tetData(_tetData), tetLogic(0), useGPS(_useGPS)
@@ -82,7 +83,7 @@ void TETDetectorConstruction::SetupWorldGeometry()
 	G4ThreeVector center;
 	if(useGPS) center = (phantomBoxMax+phantomBoxMin)*0.5;
 	new G4PVPlacement(0, center, container_logic, "PhantomPhysical",
-			          worldLogical, false, 0);
+			          worldLogical, false, -1);
 	container_logic->SetOptimisation(TRUE);
 	container_logic->SetSmartless( 0.5 ); // for optimization (default=2)
 }
@@ -122,8 +123,13 @@ void TETDetectorConstruction::ConstructSDandField()
 	MFDet->RegisterPrimitive(new PSEnergyDeposit("eDep", tetData));
 	MFDet->RegisterPrimitive(new DRFScorer("DRF", tetData));
 
+	G4MultiFunctionalDetector* MFDet1 = new G4MultiFunctionalDetector("phantomBox");
+	pSDman->AddNewDetector( MFDet1 );
+	MFDet1->RegisterPrimitive(new DosimeterScorer("dosimeter", tetData));
+
 	// attach the detector to logical volume for parameterised geometry (phantom geometry)
 	SetSensitiveDetector(tetLogic, MFDet);
+	SetSensitiveDetector(container_logic, MFDet1);
 }
 
 void TETDetectorConstruction::PrintPhantomInformation()

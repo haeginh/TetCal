@@ -106,6 +106,11 @@ public:
         return eleVec;
     }
 
+	std::vector<std::vector<G4int>> GetDosiEle(){ return dosimeterEle; }
+	G4ThreeVector GetDosiNorm(G4int id) {return dosimeterNorm[id];}
+	G4double GetDosiArea(G4int id) {return dosimeterArea[id];}
+	std::vector<G4String> GetDosiNames() {return dosimeterName;}
+
 private:
 
 	// private methods
@@ -114,6 +119,7 @@ private:
 	void MaterialRead(G4String);
 	void RBMBSRead(G4String);
 	void DRFRead(G4String);
+	void DosimeterRead(G4String);
 	void ColourRead();
 	void PrintMaterialInfomation();
 
@@ -137,6 +143,11 @@ private:
 	std::map<G4int, std::vector<G4int>>   organ2dose;
 	std::map<G4int, G4String>  doseName;
 	std::map<G4int, G4double>  doseMassMap;
+	std::vector<std::vector<G4int>> dosimeterEle;
+	std::map<G4int, G4ThreeVector> dosimeterNorm;
+	std::vector<G4String> dosimeterName;
+	std::vector<G4double> dosimeterArea;
+	
 	G4bool                     doseOrganized;
 
 	std::vector<G4ThreeVector> vertexVector;

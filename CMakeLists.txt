@@ -44,6 +44,7 @@ set(TETCAL_SCRIPTS
   init_vis.mac
   vis.mac
   colour.dat
+  Hp10_DC.dat
   )
 
 foreach(_script ${TETCAL_SCRIPTS})

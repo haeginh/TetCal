@@ -67,6 +67,8 @@ RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init,
 		ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
 		ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
 	}
+	auto dosinames = tetData->GetDosiNames();
+	for(auto d:dosinames) ofs<<d<<"\t\t";
 	for(auto name:nameMap) ofs<<std::to_string(name.first)+"_"+name.second<<"\t"<<massMap[name.first]/g<<"\t";
 	if(tetData->DoseWasOrganized()) ofs<<"eff. dose (DRF)"<<"\t\t"<< "eff. dose";
 	ofs<<G4endl;
@@ -155,6 +157,8 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	else if(isExternal)PrintLineExternal(ofs);
 	else               PrintLineInternal(ofs);
 	ofs.close();
+	std::ofstream ofs_spec(outputFile+"_s"+std::to_string(runID));
+	PrintSpectrum(ofs_spec, 15);
 
 	initTimer->Start();
 }
@@ -163,8 +167,19 @@ void RunAction::SetDoses()
 {
 	doses.clear();
 	EDEPMAP edepMap = *fRun->GetEdepMap();
+	EDEPMAP dosimterMap = *fRun->GetDosimeterMap();
+	auto dosimterName = tetData->GetDosiNames();
+	//dosimter
+	for(G4int i=0;i<dosimterName.size();i++){
+		G4double meanDose = dosimterMap[i].first / numOfEvent / tetData->GetDosiArea(i);
+		G4double squareDoese = dosimterMap[i].second / (tetData->GetDosiArea(i)*tetData->GetDosiArea(i));
+		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
+		G4double relativeE   = sqrt(variance)/meanDose;
+		doses_dosimter[dosimterName[i]].first = meanDose;
+		doses_dosimter[dosimterName[i]].second = relativeE;
+	}
 
-    //RBM and BS
+	//RBM and BS
 	for(G4int i=-4;i<0;i++){
 		G4double meanDose = edepMap[i].first / numOfEvent;
 		G4double squareDoese = edepMap[i].second;
@@ -244,8 +259,12 @@ void RunAction::PrintResultGPS(std::ostream &out)
 	    << " Run #" << runID << " / Number of event processed : "<< numOfEvent     << G4endl
 	    << "=======================================================================" << G4endl
 		<< " Init time: " << initTimer->GetRealElapsed() << " s / Run time: "<< runTimer->GetRealElapsed()<<" s"<< G4endl
-	    << "=======================================================================" << G4endl
-	    << setw(27) << "organ ID| "
+	    << "=======================================================================" << G4endl;
+	for(auto itr:doses_dosimter){
+		out<<setw(25)<<itr.first<<setw(15)<<scientific<<itr.second.first; //pGy
+		out<<setw(15)<<fixed<<itr.second.second<<G4endl;
+	}	
+	out << setw(27) << "organ ID| "
 		<< setw(15) << "Organ Mass (g)"
 		<< setw(15) << "Dose (pGy)"
 		<< setw(15) << "Relative Error" << G4endl;
@@ -285,8 +304,13 @@ void RunAction::PrintResultExternal(std::ostream &out)
 	    << " Run #" << runID << " / Number of event processed : "<< numOfEvent     << G4endl
 	    << "=======================================================================" << G4endl
 		<< " Init time: " << initTimer->GetRealElapsed() << " s / Run time: "<< runTimer->GetRealElapsed()<<" s"<< G4endl
-	    << "=======================================================================" << G4endl
-	    << setw(27) << "organ ID| "
+	    << "=======================================================================" << G4endl;
+	for(auto itr:doses_dosimter){
+		out<<setw(25)<<itr.first<<setw(15)<<scientific<<itr.second.first*beamArea/cm2; //pGycm2
+		out<<setw(15)<<fixed<<itr.second.second<<G4endl;
+	}
+
+	out << setw(27) << "organ ID| "
 		<< setw(15) << "Organ Mass (g)"
 		<< setw(15) << "Dose (pGy*cm2)"
 		<< setw(15) << "Relative Error" << G4endl;
@@ -357,7 +381,9 @@ void RunAction::PrintLineGPS(std::ostream &out)
 	EDEPMAP edepMap = *fRun->GetEdepMap();
 
 	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t";
-
+	for(auto itr:doses_dosimter){
+		out<<itr.second.first <<"\t"<<itr.second.second<<"\t";
+	}	
 	for(auto itr:doses){
         out << itr.second.first/(joule/kg)*1e12 <<"\t" << itr.second.second << "\t";
     }
@@ -378,6 +404,9 @@ void RunAction::PrintLineExternal(std::ostream &out)
 	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
 		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
 
+	for(auto itr:doses_dosimter){
+		out<<itr.second.first * beamArea/cm2 <<"\t"<<itr.second.second<<"\t";
+	}	
 	for(auto itr:doses){
         out << itr.second.first/(joule/kg)*1e12 * beamArea/cm2 <<"\t" << itr.second.second << "\t";
     }
@@ -463,4 +492,15 @@ G4double RunAction::GetRadiationWeighting(G4ParticleDefinition* _particle, G4dou
 
 }
 
+void RunAction::PrintSpectrum(std::ostream &out, G4int binN){
+	auto specMap = *fRun->GetSpecMap();
+	for(auto d:doses_dosimter) out<<d.first<<"\t";
+	out<<std::endl;
+	for(G4int b=0;b<binN;b++){
+		for(G4int i=0;i<doses_dosimter.size();i++){
+			out<<std::scientific<<specMap[100*i+b]/numOfEvent/tetData->GetDosiArea(i)<<"\t";
+		}
+		out<<std::endl;
+	}
+}
 

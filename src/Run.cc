@@ -37,7 +37,8 @@ Run::Run(TETModelImport* tetData)
 	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/eDep");
 	fCollID_DRF
 	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/DRF");
-
+	fCollID_dosimeter
+	= G4SDManager::GetSDMpointer()->GetCollectionID("phantomBox/dosimeter");	
 	organ2dose = tetData->GetDoseMap();
 
 	auto massMap  = tetData->GetMassMap();
@@ -77,6 +78,20 @@ void Run::RecordEvent(const G4Event* event)
     for(auto itr:doseMap_DRF){
 		edepMap[-4+itr.first].first  += *itr.second;
 		edepMap[-4+itr.first].second += (*itr.second)*(*itr.second);
+	}
+
+	//dosimeter
+	G4THitsMap<G4double>* evtMap_dosimeter =
+			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID_dosimeter));
+    auto doseMap_dosimter = *evtMap_dosimeter->GetMap();
+    for(auto itr:doseMap_dosimter){
+		if(itr.first<0){
+			specMap[-itr.first-1] += *itr.second;
+		}
+		else{
+			dosimeterMap[itr.first].first  += *itr.second;
+			dosimeterMap[itr.first].second += (*itr.second)*(*itr.second);
+		}
 	}
 
 	//other doses
@@ -128,6 +143,8 @@ void Run::Merge(const G4Run* run)
 	const Run* localRun = static_cast<const Run*>(run);
 	// merge the data from each thread
 	EDEPMAP localMap = localRun->edepMap;
+	EDEPMAP localMap_d = localRun->dosimeterMap;
+	auto localMap_spec = localRun->specMap;
 
 	primary = localRun->primary;
 	dir = localRun->dir;
@@ -138,6 +155,13 @@ void Run::Merge(const G4Run* run)
 	for(auto itr : localMap){
 		edepMap[itr.first].first  += itr.second.first;
 		edepMap[itr.first].second += itr.second.second;
+	}
+	for(auto itr : localMap_d){
+		dosimeterMap[itr.first].first  += itr.second.first;
+		dosimeterMap[itr.first].second += itr.second.second;
+	}
+	for(auto itr:localMap_spec){
+		specMap[itr.first] += itr.second;
 	}
 
 	G4Run::Merge(run);

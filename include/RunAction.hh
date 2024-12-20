@@ -75,6 +75,8 @@ public:
 	void PrintLineExternal(std::ostream &out);
 	void PrintLineInternal(std::ostream &out);
 
+	void PrintSpectrum(std::ostream &out, G4int binN);
+
 	std::pair<G4double, G4double> PropagateError(std::vector<std::pair<G4double, G4double>> doses,
 												 std::vector<G4double> ratio);
 	G4double GetRadiationWeighting(G4ParticleDefinition* _particle, G4double _energy);
@@ -97,6 +99,7 @@ private:
 	G4bool   sameToPrev;
 	std::map<G4int, G4double> massMap;
 	std::map<G4int, std::pair<G4double,G4double>> doses;
+	std::map<G4String, std::pair<G4double,G4double>> doses_dosimter;
 	std::map<G4int, G4String> nameMap;
 	std::pair<G4double, G4double> effective, effective_DRF;
 	G4double weight;
