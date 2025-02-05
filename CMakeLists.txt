@@ -40,11 +40,11 @@ target_link_libraries(TetCal ${Geant4_LIBRARIES})
 # copy macro files
 #
 set(TETCAL_SCRIPTS
-  sample.in
-  init_vis.mac
-  vis.mac
-  colour.dat
-  Hp10_DC.dat
+//  sample.in
+//  init_vis.mac
+//  vis.mac
+//  colour.dat
+//  Hp10_DC.dat
   dap_lib.csv
   )
 
