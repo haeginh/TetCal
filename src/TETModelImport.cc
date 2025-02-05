@@ -56,11 +56,11 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	// read material file (*.material)
 	MaterialRead(materialFile);
 	// read bone file (*.RBMnBS)
-	RBMBSRead(boneFile);
+	// RBMBSRead(boneFile);
 	// read bone file (*.DRF)
-	DRFRead(drfFile);
+	// DRFRead(drfFile);
 	// read dosimeter file (*.dosimeter)
-	DosimeterRead(dosimeterFile);
+	// DosimeterRead(dosimeterFile);
 	// read colour data file (colour.dat) if this is interactive mode
 	if(ui) ColourRead();
 	// print the summary of phantom information

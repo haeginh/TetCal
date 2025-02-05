@@ -83,8 +83,8 @@ private:
     EDEPMAP edepMap, dosimeterMap;
     std::map<G4int, G4double> specMap;
     G4int   fCollID;
-    G4int   fCollID_DRF;
-    G4int   fCollID_dosimeter;
+    // G4int   fCollID_DRF; 
+    // G4int   fCollID_dosimeter;
     G4String input;
     // G4String dir;
     G4double primaryE;

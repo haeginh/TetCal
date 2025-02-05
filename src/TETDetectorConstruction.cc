@@ -110,15 +110,15 @@ void TETDetectorConstruction::ConstructSD()
 
 	// scorer for energy depositon in each organ
 	MFDet->RegisterPrimitive(new PSEnergyDeposit("eDep", tetData));
-	MFDet->RegisterPrimitive(new DRFScorer("DRF", tetData));
+	// MFDet->RegisterPrimitive(new DRFScorer("DRF", tetData));
 
-	G4MultiFunctionalDetector* MFDet1 = new G4MultiFunctionalDetector("phantomBox");
-	pSDman->AddNewDetector( MFDet1 );
-	MFDet1->RegisterPrimitive(new DosimeterScorer("dosimeter", tetData));
+	// G4MultiFunctionalDetector* MFDet1 = new G4MultiFunctionalDetector("phantomBox");
+	// pSDman->AddNewDetector( MFDet1 );
+	// MFDet1->RegisterPrimitive(new DosimeterScorer("dosimeter", tetData));
 
 	// attach the detector to logical volume for parameterised geometry (phantom geometry)
 	SetSensitiveDetector(tetLogic, MFDet);
-	SetSensitiveDetector(container_logic, MFDet1);
+	// SetSensitiveDetector(container_logic, MFDet1);
 }
 
 void TETDetectorConstruction::PrintPhantomInformation()

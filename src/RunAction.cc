@@ -53,15 +53,15 @@ RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init)
 		for(auto itr:massMap) nameMap[itr.first] = tetData->GetMaterial(itr.first)->GetName();
 	}
 
-	nameMap[-4] = "RBM(DRF)"; nameMap[-3] = "BS(DRF)";
-	nameMap[-2] = "RBM"     ; nameMap[-1] = "BS"     ;
+	// nameMap[-4] = "RBM(DRF)"; nameMap[-3] = "BS(DRF)";
+	// nameMap[-2] = "RBM"     ; nameMap[-1] = "BS"     ;
 
     //massMap will be initialized for negative IDs (RBM and BS) in the for loop
 	ofs<<"[GPS: pGy]"<<G4endl;
 	ofs<<"run#\tnps\tinitT\trunT\tinput\tenergy[MeV]\t";
-	auto dosinames = tetData->GetDosiNames();
-	std::set<G4String> dosiSet(dosinames.begin(), dosinames.end());
-	for(auto d:dosiSet) ofs<<d<<"\t\t";
+	// auto dosinames = tetData->GetDosiNames();
+	// std::set<G4String> dosiSet(dosinames.begin(), dosinames.end());
+	// for(auto d:dosiSet) ofs<<d<<"\t\t";
 	for(auto name:nameMap) ofs<<std::to_string(name.first)+"_"+name.second<<"\t"<<massMap[name.first]/g<<"\t";
 	if(tetData->DoseWasOrganized()) ofs<<"eff. dose (DRF)"<<"\t\t"<< "eff. dose";
 	ofs<<G4endl;
@@ -162,25 +162,25 @@ void RunAction::SetDoses()
 	EDEPMAP dosimterMap = *fRun->GetDosimeterMap();
 	auto dosimterName = tetData->GetDosiNames();
 	//dosimter
-	for(G4int i=0;i<dosimterName.size();i++){
-		G4double meanDose = dosimterMap[i].first / numOfEvent / tetData->GetDosiArea(i);
-		G4double squareDoese = dosimterMap[i].second / (tetData->GetDosiArea(i)*tetData->GetDosiArea(i));
-		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
-		G4double relativeE   = sqrt(variance)/meanDose;
-		doses_dosimter[dosimterName[i]].first = meanDose;
-		doses_dosimter[dosimterName[i]].second = relativeE;
-	}
+	// for(G4int i=0;i<dosimterName.size();i++){
+	// 	G4double meanDose = dosimterMap[i].first / numOfEvent / tetData->GetDosiArea(i);
+	// 	G4double squareDoese = dosimterMap[i].second / (tetData->GetDosiArea(i)*tetData->GetDosiArea(i));
+	// 	G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
+	// 	G4double relativeE   = sqrt(variance)/meanDose;
+	// 	doses_dosimter[dosimterName[i]].first = meanDose;
+	// 	doses_dosimter[dosimterName[i]].second = relativeE;
+	// }
 
-	//RBM and BS
-	for(G4int i=-4;i<0;i++){
-		G4double meanDose = edepMap[i].first / numOfEvent;
-		G4double squareDoese = edepMap[i].second;
-		G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
-		G4double relativeE   = sqrt(variance)/meanDose;
-		doses[i] = std::make_pair(meanDose, relativeE);
-	}
-    doses[-4].first *= joule/kg;
-    doses[-3].first *= joule/kg;
+	// //RBM and BS
+	// for(G4int i=-4;i<0;i++){
+	// 	G4double meanDose = edepMap[i].first / numOfEvent;
+	// 	G4double squareDoese = edepMap[i].second;
+	// 	G4double variance    = ((squareDoese/numOfEvent) - (meanDose*meanDose))/numOfEvent;
+	// 	G4double relativeE   = sqrt(variance)/meanDose;
+	// 	doses[i] = std::make_pair(meanDose, relativeE);
+	// }
+    // doses[-4].first *= joule/kg;
+    // doses[-3].first *= joule/kg;
 
     //other organs
 	for(auto itr : massMap){
@@ -272,15 +272,15 @@ void RunAction::PrintResult(std::ostream &out)
 	}
 
 	//effective dose
-	out << setw(25) << "eff. dose (DRF)" << "| ";
-	out	<< setw(15) << " "                ;
-    out	<< setw(15) << scientific << effective_DRF.first/(joule/kg)*1e12;
-	out	<< setw(15) << fixed      << effective_DRF.second << G4endl;
+	// out << setw(25) << "eff. dose (DRF)" << "| ";
+	// out	<< setw(15) << " "                ;
+    // out	<< setw(15) << scientific << effective_DRF.first/(joule/kg)*1e12;
+	// out	<< setw(15) << fixed      << effective_DRF.second << G4endl;
 
-	out << setw(25) << "eff. dose" << "| ";
-	out	<< setw(15) << " "                ;
-    out	<< setw(15) << scientific << effective.first/(joule/kg)*1e12;
-	out	<< setw(15) << fixed      << effective.second << G4endl;
+	// out << setw(25) << "eff. dose" << "| ";
+	// out	<< setw(15) << " "                ;
+    // out	<< setw(15) << scientific << effective.first/(joule/kg)*1e12;
+	// out	<< setw(15) << fixed      << effective.second << G4endl;
 
 	out << "=======================================================================" << G4endl << G4endl;
 }
@@ -373,9 +373,9 @@ void RunAction::PrintLine(std::ostream &out)
 	EDEPMAP edepMap = *fRun->GetEdepMap();
 
 	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"<<inputName<<"\t"<<primaryEnergy<<"\t";
-	for(auto itr:doses_dosimter){
-		out<<itr.second.first <<"\t"<<itr.second.second<<"\t";
-	}	
+	// for(auto itr:doses_dosimter){
+	// 	out<<itr.second.first <<"\t"<<itr.second.second<<"\t";
+	// }	
 	for(auto itr:doses){
         out << itr.second.first/(joule/kg)*1e12 <<"\t" << itr.second.second << "\t";
     }
