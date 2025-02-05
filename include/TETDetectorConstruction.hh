@@ -31,7 +31,8 @@
 #ifndef TETDetectorConstruction_h
 #define TETDetectorConstruction_h 1
 
-#include "G4VUserDetectorConstruction.hh"
+// #include "G4VUserDetectorConstruction.hh"
+#include "G4VUserParallelWorld.hh"
 
 #include <cmath>
 
@@ -69,21 +70,20 @@
 //                         geometry
 // *********************************************************************
 
-class TETDetectorConstruction : public G4VUserDetectorConstruction
+class TETDetectorConstruction : public G4VUserParallelWorld
 {
 public:
-	TETDetectorConstruction(TETModelImport* tetData, G4bool useGPS);
+	TETDetectorConstruction(G4String parallelName, TETModelImport* tetData);
 	virtual ~TETDetectorConstruction();
 
-	virtual G4VPhysicalVolume* Construct();
-	virtual void ConstructSDandField();
+	virtual void Construct();
+	virtual void ConstructSD();
 
 private:
 	void SetupWorldGeometry();
 	void ConstructPhantom();
 	void PrintPhantomInformation();
 
-	G4VPhysicalVolume* worldPhysical;
 	G4LogicalVolume*   container_logic;
 
 	TETModelImport*    tetData;
@@ -92,8 +92,6 @@ private:
 	G4int              nOfTetrahedrons;
 
 	G4LogicalVolume*   tetLogic;
-
-	G4bool useGPS;
 };
 
 #endif

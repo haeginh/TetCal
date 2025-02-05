@@ -23,64 +23,68 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// TETPrimaryGeneratorAction.hh
-// \file   MRCP_GEANT4/External/include/TETPrimaryGeneratorAction.hh
-// \author Haegin Han
+// The code was written by :
+//	*Yeon Soo Yeom, yeonsoo.yeom@nih.gov
+//	*Choonsik Lee, choonsik.lee@nih.gov
 //
+// Radiation Epidemiology Branch, DCEG/NCI/NHI
+// 9609 Medical Center Dr, Rociville, MD 20850
+// Tel: +1-240-276-532
+// ********************************************************************
 
 #ifndef PrimaryGeneratorAction_h
 #define PrimaryGeneratorAction_h 1
 
-#include "G4VUserPrimaryGeneratorAction.hh"
-#include "globals.hh"
-#include "G4Event.hh"
-#include "G4ParticleGun.hh"
-#include "G4SystemOfUnits.hh"
-#include "PrimaryMessenger.hh"
-#include "SourceGenerator.hh"
+#include <vector>
+#include <fstream>
+#include <sstream>
 
-class TETModelImport;
+#include "G4VUserPrimaryGeneratorAction.hh"
+#include "G4ThreeVector.hh"
+#include "globals.hh"
+
+#include "G4ParticleGun.hh"
+
+using namespace std;
+
+// class G4ParticleGun;
+class G4Event;
 
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
   public:
-	PrimaryGeneratorAction(TETModelImport* tetData);
-	virtual ~PrimaryGeneratorAction();
-
-    //GENERAL
-  public:
-    virtual void   GeneratePrimaries(G4Event* anEvent);
-
-    void SetExternalBeam(){
-       if(!fExternal) fExternal = new ExternalBeam();
-        fSourceGenerator = fExternal; fSourceGenerator->SetExternal();
-    }
-    void SetInternalBeam(){
-        if(!fInternal) fInternal = new InternalSource(tetData);
-        fSourceGenerator = fInternal; fSourceGenerator->SetInternal();
-    }
-    void SetSurfaceSource(){
-        if(!fSurface) fSurface = new SurfaceSource(tetData);
-        fSourceGenerator = fSurface; fSourceGenerator->SetInternal();
-    }
-
-    void SetSourceName(G4String _sourceN) {sourceName = _sourceN;}
-    G4ParticleGun*  GetParticleGun()            const {return fParticleGun;}
-    SourceGenerator* GetSourceGenerator()       const {return fSourceGenerator;}
-    ExternalBeam*   GetExternalBeamGenerator()  const {return fExternal;}
-    InternalSource* GetInternalBeamGenerator()  const {return fInternal;}
-    SurfaceSource*  GetSurfaceSourceGenerator() const {return fSurface;}
-    G4String        GetSourceName() const {return sourceName;}
+    PrimaryGeneratorAction(G4String);
+   ~PrimaryGeneratorAction();
+   void GetSourceInfo(G4String input);
+   G4String GetInputName() const {return inp_name;}
+   G4double GetEnergy() const {return particleGun->GetParticleEnergy();}
 
   private:
-    TETModelImport*      tetData;
-    G4ParticleGun*       fParticleGun;
-    PrimaryMessenger*    fMessenger;
-    SourceGenerator*     fSourceGenerator;
-    ExternalBeam*        fExternal;
-    InternalSource*      fInternal;
-    SurfaceSource*       fSurface;
-    G4String             sourceName;
+    void GeneratePrimaries(G4Event* anEvent);
+   	void SourceSampling();
+
+  private:
+  	G4String inp_name;
+    G4ThreeVector direction;
+    G4ParticleGun* particleGun;
+	
+	G4double PosX, PosY, PosZ;
+	G4double VecX, VecY, VecZ;
+	G4double ConeAngle;
+	G4ThreeVector RotAxis;
+	G4double RotAngle;
+	
+	// vector<G4double> Eb;
+	// vector<G4double> Epdf;
+	// vector<G4double> CDF;
+	// map<G4double, G4double> CDF;
+
+	// PrimaryMessenger* fMessenger;
+	// G4double coeff;
+	
+	// vector<pair<G4double, G4double>> PDF_Up;
+	// vector<pair<G4double, G4double>> PDF_Dw;
+	
 };
 
 #endif

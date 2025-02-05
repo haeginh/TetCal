@@ -30,7 +30,7 @@
 # Draw geometry:
 /vis/viewer/set/specialMeshRendering
 /vis/viewer/set/specialMeshRenderingOption surfaces
-/vis/drawVolume
+/vis/drawVolume worlds
 #
 #
 # Specify style (surface, wireframe, auxiliary edges,...)
@@ -85,7 +85,9 @@
 #
 # To get nice view
 # Make the "World" box invisible
-/vis/geometry/set/visibility worldLogical 0 false
+/vis/geometry/set/visibility World 0 false
+/vis/geometry/set/visibility parallel 0 false
+/vis/geometry/set/visibility Container 0 false
 /vis/geometry/set/visibility phantomLogical 0 false
 /vis/viewer/set/style surface
 /vis/viewer/set/hiddenMarker true

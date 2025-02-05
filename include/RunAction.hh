@@ -58,7 +58,7 @@
 class RunAction : public G4UserRunAction
 {
 public:
-	RunAction(TETModelImport* tetData, G4String output, G4Timer* initTimer, G4bool useGPS);
+	RunAction(TETModelImport* tetData, G4String output, G4Timer* initTimer);
 	virtual ~RunAction();
 
 public:
@@ -68,16 +68,18 @@ public:
 
 	void SetDoses();
 	void SetEffectiveDose();
-	void PrintResultGPS(std::ostream &out);
-	void PrintResultExternal(std::ostream &out);
-	void PrintResultInternal(std::ostream &out);
-	void PrintLineGPS(std::ostream &out);
-	void PrintLineExternal(std::ostream &out);
-	void PrintLineInternal(std::ostream &out);
+	void PrintResult(std::ostream &out);
+	// void PrintResultExternal(std::ostream &out);
+	// void PrintResultInternal(std::ostream &out);
+	void PrintLine(std::ostream &out);
+	// void PrintLineExternal(std::ostream &out);
+	// void PrintLineInternal(std::ostream &out);
+
+	void PrintSpectrum(std::ostream &out, G4int binN);
 
 	std::pair<G4double, G4double> PropagateError(std::vector<std::pair<G4double, G4double>> doses,
 												 std::vector<G4double> ratio);
-	G4double GetRadiationWeighting(G4ParticleDefinition* _particle, G4double _energy);
+	// G4double GetRadiationWeighting(G4ParticleDefinition* _particle, G4double _energy);
 
 private:
 	TETModelImport* tetData;
@@ -88,18 +90,17 @@ private:
 	G4Timer*        initTimer;
 	G4Timer*        runTimer;
 
-	G4String primaryParticle;
-	G4String primarySourceName;
+	// G4String primaryParticle;
+	G4String inputName;
 	G4double primaryEnergy;
-	G4double beamArea;
 	G4int    prevNPS;
-	G4bool   isExternal, useGPS;
 	G4bool   sameToPrev;
 	std::map<G4int, G4double> massMap;
 	std::map<G4int, std::pair<G4double,G4double>> doses;
+	std::map<G4String, std::pair<G4double,G4double>> doses_dosimter;
 	std::map<G4int, G4String> nameMap;
 	std::pair<G4double, G4double> effective, effective_DRF;
-	G4double weight;
+	// G4double weight;
 };
 
 #endif

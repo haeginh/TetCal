@@ -31,9 +31,10 @@
 #include "TETDetectorConstruction.hh"
 #include "DRFScorer.hh"
 #include "G4VisAttributes.hh"
+#include "DosimeterScorer.hh"
 
-TETDetectorConstruction::TETDetectorConstruction(TETModelImport* _tetData, G4bool _useGPS)
-:worldPhysical(0), container_logic(0), tetData(_tetData), tetLogic(0), useGPS(_useGPS)
+TETDetectorConstruction::TETDetectorConstruction(G4String parallelName, TETModelImport* _tetData)
+:G4VUserParallelWorld(parallelName), container_logic(0), tetData(_tetData), tetLogic(0)
 {
 	// initialisation of the variables for phantom information
 	phantomSize     = tetData -> GetPhantomSize();
@@ -47,12 +48,11 @@ TETDetectorConstruction::~TETDetectorConstruction()
 	delete tetData;
 }
 
-G4VPhysicalVolume* TETDetectorConstruction::Construct()
+void TETDetectorConstruction::Construct()
 {
 	SetupWorldGeometry();
 	ConstructPhantom();
 	PrintPhantomInformation();
-	return worldPhysical;
 }
 
 void TETDetectorConstruction::SetupWorldGeometry()
@@ -62,15 +62,6 @@ void TETDetectorConstruction::SetupWorldGeometry()
 	G4double worldXYZ = 10. * m;
 	G4Material* vacuum = G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic");
 
-	G4VSolid* worldSolid
-	  = new G4Box("worldSolid", worldXYZ/2, worldXYZ/2, worldXYZ/2);
-
-	G4LogicalVolume* worldLogical
-	  = new G4LogicalVolume(worldSolid,vacuum,"worldLogical");
-
-	worldPhysical
-	  = new G4PVPlacement(0,G4ThreeVector(), worldLogical,"worldPhysical", 0, false,0,false);
-
 	// Define the phantom container (10-cm margins from the bounding box of phantom)
 	//
 	G4Box* containerSolid = new G4Box("phantomBox", phantomSize.x()/2 + 1.*cm,
@@ -79,10 +70,9 @@ void TETDetectorConstruction::SetupWorldGeometry()
 
 	container_logic = new G4LogicalVolume(containerSolid, vacuum, "phantomLogical");
 
-	G4ThreeVector center;
-	if(useGPS) center = (phantomBoxMax+phantomBoxMin)*0.5;
+	G4ThreeVector center = (phantomBoxMax+phantomBoxMin)*0.5;
 	new G4PVPlacement(0, center, container_logic, "PhantomPhysical",
-			          worldLogical, false, 0);
+			          GetWorld()->GetLogicalVolume(), false, -1);
 	container_logic->SetOptimisation(TRUE);
 	container_logic->SetSmartless( 0.5 ); // for optimization (default=2)
 }
@@ -98,8 +88,8 @@ void TETDetectorConstruction::ConstructPhantom()
 			                    G4ThreeVector(0,1.*cm,0),
 			                    G4ThreeVector(0,0,1.*cm));
 
-	G4Material* vacuum = G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic");
-	tetLogic = new G4LogicalVolume(tetraSolid, vacuum, "TetLogic");
+	// G4Material* vacuum = G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic");
+	tetLogic = new G4LogicalVolume(tetraSolid, 0, "TetLogic");
 
 	// physical volume (phantom) constructed as parameterised geometry
 	new G4PVParameterised("wholePhantom",tetLogic,container_logic,
@@ -107,7 +97,7 @@ void TETDetectorConstruction::ConstructPhantom()
 						  new TETParameterisation(tetData));
 }
 
-void TETDetectorConstruction::ConstructSDandField()
+void TETDetectorConstruction::ConstructSD()
 {
 	// Define detector (Phantom SD) and scorer (eDep)
 	//
@@ -122,8 +112,13 @@ void TETDetectorConstruction::ConstructSDandField()
 	MFDet->RegisterPrimitive(new PSEnergyDeposit("eDep", tetData));
 	MFDet->RegisterPrimitive(new DRFScorer("DRF", tetData));
 
+	G4MultiFunctionalDetector* MFDet1 = new G4MultiFunctionalDetector("phantomBox");
+	pSDman->AddNewDetector( MFDet1 );
+	MFDet1->RegisterPrimitive(new DosimeterScorer("dosimeter", tetData));
+
 	// attach the detector to logical volume for parameterised geometry (phantom geometry)
 	SetSensitiveDetector(tetLogic, MFDet);
+	SetSensitiveDetector(container_logic, MFDet1);
 }
 
 void TETDetectorConstruction::PrintPhantomInformation()

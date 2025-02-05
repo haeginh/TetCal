@@ -54,8 +54,7 @@ class ActionInitialization : public G4VUserActionInitialization
 public:
 	ActionInitialization(TETModelImport*    tetData,
 			                G4String        outputFileName,
-							G4Timer*        initTimer,
-							G4bool          useGPS);
+							G4Timer*        initTimer, G4String input);
 	virtual ~ActionInitialization();
 
 	virtual void BuildForMaster() const;
@@ -63,9 +62,8 @@ public:
 
 private:
 	TETModelImport* tetData;
-	G4String output;
+	G4String output, input;
 	G4Timer* initTimer;
-	G4bool useGPS;
 };
 
 #endif

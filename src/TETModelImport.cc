@@ -46,6 +46,7 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	G4String doseFile     =  phantomName + ".dose";
 	G4String boneFile     =  phantomName + ".RBMnBS";
 	G4String drfFile      =  phantomName + ".DRF";
+	G4String dosimeterFile=  phantomName + ".dosimeter";
 	G4String mtlFile      =  phantomName + ".mtl";
 
 	// read dose file (*.dose) -if there is any
@@ -58,12 +59,13 @@ TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
 	RBMBSRead(boneFile);
 	// read bone file (*.DRF)
 	DRFRead(drfFile);
+	// read dosimeter file (*.dosimeter)
+	DosimeterRead(dosimeterFile);
 	// read colour data file (colour.dat) if this is interactive mode
 	if(ui) ColourRead();
 	// print the summary of phantom information
 	PrintMaterialInfomation();
 }
-
 
 void TETModelImport::DoseRead(G4String doseFile){
 	//read dose file : PLEASE be careful not to include dose ID 0
@@ -86,7 +88,6 @@ void TETModelImport::DoseRead(G4String doseFile){
 		}
 	}
 	ifs.close();
-
 }
 
 void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
@@ -241,7 +242,17 @@ void TETModelImport::MaterialRead(G4String materialFile)
 		}
 	}
 	ifpMat.close();
-
+	// for subdiv
+	for(auto itr:numTetMap){
+		if(organNameMap.find(itr.first)!=organNameMap.end()) continue;
+		materialIndex.push_back(itr.first);
+		auto name = prev(organNameMap.lower_bound(itr.first))->second;
+		auto density = prev(densityMap.lower_bound(itr.first))->second;
+		auto matIdx = prev(materialIndexMap.lower_bound(itr.first))->second;
+		organNameMap[itr.first] = name;
+		densityMap[itr.first] = density;
+		materialIndexMap[itr.first] = matIdx;
+	}
 	// Construct materials for each organ
 	//
     G4Element *elH = new G4Element("TS_H_of_Water", "H", 1., 1.01*g/mole);
@@ -323,6 +334,41 @@ void TETModelImport::DRFRead(G4String DRFfile){
     	}
     }
     ifp.close();
+}
+
+void TETModelImport::DosimeterRead(G4String filename)
+{
+	std::ifstream ifp(filename);
+	if(!ifp.is_open())
+  	{
+    	// exception for the case when there is no colour.dat file
+    	G4Exception("TETModelImport::DosimeterRead","",FatalErrorInArgument,
+                G4String("Dosimeter file was not found ").c_str());
+  	}
+	while(!ifp.eof()){
+		G4String name;
+		G4int num;
+		G4double area(-1.);
+		ifp>>name>>num>>area;
+		if(area<0) break;
+		dosimeterName.push_back(name);
+		dosimeterArea.push_back(area);
+		std::vector<G4int> eleVec;
+		for(int i=0;i<num;i++){
+			G4int ele, a, b, c;
+			ifp>>ele>>a>>b>>c;
+			G4ThreeVector norm = (vertexVector[b]-vertexVector[a]).cross(vertexVector[c]-vertexVector[a]).unit();
+			G4ThreeVector center;
+			auto vertices = tetVector[ele]->GetVertices();
+			for(G4ThreeVector v:vertices) center+=v;
+			center*=0.25;
+			if((center-vertexVector[a]).dot(norm)<0) norm = -norm;
+			eleVec.push_back(ele);
+			dosimeterNorm[ele] = norm;
+		}
+		dosimeterEle.push_back(eleVec);
+	}
+	ifp.close();
 }
 
 void TETModelImport::ColourRead()

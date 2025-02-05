@@ -30,6 +30,7 @@
 #include "ActionInitialization.hh"
 #include "PhysicsList.hh"
 #include "TETDetectorConstruction.hh"
+#include "DetectorConstruction.hh"
 #include "TETModelImport.hh"
 
 #include "G4RunManagerFactory.hh"
@@ -43,9 +44,22 @@
 #include "Randomize.hh"
 #include "G4Timer.hh"
 
+#include "G4ParallelWorldPhysics.hh"
+#include "ImportVoxelPhantom.hh"
+
 void PrintUsage(){
-	G4cerr<< "Usage: ./TetCal -m [MACRO] -o [OUTPUT] -p [phantom name] (--usegps)"  <<G4endl;
+	G4cerr<< "Usage: ./TetCal -m [MACRO] -o [OUTPUT] -i [input for patient geom.] -p [phantom name]"  <<G4endl;
 	G4cerr<< "Example: ./TetCal -m sample.in -o run.out -p ./phantoms/00M" <<G4endl;
+}
+
+std::vector<std::string> split(const std::string& s, char delimiter) {
+    std::vector<std::string> tokens;
+    std::string token;
+    std::istringstream tokenStream(s);
+    while (getline(tokenStream, token, delimiter)) {
+        tokens.push_back(token);
+    }
+    return tokens;
 }
 
 int main(int argc,char** argv) 
@@ -56,9 +70,8 @@ int main(int argc,char** argv)
 	initTimer->Start();
 	G4String macro;
 	G4String output("output");
-	G4String phantomName;
+	G4String phantomName, input;
 	G4UIExecutive* ui = 0;
-	G4bool useGPS(false);
 
 	for ( G4int i=1; i<argc; i++) {
 		// macro file name
@@ -73,8 +86,8 @@ int main(int argc,char** argv)
 		else if ( G4String(argv[i]) == "-p" ) {
 			phantomName = argv[++i];
 		}
-		else if ( G4String(argv[i]) == "--usegps" ) {
-			useGPS = true;
+		else if ( G4String(argv[i]) == "-i" ) {
+			input = argv[++i];
 		}
 		else {
 			PrintUsage();
@@ -105,17 +118,22 @@ int main(int argc,char** argv)
 
 	// Set a class to import phantom data
 	//
+	ImportVoxelPhantom* VoxData = new ImportVoxelPhantom(input);
 	TETModelImport* tetData = new TETModelImport(phantomName, ui);
 
 	// Set mandatory initialisation classes
 	//
 	// detector construction
-	runManager->SetUserInitialization(new TETDetectorConstruction(tetData, useGPS));
+	auto detConstruction = new DetectorConstruction(VoxData, input);
+	detConstruction->RegisterParallelWorld(new TETDetectorConstruction("parallel",tetData));
+	runManager->SetUserInitialization(detConstruction);
 	// physics list
 	// runManager->SetUserInitialization(new QBBC);
-	runManager->SetUserInitialization(new PhysicsList());
+	auto phy = new PhysicsList();
+	phy->RegisterPhysics(new G4ParallelWorldPhysics("parallel", true));
+	runManager->SetUserInitialization(phy);
 	// user action initialisation
-	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer, useGPS));
+	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer, input));
     
 	// Visualization manager
 	//
