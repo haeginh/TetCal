@@ -57,16 +57,16 @@ RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init,
 	nameMap[-2] = "RBM"     ; nameMap[-1] = "BS"     ;
 
     //massMap will be initialized for negative IDs (RBM and BS) in the for loop
-	if(useGPS)
-	{
-		ofs<<"[GPS: pGy]"<<G4endl;
-		ofs<<"run#\tnps\tinitT\trunT\t";
-	}
-	else
-	{
-		ofs<<"[External: pGycm2 / Internal: SAF (kg-1)]"<<G4endl;
-		ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
-	}
+	// if(useGPS)
+	// {
+	// 	ofs<<"[GPS: pGy]"<<G4endl;
+	// 	ofs<<"run#\tnps\tinitT\trunT\t";
+	// }
+	// else
+	// {
+	ofs<<"[External: pGycm2 / Internal: SAF (kg-1), spectrum (pGy) / GPS: pGy"<<G4endl;
+	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
+	// }
 	for(auto name:nameMap) ofs<<std::to_string(name.first)+"_"+name.second<<"\t"<<massMap[name.first]/g<<"\t";
 	if(tetData->DoseWasOrganized()) ofs<<"eff. dose (DRF)"<<"\t\t"<< "eff. dose";
 	ofs<<G4endl;
@@ -115,7 +115,8 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 	primaryEnergy = primary->GetParticleGun()->GetParticleEnergy();
 	isExternal = primary-> GetSourceGenerator()->IsExternal();
 	if(isExternal) beamArea = primary->GetExternalBeamGenerator()->GetBeamArea();
-	fRun->SetPrimary(primaryParticle, primarySourceName, primaryEnergy, beamArea, isExternal);
+	spec = primary->IsSpectrum();
+	fRun->SetPrimary(primaryParticle, primarySourceName, primaryEnergy, beamArea, isExternal, spec);
 
 }
 
@@ -134,6 +135,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	primaryEnergy   = fRun->GetBeamEnergy();
 	beamArea        = fRun->GetBeamArea();
 	isExternal      = fRun->GetIsExternal();
+	spec            = fRun->GetUseSpec();
 
 	G4ParticleDefinition* particle = G4ParticleTable::GetParticleTable()->FindParticle(primaryParticle);
 	weight = GetRadiationWeighting(particle, primaryEnergy);
@@ -142,16 +144,17 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 
 	// set doses
 	SetDoses();
-	if((isExternal||useGPS) && tetData->DoseWasOrganized()) SetEffectiveDose();
+	SetEffectiveDose();
+	// if((isExternal||useGPS) && tetData->DoseWasOrganized()) SetEffectiveDose();
 
 	// print by G4cout
-	if(useGPS)          PrintResultGPS(G4cout);
+	if(useGPS||spec)          PrintResultGPS(G4cout);
 	else if(isExternal) PrintResultExternal(G4cout);
 	else                PrintResultInternal(G4cout);
 
 	// print by std::ofstream
 	std::ofstream ofs(outputFile.c_str(), std::ios::app);
-	if(useGPS)         PrintLineGPS(ofs);
+	if(useGPS||spec)         PrintLineGPS(ofs);
 	else if(isExternal)PrintLineExternal(ofs);
 	else               PrintLineInternal(ofs);
 	ofs.close();
@@ -355,8 +358,7 @@ void RunAction::PrintLineGPS(std::ostream &out)
 	//
 	using namespace std;
 	EDEPMAP edepMap = *fRun->GetEdepMap();
-
-	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t";
+	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t\t\t\t";
 
 	for(auto itr:doses){
         out << itr.second.first/(joule/kg)*1e12 <<"\t" << itr.second.second << "\t";

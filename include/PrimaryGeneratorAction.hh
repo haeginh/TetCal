@@ -50,6 +50,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     //GENERAL
   public:
     virtual void   GeneratePrimaries(G4Event* anEvent);
+    void SetSpectrumSource(G4String inputFile);
 
     void SetExternalBeam(){
        if(!fExternal) fExternal = new ExternalBeam();
@@ -63,6 +64,12 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         if(!fSurface) fSurface = new SurfaceSource(tetData);
         fSourceGenerator = fSurface; fSourceGenerator->SetInternal();
     }
+    void SetRadCodes(G4String inputs){
+        RADcodes.clear();
+        std::istringstream iss(inputs);
+        G4String code;
+        while (iss >> code) RADcodes.push_back(code);
+    }
 
     void SetSourceName(G4String _sourceN) {sourceName = _sourceN;}
     G4ParticleGun*  GetParticleGun()            const {return fParticleGun;}
@@ -71,6 +78,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     InternalSource* GetInternalBeamGenerator()  const {return fInternal;}
     SurfaceSource*  GetSurfaceSourceGenerator() const {return fSurface;}
     G4String        GetSourceName() const {return sourceName;}
+    G4bool          IsSpectrum() const {return spectrumSource;}
 
   private:
     TETModelImport*      tetData;
@@ -81,6 +89,9 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     InternalSource*      fInternal;
     SurfaceSource*       fSurface;
     G4String             sourceName;
+    G4bool               spectrumSource;
+    std::map<G4double, G4double> samplingE;
+    std::vector<G4String> RADcodes;
 };
 
 #endif

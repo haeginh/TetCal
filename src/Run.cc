@@ -134,6 +134,7 @@ void Run::Merge(const G4Run* run)
 	primaryE = localRun->primaryE;
 	beamArea = localRun->beamArea;
 	isExternal = localRun->isExternal;
+	useSpec = localRun->useSpec;
 
 	for(auto itr : localMap){
 		edepMap[itr.first].first  += itr.second.first;

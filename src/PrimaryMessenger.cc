@@ -45,6 +45,10 @@ PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
 	fInternalDir      = new G4UIdirectory("/internal/");
 	fSourceOrganCmd   = new G4UIcmdWithAString("/internal/source", this);
 	fSurfaceSourceCmd = new G4UIcmdWithAString("/internal/surface", this);
+
+	fSpectrumDir = new G4UIdirectory("/spec/");
+	fSpectrumSourceCmd = new G4UIcmdWithAString("/spec/input", this);
+	fRadCodesCmd = new G4UIcmdWithAString("/spec/RADcodes", this);
 }
 
 PrimaryMessenger::~PrimaryMessenger() {
@@ -67,7 +71,7 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 		else if(newValue=="ROT")	fExternal->SetBeamDirection(ROT);
 		else if(newValue=="ISO")	fExternal->SetBeamDirection(ISO);
 	}
-	if(command == fSourceOrganCmd){
+	else if(command == fSourceOrganCmd){
 		fPrimary->SetInternalBeam();
 		InternalSource* fInternal = fPrimary->GetInternalBeamGenerator();
         if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);
@@ -80,7 +84,7 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 		while(ss>>intTemp) organIDs.push_back(intTemp);
 		fInternal->SetSource(organIDs);
 	}
-    if(command == fSurfaceSourceCmd){
+    else if(command == fSurfaceSourceCmd){
         fPrimary->SetSurfaceSource();
         SurfaceSource* fSurface = fPrimary->GetSurfaceSourceGenerator();
         if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);
@@ -93,5 +97,11 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
         while(ss>>intTemp) organIDs.push_back(intTemp);
         fSurface->SetSource(organIDs);
     }
+	else if(command == fSpectrumSourceCmd){
+		fPrimary->SetSpectrumSource(newValue);
+	}
+	else if(command == fRadCodesCmd){
+		fPrimary->SetRadCodes(newValue);
+	}
 }
 

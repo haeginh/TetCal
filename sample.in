@@ -27,3 +27,8 @@
 /gun/energy 0.001 MeV
 /run/beamOn 10000
 
+/gun/particle gamma
+/internal/source 13200
+/spec/RADcodes X G
+/spec/input I-131.RAD
+/run/beamOn 10000

@@ -67,15 +67,17 @@ public:
     G4double GetBeamEnergy()   {return primaryE;}
     G4double GetBeamArea()     {return beamArea;}
     G4bool   GetIsExternal()   {return isExternal;}
+    G4bool   GetUseSpec()      {return useSpec;}
 
 
-    void SetPrimary(G4String _primary, G4String _dir, G4double _primaryE, G4double _beamArea, G4bool _isExternal)
+    void SetPrimary(G4String _primary, G4String _dir, G4double _primaryE, G4double _beamArea, G4bool _isExternal, G4bool _useSpec)
     {
     	primary = _primary;
     	dir = _dir;
     	primaryE = _primaryE;
     	beamArea = _beamArea;
     	isExternal = _isExternal;
+        useSpec = _useSpec;
     }
 
 private:
@@ -87,6 +89,7 @@ private:
     G4double primaryE;
     G4double beamArea;
     G4bool   isExternal;
+    G4bool   useSpec;
     std::map<G4int, std::vector<G4int>>   organ2dose;
 	std::map<G4int, G4double>  rbmFactor;
 	std::map<G4int, G4double>  bsFactor;

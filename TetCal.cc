@@ -69,7 +69,7 @@ int main(int argc,char** argv)
 		else if ( G4String(argv[i]) == "-o" ) {
 			output = argv[++i];
 		}
-		// switch for MRCP-AF phantom
+		// phantom name
 		else if ( G4String(argv[i]) == "-p" ) {
 			phantomName = argv[++i];
 		}

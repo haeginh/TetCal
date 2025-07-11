@@ -93,7 +93,7 @@ private:
 	G4double primaryEnergy;
 	G4double beamArea;
 	G4int    prevNPS;
-	G4bool   isExternal, useGPS;
+	G4bool   isExternal, useGPS, spec;
 	G4bool   sameToPrev;
 	std::map<G4int, G4double> massMap;
 	std::map<G4int, std::pair<G4double,G4double>> doses;
