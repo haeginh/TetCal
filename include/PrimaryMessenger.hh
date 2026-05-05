@@ -53,6 +53,7 @@ private:
 	G4UIdirectory*             fInternalDir;
 	G4UIcmdWithAString*        fSourceOrganCmd;
 	G4UIcmdWithAString*        fSurfaceSourceCmd;
+	G4UIcmdWithAString*        fExternalSpecCmd;
 	G4UIdirectory*             fSpectrumDir;
 	G4UIcmdWithAString*        fSpectrumSourceCmd;
 	G4UIcmdWithAString*        fRadCodesCmd;

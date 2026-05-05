@@ -37,6 +37,8 @@
 #include "G4Step.hh"
 #include "G4RunManager.hh"
 #include "G4UnitsTable.hh"
+#include "TETModelImport.hh"
+#include "TrackingMessenger.hh"
 
 class G4LogicalVolume;
 
@@ -48,15 +50,28 @@ class G4LogicalVolume;
 // -- UserSteppingAction: Slightly move the stuck particles.
 // *********************************************************************
 
+class MyTrackInfo : public G4VUserTrackInformation {
+  public:
+      MyTrackInfo() : hasSplit(true) {}
+
+      bool hasSplit;
+};
+
 class TETSteppingAction : public G4UserSteppingAction
 {
   public:
-    TETSteppingAction();
+    TETSteppingAction(TETModelImport* tetmodel, G4int splitMaterialID);
     virtual ~TETSteppingAction();
 
     virtual void UserSteppingAction(const G4Step*);
+    void SetSplitNum(G4int num);
 
   private:
+    TETModelImport* tetmodel;
+    TrackingMessenger* trackingMessenger;
+    G4int splitMaterialID;
+    G4int splitNum;
+    G4double splitNum_inv;
     G4double kCarTolerance;
     G4int    stepCounter;
     G4bool   checkFlag;

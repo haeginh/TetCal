@@ -79,6 +79,8 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     SurfaceSource*  GetSurfaceSourceGenerator() const {return fSurface;}
     G4String        GetSourceName() const {return sourceName;}
     G4bool          IsSpectrum() const {return spectrumSource;}
+    G4double        GetPrimaryEnergyForRun() const {return spectrumSource ? meanSpectrumEnergy : fParticleGun->GetParticleEnergy();}
+    G4String        GetSpectrumName() const {return currentSpec;}
 
   private:
     TETModelImport*      tetData;
@@ -91,8 +93,9 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4String             sourceName;
     G4bool               spectrumSource;
     std::map<G4double, G4double> samplingE;
+    G4double             meanSpectrumEnergy;
+    G4String             currentSpec;
     std::vector<G4String> RADcodes;
 };
 
 #endif
-

@@ -1,0 +1,3 @@
+/Users/hanh4/workspace/TetCal/build_ODD/CMakeFiles/ODDCal.dir
+/Users/hanh4/workspace/TetCal/build_ODD/CMakeFiles/edit_cache.dir
+/Users/hanh4/workspace/TetCal/build_ODD/CMakeFiles/rebuild_cache.dir

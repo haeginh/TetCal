@@ -29,14 +29,32 @@
 //
 
 #include "TETSteppingAction.hh"
+#include "G4Gamma.hh"
+#include "G4EventManager.hh"
+#include "G4StackManager.hh"
 
-TETSteppingAction::TETSteppingAction()
-: G4UserSteppingAction(), kCarTolerance(1.0000000000000002e-07), stepCounter(0),
-  checkFlag(0)
-{}
+TETSteppingAction::TETSteppingAction(TETModelImport* _tetmodel, G4int _splitMaterialID)
+: G4UserSteppingAction(), tetmodel(_tetmodel), trackingMessenger(0), splitMaterialID(_splitMaterialID),
+  splitNum(1), splitNum_inv(1.), kCarTolerance(1.0000000000000002e-07), stepCounter(0), checkFlag(0)
+{
+	trackingMessenger = new TrackingMessenger(this);
+}
 
 TETSteppingAction::~TETSteppingAction()
-{}
+{
+	delete trackingMessenger;
+}
+
+void TETSteppingAction::SetSplitNum(G4int num)
+{
+	if(num <= 0){
+		G4Exception("TETSteppingAction::SetSplitNum","",FatalErrorInArgument,
+				G4String("      The number of split particles must be positive: "
+						+ std::to_string(num)).c_str());
+	}
+	splitNum = num;
+	splitNum_inv = 1. / splitNum;
+}
 
 void TETSteppingAction::UserSteppingAction(const G4Step* step)
 {
@@ -65,4 +83,35 @@ void TETSteppingAction::UserSteppingAction(const G4Step* step)
 		}
 	}
 	else stepCounter=0;
+
+	if(splitMaterialID < 0) return;
+
+	// Remove all secondary particles generated in the selected apron material.
+	if (step->GetPostStepPoint()->GetTouchable()->GetHistoryDepth()==2&&
+	    tetmodel->GetMaterialIndex(step->GetPostStepPoint()->GetTouchable()->GetCopyNumber()) == splitMaterialID) {
+		auto secondaries = step->GetSecondaryInCurrentStep();
+		for (auto* secondary : *secondaries) {
+			const_cast<G4Track*>(secondary)->SetTrackStatus(fStopAndKill);
+		}
+	}
+
+	if(splitNum==1) return;
+	if(theTrack->GetKineticEnergy() < 30.*keV) return;
+
+	auto* info = dynamic_cast<MyTrackInfo*>(theTrack->GetUserInformation());
+	if (info) return;
+	if (theTrack->GetParticleDefinition()!=G4Gamma::Gamma()) return;
+	if(step->GetPostStepPoint()->GetStepStatus()!=fGeomBoundary) return;
+
+	if(step->GetPreStepPoint()->GetTouchable()->GetCopyNumber()==-1
+	  &&tetmodel->GetMaterialIndex(step->GetPostStepPoint()->GetTouchable()->GetCopyNumber())==splitMaterialID){
+		for (G4int i = 0; i < splitNum; ++i) {
+			G4Track* newTrack = new G4Track(*theTrack);
+			newTrack->SetUserInformation(new MyTrackInfo());
+			newTrack->SetWeight(theTrack->GetWeight() * splitNum_inv);
+			newTrack->SetTrackStatus(fAlive);
+			G4EventManager::GetEventManager()->GetStackManager()->PushOneTrack(newTrack);
+		}
+		theTrack->SetTrackStatus(fStopAndKill);
+	}
 }

@@ -1,0 +1,141 @@
+{
+	"abstract" : true,
+	"backtrace" : 14,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"include",
+			"__qt_internal_include_plugin_packages",
+			"find_package",
+			"__find_dependency_common",
+			"find_dependency",
+			"set_target_properties"
+		],
+		"files" : 
+		[
+			"/opt/homebrew/lib/cmake/Qt6Core/Qt6QDarwinContactsPermissionPluginTargets.cmake",
+			"/opt/homebrew/lib/cmake/Qt6Core/Qt6QDarwinContactsPermissionPluginConfig.cmake",
+			"/opt/homebrew/lib/cmake/Qt6/QtPublicPluginHelpers.cmake",
+			"/opt/homebrew/lib/cmake/Qt6Core/Qt6CorePlugins.cmake",
+			"/opt/homebrew/lib/cmake/Qt6Core/Qt6CoreConfig.cmake",
+			"/opt/homebrew/share/cmake/Modules/CMakeFindDependencyMacro.cmake",
+			"/Users/hanh4/Codes/Geant4/11.3.1/lib/cmake/Geant4/Geant4Config.cmake",
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 7
+			},
+			{
+				"command" : 3,
+				"file" : 7,
+				"line" : 14,
+				"parent" : 0
+			},
+			{
+				"file" : 6,
+				"parent" : 1
+			},
+			{
+				"command" : 5,
+				"file" : 6,
+				"line" : 371,
+				"parent" : 2
+			},
+			{
+				"command" : 4,
+				"file" : 5,
+				"line" : 125,
+				"parent" : 3
+			},
+			{
+				"command" : 3,
+				"file" : 5,
+				"line" : 93,
+				"parent" : 4
+			},
+			{
+				"file" : 4,
+				"parent" : 5
+			},
+			{
+				"command" : 1,
+				"file" : 4,
+				"line" : 203,
+				"parent" : 6
+			},
+			{
+				"file" : 3,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 3,
+				"line" : 13,
+				"parent" : 8
+			},
+			{
+				"command" : 1,
+				"file" : 2,
+				"line" : 557,
+				"parent" : 9
+			},
+			{
+				"file" : 1,
+				"parent" : 10
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 61,
+				"parent" : 11
+			},
+			{
+				"file" : 0,
+				"parent" : 12
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 81,
+				"parent" : 13
+			},
+			{
+				"command" : 6,
+				"file" : 0,
+				"line" : 83,
+				"parent" : 13
+			}
+		]
+	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 9
+	},
+	"id" : "Qt6::QDarwinContactsPermissionPlugin_init::@6890427a1f51a3e7e1df",
+	"imported" : true,
+	"interfaceLinkLibraries" : 
+	[
+		{
+			"backtrace" : 15,
+			"id" : "Qt6::Core::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 15,
+			"id" : "Qt6::PlatformModuleInternal::@6890427a1f51a3e7e1df"
+		}
+	],
+	"local" : true,
+	"name" : "Qt6::QDarwinContactsPermissionPlugin_init",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sources" : [],
+	"type" : "OBJECT_LIBRARY"
+}

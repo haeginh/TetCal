@@ -44,8 +44,8 @@
 #include "G4Timer.hh"
 
 void PrintUsage(){
-	G4cerr<< "Usage: ./TetCal -m [MACRO] -o [OUTPUT] -p [phantom name] (--usegps)"  <<G4endl;
-	G4cerr<< "Example: ./TetCal -m sample.in -o run.out -p ./phantoms/00M" <<G4endl;
+	G4cerr<< "Usage: ./TetCal -m [MACRO] -o [OUTPUT] -p [phantom name] (--usegps) (--apron-id [ID])"  <<G4endl;
+	G4cerr<< "Example: ./TetCal -m sample.in -o run.out -p ./phantoms/00M --apron-id 0" <<G4endl;
 }
 
 int main(int argc,char** argv) 
@@ -57,6 +57,7 @@ int main(int argc,char** argv)
 	G4String macro;
 	G4String output("output");
 	G4String phantomName;
+	G4int splitMaterialID(-1);
 	G4UIExecutive* ui = 0;
 	G4bool useGPS(false);
 
@@ -75,6 +76,17 @@ int main(int argc,char** argv)
 		}
 		else if ( G4String(argv[i]) == "--usegps" ) {
 			useGPS = true;
+		}
+		else if ( G4String(argv[i]) == "--apron-id" ) {
+			if(i+1 >= argc){
+				G4cerr<<"--apron-id requires a material ID"<<G4endl;
+				return 1;
+			}
+			splitMaterialID = std::atoi(argv[++i]);
+			if(splitMaterialID < 0){
+				G4cerr<<"Apron material ID must be non-negative"<<G4endl;
+				return 1;
+			}
 		}
 		else {
 			PrintUsage();
@@ -115,7 +127,7 @@ int main(int argc,char** argv)
 	// runManager->SetUserInitialization(new QBBC);
 	runManager->SetUserInitialization(new PhysicsList());
 	// user action initialisation
-	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer, useGPS));
+	runManager->SetUserInitialization(new ActionInitialization(tetData, output, initTimer, useGPS, splitMaterialID));
     
 	// Visualization manager
 	//
@@ -142,5 +154,4 @@ int main(int argc,char** argv)
 	delete visManager;
 	delete runManager;
 }
-
 

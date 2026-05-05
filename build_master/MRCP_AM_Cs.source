@@ -1,0 +1,16 @@
+/gps/source/clear
+/gps/source/add 1.
+/gps/particle gamma
+/gps/pos/type Point
+/gps/ang/type iso
+/gps/energy 1.3325 MeV
+/gps/pos/centre -0.655266 50.00033897 -58.9303 cm
+
+/gps/source/add 0.9988
+/gps/particle gamma
+/gps/pos/type Point
+/gps/ang/type iso
+/gps/energy 1.17 MeV
+/gps/pos/centre -0.655266 50.00033897 -58.9303 cm
+
+/run/beamOn 100

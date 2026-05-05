@@ -41,6 +41,9 @@ PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
 	fExternalDir = new G4UIdirectory("/external/");
 	fBeamDirCmd = new G4UIcmdWithAString("/external/dir", this);
 	fBeamDirCmd->SetCandidates("AP PA LLAT RLAT ROT ISO");
+	fExternalSpecCmd = new G4UIcmdWithAString("/external/spec", this);
+	fExternalSpecCmd->SetParameterName("spectrumFile", false);
+	fExternalSpecCmd->AvailableForStates(G4State_Idle, G4State_Init, G4State_PreInit, G4State_GeomClosed);
 
 	fInternalDir      = new G4UIdirectory("/internal/");
 	fSourceOrganCmd   = new G4UIcmdWithAString("/internal/source", this);
@@ -54,8 +57,13 @@ PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
 PrimaryMessenger::~PrimaryMessenger() {
 	delete fExternalDir;
 	delete fBeamDirCmd;
+	delete fExternalSpecCmd;
 	delete fInternalDir;
 	delete fSourceOrganCmd;
+	delete fSurfaceSourceCmd;
+	delete fSpectrumDir;
+	delete fSpectrumSourceCmd;
+	delete fRadCodesCmd;
 }
 
 void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
@@ -100,8 +108,10 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 	else if(command == fSpectrumSourceCmd){
 		fPrimary->SetSpectrumSource(newValue);
 	}
+	else if(command == fExternalSpecCmd){
+		fPrimary->SetSpectrumSource(newValue);
+	}
 	else if(command == fRadCodesCmd){
 		fPrimary->SetRadCodes(newValue);
 	}
 }
-

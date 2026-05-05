@@ -55,7 +55,8 @@ public:
 	ActionInitialization(TETModelImport*    tetData,
 			                G4String        outputFileName,
 							G4Timer*        initTimer,
-							G4bool          useGPS);
+							G4bool          useGPS,
+							G4int           splitMaterialID);
 	virtual ~ActionInitialization();
 
 	virtual void BuildForMaster() const;
@@ -66,6 +67,7 @@ private:
 	G4String output;
 	G4Timer* initTimer;
 	G4bool useGPS;
+	G4int splitMaterialID;
 };
 
 #endif

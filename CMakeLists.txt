@@ -54,3 +54,6 @@ foreach(_script ${TETCAL_SCRIPTS})
     )
 endforeach()
 
+if(EXISTS ${PROJECT_SOURCE_DIR}/spectrums)
+  file(COPY ${PROJECT_SOURCE_DIR}/spectrums DESTINATION ${PROJECT_BINARY_DIR})
+endif()

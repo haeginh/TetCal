@@ -1,0 +1,14 @@
+# Set the verbose
+/run/verbose 2
+
+# Set the number of threads for multi-threading mode
+/run/numberOfThreads  1
+
+# Initialize
+/run/initialize
+
+/gun/particle gamma
+/external/dir AP
+/tracking/split 100
+/external/spec ./spectrums/Xray_Spectrum_70kVp_0.5mmAl_15percentRipple.csv
+/run/beamOn 5000000

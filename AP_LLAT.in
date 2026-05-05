@@ -1,0 +1,236 @@
+# Set the verbose
+/run/verbose 2
+
+# Set the number of threads for multi-threading mode
+/run/numberOfThreads  8
+
+# Initialize
+/run/initialize
+/gun/particle gamma
+
+/gun/particle gamma
+/external/dir AP
+
+/gun/energy 0.01 MeV
+/run/beamOn 10000000
+/gun/energy 0.015 MeV
+/run/beamOn 10000000
+/gun/energy 0.02 MeV
+/run/beamOn 10000000
+/gun/energy 0.03 MeV
+/run/beamOn 10000000
+/gun/energy 0.04 MeV
+/run/beamOn 10000000
+/gun/energy 0.05 MeV
+/run/beamOn 10000000
+/gun/energy 0.06 MeV
+/run/beamOn 10000000
+/gun/energy 0.07 MeV
+/run/beamOn 10000000
+/gun/energy 0.08 MeV
+/run/beamOn 10000000
+/gun/energy 0.1 MeV
+/run/beamOn 10000000
+/gun/energy 0.15 MeV
+/run/beamOn 10000000
+/gun/energy 0.2 MeV
+/run/beamOn 10000000
+/gun/energy 0.3 MeV
+/run/beamOn 10000000
+/gun/energy 0.4 MeV
+/run/beamOn 10000000
+/gun/energy 0.5 MeV
+/run/beamOn 10000000
+/gun/energy 0.511 MeV
+/run/beamOn 10000000
+/gun/energy 0.6 MeV
+/run/beamOn 10000000
+/gun/energy 0.662 MeV
+/run/beamOn 10000000
+/gun/energy 0.8 MeV
+/run/beamOn 10000000
+/gun/energy 1 MeV
+/run/beamOn 10000000
+/gun/energy 1.117 MeV
+/run/beamOn 10000000
+/gun/energy 1.33 MeV
+/run/beamOn 10000000
+/gun/energy 1.5 MeV
+/run/beamOn 10000000
+/gun/energy 2 MeV
+/run/beamOn 10000000
+/gun/energy 3 MeV
+/run/beamOn 10000000
+/gun/energy 4 MeV
+/run/beamOn 10000000
+/gun/energy 5 MeV
+/run/beamOn 10000000
+/gun/energy 6 MeV
+/run/beamOn 10000000
+/gun/energy 6.129 MeV
+/run/beamOn 10000000
+/gun/energy 8 MeV
+/run/beamOn 10000000
+/gun/energy 10 MeV
+/run/beamOn 10000000
+/gun/energy 15 MeV
+/run/beamOn 10000000
+/gun/energy 20 MeV
+/run/beamOn 10000000
+/gun/energy 30 MeV
+/run/beamOn 10000000
+/gun/energy 40 MeV
+/run/beamOn 10000000
+/gun/energy 50 MeV
+/run/beamOn 10000000
+/gun/energy 60 MeV
+/run/beamOn 10000000
+/gun/energy 80 MeV
+/run/beamOn 10000000
+/gun/energy 100 MeV
+/run/beamOn 10000000
+/gun/energy 150 MeV
+/run/beamOn 10000000
+/gun/energy 200 MeV
+/run/beamOn 10000000
+/gun/energy 300 MeV
+/run/beamOn 10000000
+/gun/energy 400 MeV
+/run/beamOn 10000000
+/gun/energy 500 MeV
+/run/beamOn 10000000
+/gun/energy 600 MeV
+/run/beamOn 10000000
+/gun/energy 800 MeV
+/run/beamOn 10000000
+/gun/energy 1000 MeV
+/run/beamOn 10000000
+/gun/energy 1500 MeV
+/run/beamOn 10000000
+/gun/energy 2000 MeV
+/run/beamOn 10000000
+/gun/energy 3000 MeV
+/run/beamOn 10000000
+/gun/energy 4000 MeV
+/run/beamOn 10000000
+/gun/energy 5000 MeV
+/run/beamOn 10000000
+/gun/energy 6000 MeV
+/run/beamOn 10000000
+/gun/energy 8000 MeV
+/run/beamOn 10000000
+/gun/energy 10000 MeV
+/run/beamOn 10000000
+
+/external/dir LLAT
+
+/gun/energy 0.01 MeV
+/run/beamOn 10000000
+/gun/energy 0.015 MeV
+/run/beamOn 10000000
+/gun/energy 0.02 MeV
+/run/beamOn 10000000
+/gun/energy 0.03 MeV
+/run/beamOn 10000000
+/gun/energy 0.04 MeV
+/run/beamOn 10000000
+/gun/energy 0.05 MeV
+/run/beamOn 10000000
+/gun/energy 0.06 MeV
+/run/beamOn 10000000
+/gun/energy 0.07 MeV
+/run/beamOn 10000000
+/gun/energy 0.08 MeV
+/run/beamOn 10000000
+/gun/energy 0.1 MeV
+/run/beamOn 10000000
+/gun/energy 0.15 MeV
+/run/beamOn 10000000
+/gun/energy 0.2 MeV
+/run/beamOn 10000000
+/gun/energy 0.3 MeV
+/run/beamOn 10000000
+/gun/energy 0.4 MeV
+/run/beamOn 10000000
+/gun/energy 0.5 MeV
+/run/beamOn 10000000
+/gun/energy 0.511 MeV
+/run/beamOn 10000000
+/gun/energy 0.6 MeV
+/run/beamOn 10000000
+/gun/energy 0.662 MeV
+/run/beamOn 10000000
+/gun/energy 0.8 MeV
+/run/beamOn 10000000
+/gun/energy 1 MeV
+/run/beamOn 10000000
+/gun/energy 1.117 MeV
+/run/beamOn 10000000
+/gun/energy 1.33 MeV
+/run/beamOn 10000000
+/gun/energy 1.5 MeV
+/run/beamOn 10000000
+/gun/energy 2 MeV
+/run/beamOn 10000000
+/gun/energy 3 MeV
+/run/beamOn 10000000
+/gun/energy 4 MeV
+/run/beamOn 10000000
+/gun/energy 5 MeV
+/run/beamOn 10000000
+/gun/energy 6 MeV
+/run/beamOn 10000000
+/gun/energy 6.129 MeV
+/run/beamOn 10000000
+/gun/energy 8 MeV
+/run/beamOn 10000000
+/gun/energy 10 MeV
+/run/beamOn 10000000
+/gun/energy 15 MeV
+/run/beamOn 10000000
+/gun/energy 20 MeV
+/run/beamOn 10000000
+/gun/energy 30 MeV
+/run/beamOn 10000000
+/gun/energy 40 MeV
+/run/beamOn 10000000
+/gun/energy 50 MeV
+/run/beamOn 10000000
+/gun/energy 60 MeV
+/run/beamOn 10000000
+/gun/energy 80 MeV
+/run/beamOn 10000000
+/gun/energy 100 MeV
+/run/beamOn 10000000
+/gun/energy 150 MeV
+/run/beamOn 10000000
+/gun/energy 200 MeV
+/run/beamOn 10000000
+/gun/energy 300 MeV
+/run/beamOn 10000000
+/gun/energy 400 MeV
+/run/beamOn 10000000
+/gun/energy 500 MeV
+/run/beamOn 10000000
+/gun/energy 600 MeV
+/run/beamOn 10000000
+/gun/energy 800 MeV
+/run/beamOn 10000000
+/gun/energy 1000 MeV
+/run/beamOn 10000000
+/gun/energy 1500 MeV
+/run/beamOn 10000000
+/gun/energy 2000 MeV
+/run/beamOn 10000000
+/gun/energy 3000 MeV
+/run/beamOn 10000000
+/gun/energy 4000 MeV
+/run/beamOn 10000000
+/gun/energy 5000 MeV
+/run/beamOn 10000000
+/gun/energy 6000 MeV
+/run/beamOn 10000000
+/gun/energy 8000 MeV
+/run/beamOn 10000000
+/gun/energy 10000 MeV
+/run/beamOn 10000000

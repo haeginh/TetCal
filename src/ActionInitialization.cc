@@ -31,8 +31,10 @@
 #include "ActionInitialization.hh"
 #include "GpsPrimaryGeneratorAction.hh"
 
-ActionInitialization::ActionInitialization(TETModelImport* _tetData, G4String _output, G4Timer* _init, G4bool _useGPS)
- : G4VUserActionInitialization(), tetData(_tetData), output(_output), initTimer(_init), useGPS(_useGPS)
+ActionInitialization::ActionInitialization(TETModelImport* _tetData, G4String _output, G4Timer* _init,
+										   G4bool _useGPS, G4int _splitMaterialID)
+ : G4VUserActionInitialization(), tetData(_tetData), output(_output), initTimer(_init),
+   useGPS(_useGPS), splitMaterialID(_splitMaterialID)
 {}
 
 ActionInitialization::~ActionInitialization()
@@ -49,6 +51,5 @@ void ActionInitialization::Build() const
 	if(useGPS) SetUserAction(new GpsPrimaryGeneratorAction());
 	else SetUserAction(new PrimaryGeneratorAction(tetData));
 	SetUserAction(new RunAction(tetData, output, initTimer, useGPS));
-	SetUserAction(new TETSteppingAction);
+	SetUserAction(new TETSteppingAction(tetData, splitMaterialID));
 }  
-

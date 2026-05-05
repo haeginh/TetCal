@@ -112,7 +112,8 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 	if(!primary) return;
 	primaryParticle = primary->GetParticleGun()->GetParticleDefinition()->GetParticleName();
 	primarySourceName = primary->GetSourceName();
-	primaryEnergy = primary->GetParticleGun()->GetParticleEnergy();
+	if(primary->IsSpectrum()) primarySourceName += " " + primary->GetSpectrumName();
+	primaryEnergy = primary->GetPrimaryEnergyForRun();
 	isExternal = primary-> GetSourceGenerator()->IsExternal();
 	if(isExternal) beamArea = primary->GetExternalBeamGenerator()->GetBeamArea();
 	spec = primary->IsSpectrum();
@@ -464,5 +465,4 @@ G4double RunAction::GetRadiationWeighting(G4ParticleDefinition* _particle, G4dou
 	return weightingFactor;
 
 }
-
 

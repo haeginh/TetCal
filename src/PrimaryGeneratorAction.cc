@@ -35,7 +35,7 @@
 
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(TETModelImport* _tetData)
-:tetData(_tetData), fSourceGenerator(0), spectrumSource(false)
+:tetData(_tetData), fSourceGenerator(0), spectrumSource(false), meanSpectrumEnergy(0.)
 {
 	fParticleGun = new G4ParticleGun(1);
 	fMessenger   = new PrimaryMessenger(this);
@@ -57,8 +57,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	fParticleGun->SetParticlePosition(position);
     fParticleGun->SetParticleMomentumDirection(direction);
 	if (spectrumSource){
-		fParticleGun->SetParticleEnergy(samplingE.lower_bound(G4UniformRand())->second);
-		// G4cout<<samplingE.lower_bound(G4UniformRand())->second<<G4endl;
+		auto it = samplingE.lower_bound(G4UniformRand());
+		if(it == samplingE.end()) it = std::prev(samplingE.end());
+		fParticleGun->SetParticleEnergy(it->second);
 	}
 	
 	fParticleGun->GeneratePrimaryVertex(anEvent);
@@ -75,7 +76,10 @@ void PrimaryGeneratorAction::SetSpectrumSource(G4String inputFile)
 		return;
 	}
 
-	spectrumSource = true;
+	spectrumSource = false;
+	samplingE.clear();
+	meanSpectrumEnergy = 0.;
+	currentSpec = inputFile;
 
 	std::string::size_type idx = inputFile.rfind('.');
 	if (idx != std::string::npos) {
@@ -108,12 +112,61 @@ void PrimaryGeneratorAction::SetSpectrumSource(G4String inputFile)
 				pdfVec.push_back(std::make_pair(energy*MeV, pdf));
 				pdfTot += pdf;
 			}
-			samplingE.clear();
 			G4double cdf(0);
+			G4double weightedEnergy(0.);
 			for (const auto& pair : pdfVec) {
 				cdf += pair.second / pdfTot; // Cumulative distribution
 				samplingE[cdf] = pair.first; // Store energy at CDF
+				weightedEnergy += pair.first * pair.second;
 			}
+			if(!samplingE.empty()) samplingE[1.0] = pdfVec.back().first;
+			meanSpectrumEnergy = weightedEnergy / pdfTot;
+			fParticleGun->SetParticleEnergy(meanSpectrumEnergy);
+			spectrumSource = true;
+		}
+		else if (extension == "csv" || extension == "CSV") {
+			std::string line;
+			std::getline(file, line);
+			G4double weightedEnergy(0.);
+			G4int lineNumber = 1;
+			while (std::getline(file, line)) {
+				++lineNumber;
+				if(line.empty()) continue;
+				std::istringstream iss(line);
+				std::string energyToken, fluenceToken;
+				if(!std::getline(iss, energyToken, ',') || !std::getline(iss, fluenceToken, ',')) {
+					G4Exception("PrimaryGeneratorAction::SetSpectrumSource",
+								"InvalidSpectrumLine", FatalException,
+								("Invalid spectrum row: " + inputFile + ":" + std::to_string(lineNumber)).c_str());
+					return;
+				}
+				G4double energy = std::stod(energyToken) * keV;
+				G4double fluence = std::stod(fluenceToken);
+				if(energy < 0. || fluence < 0.) {
+					G4Exception("PrimaryGeneratorAction::SetSpectrumSource",
+								"InvalidSpectrumValue", FatalException,
+								("Negative energy or fluence: " + inputFile + ":" + std::to_string(lineNumber)).c_str());
+					return;
+				}
+				pdfVec.push_back(std::make_pair(energy, fluence));
+				pdfTot += fluence;
+				weightedEnergy += energy * fluence;
+			}
+			if(pdfVec.empty() || pdfTot <= 0.) {
+				G4Exception("PrimaryGeneratorAction::SetSpectrumSource",
+							"InvalidSpectrum", FatalException,
+							("Spectrum has no positive fluence: " + inputFile).c_str());
+				return;
+			}
+			G4double cdf(0.);
+			for (const auto& pair : pdfVec) {
+				cdf += pair.second / pdfTot;
+				samplingE[cdf] = pair.first;
+			}
+			samplingE[1.0] = pdfVec.back().first;
+			meanSpectrumEnergy = weightedEnergy / pdfTot;
+			fParticleGun->SetParticleEnergy(meanSpectrumEnergy);
+			spectrumSource = true;
 		}
 		// 다른 파일은 다음에 작성 (아직 베타랑 오제전자를 자세히 해야할지 결정하지 못함)
 		else{
@@ -122,5 +175,7 @@ void PrimaryGeneratorAction::SetSpectrumSource(G4String inputFile)
 						("Unknown file extension: " + inputFile).c_str());
 			return;
 		}
+		G4cout << "Spectrum source was set: " << inputFile
+			   << " / mean energy = " << meanSpectrumEnergy/keV << " keV" << G4endl;
 	}
 }
