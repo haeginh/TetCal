@@ -7,28 +7,8 @@
 # Initialize
 /run/initialize
 
-# external irradiation
-/gun/particle e-
-/external/dir AP
-/gun/energy 0.1 MeV
-/run/beamOn 10000
-
-# internal source
-/internal/surface 9500
-/gun/energy 0.01 MeV
-/run/beamOn 10000
-
-/internal/surface "9700 9900"
-/gun/energy 0.01 MeV
-/run/beamOn 10000
-
-/gun/particle e-
-/internal/source 9500
-/gun/energy 0.001 MeV
-/run/beamOn 10000
-
 /gun/particle gamma
-/internal/source 13200
-/spec/RADcodes X G
-/spec/input I-131.RAD
-/run/beamOn 10000
+/external/dir AP
+/tracking/split 100
+/external/spec ./spectrums/Xray_Spectrum_70kVp_0.5mmAl_15percentRipple.csv
+/run/beamOn 5000000
