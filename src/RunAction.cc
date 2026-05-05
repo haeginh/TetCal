@@ -43,6 +43,10 @@ RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init,
 
 	runTimer = new G4Timer;
 	std::ofstream ofs(outputFile);
+	if(!ofs.is_open()){
+		G4Exception("RunAction::RunAction","",FatalErrorInArgument,
+				G4String("      Cannot open output file: " + outputFile).c_str());
+	}
 
 	if(tetData->DoseWasOrganized()){
 		massMap = tetData->GetDoseMassMap();
@@ -155,10 +159,17 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 
 	// print by std::ofstream
 	std::ofstream ofs(outputFile.c_str(), std::ios::app);
-	if(useGPS||spec)         PrintLineGPS(ofs);
+	if(!ofs.is_open()){
+		G4Exception("RunAction::EndOfRunAction","",FatalErrorInArgument,
+				G4String("      Cannot open output file for append: " + outputFile).c_str());
+	}
+	if(useGPS)         PrintLineGPS(ofs);
+	else if(spec)      PrintLineSpectrum(ofs);
 	else if(isExternal)PrintLineExternal(ofs);
 	else               PrintLineInternal(ofs);
+	ofs.flush();
 	ofs.close();
+	G4cout << "Run #" << runID << " result was written to " << outputFile << G4endl;
 
 	initTimer->Start();
 }
@@ -371,6 +382,23 @@ void RunAction::PrintLineGPS(std::ostream &out)
 	out<<G4endl;
 }
 
+void RunAction::PrintLineSpectrum(std::ostream &out)
+{
+	using namespace std;
+
+	out << runID << "\t" <<numOfEvent<<"\t"<< initTimer->GetRealElapsed() << "\t"<< runTimer->GetRealElapsed()<<"\t"
+		<< primaryParticle << "\t" <<primarySourceName<< "\t" << primaryEnergy/MeV << "\t";
+
+	for(auto itr:doses){
+        out << itr.second.first/(joule/kg)*1e12 <<"\t" << itr.second.second << "\t";
+    }
+    if(tetData->DoseWasOrganized()) {
+        out<<effective_DRF.first/(joule/kg)*1e12 << "\t" <<effective_DRF.second <<"\t";
+        out<<effective.first/(joule/kg)*1e12 << "\t" <<effective.second ;
+    }
+	out<<G4endl;
+}
+
 void RunAction::PrintLineExternal(std::ostream &out)
 {
 	// Print run result
@@ -465,4 +493,3 @@ G4double RunAction::GetRadiationWeighting(G4ParticleDefinition* _particle, G4dou
 	return weightingFactor;
 
 }
-

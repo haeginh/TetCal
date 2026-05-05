@@ -72,6 +72,7 @@ public:
 	void PrintResultExternal(std::ostream &out);
 	void PrintResultInternal(std::ostream &out);
 	void PrintLineGPS(std::ostream &out);
+	void PrintLineSpectrum(std::ostream &out);
 	void PrintLineExternal(std::ostream &out);
 	void PrintLineInternal(std::ostream &out);
 
@@ -103,7 +104,6 @@ private:
 };
 
 #endif
-
 
 
 
