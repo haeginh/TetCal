@@ -4,6 +4,9 @@
 # Set the number of threads for multi-threading mode
 /run/numberOfThreads  1
 
+# Enable bremsstrahlung photon splitting in the phantom box region
+/process/em/setSecBiasing eBrem phantomBoxRegion 100 100 MeV
+
 # Initialize
 /run/initialize
 

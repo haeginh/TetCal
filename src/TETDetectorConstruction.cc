@@ -30,6 +30,7 @@
 
 #include "TETDetectorConstruction.hh"
 #include "DRFScorer.hh"
+#include "G4Region.hh"
 #include "G4VisAttributes.hh"
 
 TETDetectorConstruction::TETDetectorConstruction(TETModelImport* _tetData, G4bool _useGPS)
@@ -78,6 +79,8 @@ void TETDetectorConstruction::SetupWorldGeometry()
 										            phantomSize.z()/2 + 1.*cm);
 
 	container_logic = new G4LogicalVolume(containerSolid, vacuum, "phantomLogical");
+	G4Region* phantomRegion = new G4Region("phantomBoxRegion");
+	phantomRegion->AddRootLogicalVolume(container_logic);
 
 	G4ThreeVector center;
 	if(useGPS) center = (phantomBoxMax+phantomBoxMin)*0.5;
