@@ -39,7 +39,11 @@
 #include "PrimaryMessenger.hh"
 #include "SourceGenerator.hh"
 
+#include <map>
+#include <vector>
+
 class TETModelImport;
+class G4ParticleDefinition;
 
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
@@ -51,6 +55,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
   public:
     virtual void   GeneratePrimaries(G4Event* anEvent);
     void SetSpectrumSource(G4String inputFile);
+    void SetIAEASpectrumSource(G4String inputCommand);
 
     void SetExternalBeam(){
        if(!fExternal) fExternal = new ExternalBeam();
@@ -79,8 +84,34 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     SurfaceSource*  GetSurfaceSourceGenerator() const {return fSurface;}
     G4String        GetSourceName() const {return sourceName;}
     G4bool          IsSpectrum() const {return spectrumSource;}
+    G4bool          IsIAEASpectrum() const {return iaeaSpectrumSource;}
 
   private:
+    struct DiscreteEmission {
+        G4ParticleDefinition* particle;
+        G4double energy;
+        G4double yield;
+    };
+
+    struct BetaInterval {
+        G4ParticleDefinition* particle;
+        G4double energy0;
+        G4double energy1;
+        G4double weight;
+    };
+
+    std::vector<G4String> SplitCommand(G4String input) const;
+    G4ParticleDefinition* GetParticleDefinition(G4String particleName) const;
+    void LoadIAEADiscrete(G4String inputFile);
+    void LoadIAEABeta(G4String inputFile);
+    void GenerateIAEADecay(G4Event* anEvent);
+    void GenerateOnePrimary(G4Event* anEvent,
+                            const G4ThreeVector& position,
+                            G4ParticleDefinition* particle,
+                            G4double energy);
+    G4int SampleMultiplicity(G4double yield) const;
+    G4double SampleBetaEnergy(G4ParticleDefinition* particle) const;
+
     TETModelImport*      tetData;
     G4ParticleGun*       fParticleGun;
     PrimaryMessenger*    fMessenger;
@@ -90,9 +121,12 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     SurfaceSource*       fSurface;
     G4String             sourceName;
     G4bool               spectrumSource;
+    G4bool               iaeaSpectrumSource;
     std::map<G4double, G4double> samplingE;
     std::vector<G4String> RADcodes;
+    std::vector<DiscreteEmission> iaeaDiscreteEmissions;
+    std::vector<BetaInterval>     iaeaBetaIntervals;
+    std::map<G4ParticleDefinition*, G4double> iaeaBetaYield;
 };
 
 #endif
-

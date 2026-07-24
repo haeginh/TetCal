@@ -1,0 +1,18 @@
+/tetcal/phantom phantoms/MRCP_AM_posture4_mod
+/tetcal/basePhantom phantoms/MRCP_AM
+/tetcal/addPatientTet phantoms/MRCP_AM
+
+/tetcal/eyeImportance true
+/tetcal/eyeImportanceRadii 94.491 80.409 66.327 52.246 38.164 24.082 10
+/tetcal/eyeImportanceValues 1 1 1 1 1 1 1 1
+/tetcal/eyeImportanceParticle gamma
+/tetcal/eyeImportanceTune true
+/tetcal/eyeImportanceTuneTolerance 0.2
+/tetcal/eyeImportanceTuneMaxIterations 10
+
+/run/numberOfThreads 4
+/run/initialize
+
+/internal/source -108800 -100900 -100910 -101000 -101010 -101100 -101110 -101200 -101210
+/spec/IAEA TetCal/iaea_spectra Tc-99m
+/run/beamOn 100000

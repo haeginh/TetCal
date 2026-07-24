@@ -58,8 +58,8 @@
 // This is UserDetectorConstruction class that defines geometry
 // -- Construct: construct Geometry by three methods listed below.
 //  └-- SetupWorldGeometry: Defines the world box (10*10*10 m3) and,
-//                          phantom container which has 10 cm-margins from
-//                          the bounding box of phantom
+//                          phantom container which has 5 cm-margins from
+//                          the bounding box of all TET models
 //  └-- ConstructPhantom: Define the phantom geometry by using
 //                        G4PVParameterised class
 //  └-- PrintPhantomInformation: Print overall phantom information
@@ -72,7 +72,7 @@
 class TETDetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
-	TETDetectorConstruction(TETModelImport* tetData, G4bool useGPS);
+	TETDetectorConstruction(TETModelImport* tetData, G4bool useGPS, G4bool visSkinOnly=false);
 	virtual ~TETDetectorConstruction();
 
 	virtual G4VPhysicalVolume* Construct();
@@ -94,6 +94,7 @@ private:
 	G4LogicalVolume*   tetLogic;
 
 	G4bool useGPS;
+	G4bool visSkinOnly;
 };
 
 #endif

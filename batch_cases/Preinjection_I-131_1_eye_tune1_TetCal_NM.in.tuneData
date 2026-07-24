@@ -1,0 +1,5 @@
+iteration	cell	radius_cm	track_enter	weighted_enter	current_importance	suggested_importance	relative_difference	max_relative_difference	converged
+1	1	55.257	4150	1456.75	4	4	0	0.10619469	yes
+1	2	40.171	5143	653.03764	13.843	15.313053	0.10619469	0.10619469	yes
+1	3	25.086	3060	100.121	55.373	61.252212	0.10617471	0.10619469	yes
+1	4	10	653	5.9957019	221.492	245.00885	0.10617471	0.10619469	yes

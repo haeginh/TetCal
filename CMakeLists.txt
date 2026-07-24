@@ -29,6 +29,9 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 #
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
+list(APPEND sources ${PROJECT_SOURCE_DIR}/src/EyeImportanceParallelWorld.cc)
+list(APPEND sources ${PROJECT_SOURCE_DIR}/src/EyeImportanceTuning.cc)
+list(REMOVE_DUPLICATES sources)
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
@@ -53,4 +56,3 @@ foreach(_script ${TETCAL_SCRIPTS})
     COPYONLY
     )
 endforeach()
-

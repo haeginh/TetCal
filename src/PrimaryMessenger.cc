@@ -49,6 +49,7 @@ PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
 	fSpectrumDir = new G4UIdirectory("/spec/");
 	fSpectrumSourceCmd = new G4UIcmdWithAString("/spec/input", this);
 	fRadCodesCmd = new G4UIcmdWithAString("/spec/RADcodes", this);
+	fIAEASpectrumCmd = new G4UIcmdWithAString("/spec/IAEA", this);
 }
 
 PrimaryMessenger::~PrimaryMessenger() {
@@ -56,6 +57,11 @@ PrimaryMessenger::~PrimaryMessenger() {
 	delete fBeamDirCmd;
 	delete fInternalDir;
 	delete fSourceOrganCmd;
+	delete fSurfaceSourceCmd;
+	delete fSpectrumDir;
+	delete fSpectrumSourceCmd;
+	delete fRadCodesCmd;
+	delete fIAEASpectrumCmd;
 }
 
 void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
@@ -103,5 +109,7 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 	else if(command == fRadCodesCmd){
 		fPrimary->SetRadCodes(newValue);
 	}
+	else if(command == fIAEASpectrumCmd){
+		fPrimary->SetIAEASpectrumSource(newValue);
+	}
 }
-

@@ -1,0 +1,15 @@
+/tetcal/phantom ../phantoms/MRCP_AM_posture1_mod
+/tetcal/addTet ../models/merged/L_block_shield
+/tetcal/addTet ../models/merged/L_block_vial
+
+/tetcal/eyeImportance true
+/tetcal/eyeImportanceRadii 55.257 40.171 25.086 10
+/tetcal/eyeImportanceValues 1 1 1.892 4.852 19.408
+/tetcal/eyeImportanceParticle gamma
+
+/run/numberOfThreads 1
+/run/initialize
+
+/internal/source -4
+/spec/IAEA iaea_spectra I-131
+/run/beamOn 100000

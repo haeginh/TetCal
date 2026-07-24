@@ -31,7 +31,8 @@
 #ifndef PSEnergyDeposit_h
 #define PSEnergyDeposit_h 1
 
-#include "G4PSEnergyDeposit.hh"
+#include "G4THitsMap.hh"
+#include "G4VPrimitiveScorer.hh"
 #include "TETModelImport.hh"
 
 // *********************************************************************
@@ -40,18 +41,26 @@
 //              given by Parameterisation geometry.
 // *********************************************************************
 
-class PSEnergyDeposit : public G4PSEnergyDeposit
+class PSEnergyDeposit : public G4VPrimitiveScorer
 {
    public:
-      PSEnergyDeposit(G4String name,TETModelImport* _tetData);
+      PSEnergyDeposit(G4String name,TETModelImport* _tetData, G4bool scoreByTet = false);
       virtual ~PSEnergyDeposit();
 
   protected:
+      virtual G4bool ProcessHits(G4Step*, G4TouchableHistory*);
       virtual G4int GetIndex(G4Step*);
+
+  public:
+      virtual void Initialize(G4HCofThisEvent*);
+      virtual void clear();
+      virtual void PrintAll();
 
   private:
       TETModelImport* tetData;
+      G4bool scoreByTet;
+      G4int HCID;
+      G4THitsMap<G4double>* EvtMap;
 };
 
 #endif
-

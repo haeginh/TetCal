@@ -1,0 +1,8 @@
+/tetcal/phantom ../phantoms/MRCP_AM_posture3_mod
+/tetcal/addTet ../models/merged/syringe_assembly_F18
+/tetcal/addTet ../models/merged/syringe
+/run/numberOfThreads 1
+/run/initialize
+/internal/source -4
+/spec/IAEA iaea_spectra F-18
+/run/beamOn 10000

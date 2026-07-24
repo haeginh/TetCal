@@ -30,11 +30,12 @@
 
 #include "TETDetectorConstruction.hh"
 #include "DRFScorer.hh"
+#include "G4PSEnergyDeposit.hh"
 #include "G4Region.hh"
 #include "G4VisAttributes.hh"
 
-TETDetectorConstruction::TETDetectorConstruction(TETModelImport* _tetData, G4bool _useGPS)
-:worldPhysical(0), container_logic(0), tetData(_tetData), tetLogic(0), useGPS(_useGPS)
+TETDetectorConstruction::TETDetectorConstruction(TETModelImport* _tetData, G4bool _useGPS, G4bool _visSkinOnly)
+:worldPhysical(0), container_logic(0), tetData(_tetData), tetLogic(0), useGPS(_useGPS), visSkinOnly(_visSkinOnly)
 {
 	// initialisation of the variables for phantom information
 	phantomSize     = tetData -> GetPhantomSize();
@@ -45,7 +46,6 @@ TETDetectorConstruction::TETDetectorConstruction(TETModelImport* _tetData, G4boo
 
 TETDetectorConstruction::~TETDetectorConstruction()
 {
-	delete tetData;
 }
 
 G4VPhysicalVolume* TETDetectorConstruction::Construct()
@@ -72,11 +72,11 @@ void TETDetectorConstruction::SetupWorldGeometry()
 	worldPhysical
 	  = new G4PVPlacement(0,G4ThreeVector(), worldLogical,"worldPhysical", 0, false,0,false);
 
-	// Define the phantom container (10-cm margins from the bounding box of phantom)
+	// Define the phantom container (5-cm margins from the bounding box of all TET models)
 	//
-	G4Box* containerSolid = new G4Box("phantomBox", phantomSize.x()/2 + 1.*cm,
-										            phantomSize.y()/2 + 1.*cm,
-										            phantomSize.z()/2 + 1.*cm);
+	G4Box* containerSolid = new G4Box("phantomBox", phantomSize.x()/2 + 5.*cm,
+										            phantomSize.y()/2 + 5.*cm,
+										            phantomSize.z()/2 + 5.*cm);
 
 	container_logic = new G4LogicalVolume(containerSolid, vacuum, "phantomLogical");
 	G4Region* phantomRegion = new G4Region("phantomBoxRegion");
@@ -107,7 +107,7 @@ void TETDetectorConstruction::ConstructPhantom()
 	// physical volume (phantom) constructed as parameterised geometry
 	new G4PVParameterised("wholePhantom",tetLogic,container_logic,
 			              kUndefined,tetData->GetNumTetrahedron(),
-						  new TETParameterisation(tetData));
+						  new TETParameterisation(tetData, visSkinOnly));
 }
 
 void TETDetectorConstruction::ConstructSDandField()
@@ -123,6 +123,7 @@ void TETDetectorConstruction::ConstructSDandField()
 
 	// scorer for energy depositon in each organ
 	MFDet->RegisterPrimitive(new PSEnergyDeposit("eDep", tetData));
+	MFDet->RegisterPrimitive(new PSEnergyDeposit("eDepByTet", tetData, true));
 	MFDet->RegisterPrimitive(new DRFScorer("DRF", tetData));
 
 	// attach the detector to logical volume for parameterised geometry (phantom geometry)

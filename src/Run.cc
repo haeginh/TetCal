@@ -31,16 +31,32 @@
 #include "../include/Run.hh"
 
 Run::Run(TETModelImport* tetData)
-:G4Run()
+:G4Run(), fCollID_EyeTrackEnter(-1), fCollID_EyeTrackEnterW(-1),
+ fCollID_ShieldTrackEnter(-1), fCollID_ShieldTrackEnterW(-1),
+ fCollID_ShieldTrackExit(-1), fCollID_ShieldTrackExitW(-1),
+ primaryE(-1.), beamArea(-1.), isExternal(false), useSpec(false), useIAEASpec(false),
+ shieldTrackEnter(0.), shieldTrackEnterWeighted(0.), shieldTrackExit(0.), shieldTrackExitWeighted(0.)
 {
-	fCollID
-	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/eDep");
-	fCollID_DRF
-	= G4SDManager::GetSDMpointer()->GetCollectionID("PhantomSD/DRF");
+	G4SDManager* sdManager = G4SDManager::GetSDMpointer();
+	fCollID = sdManager->GetCollectionID("PhantomSD/eDep");
+	fCollID_Hands = sdManager->GetCollectionID("PhantomSD/eDepByTet");
+	fCollID_DRF = sdManager->GetCollectionID("PhantomSD/DRF");
+	if(sdManager->FindSensitiveDetector("EyeImportanceSD", false)){
+		fCollID_EyeTrackEnter = sdManager->GetCollectionID("EyeImportanceSD/TrackEnter");
+		fCollID_EyeTrackEnterW = sdManager->GetCollectionID("EyeImportanceSD/TrackEnterW");
+	}
+	if(sdManager->FindSensitiveDetector("ShieldImportanceSD", false)){
+		fCollID_ShieldTrackEnter = sdManager->GetCollectionID("ShieldImportanceSD/TrackEnter");
+		fCollID_ShieldTrackEnterW = sdManager->GetCollectionID("ShieldImportanceSD/TrackEnterW");
+		fCollID_ShieldTrackExit = sdManager->GetCollectionID("ShieldImportanceSD/TrackExit");
+		fCollID_ShieldTrackExitW = sdManager->GetCollectionID("ShieldImportanceSD/TrackExitW");
+	}
 
 	organ2dose = tetData->GetDoseMap();
+	handTet2dose = tetData->GetHandTetDoseMap();
 
 	auto massMap  = tetData->GetMassMap();
+	auto handDoseMassMap = tetData->GetHandDoseMassMap();
 	auto rbmRatio = tetData->GetRBMratio();
 	auto bsRatio  = tetData->GetBSratio();
 
@@ -56,6 +72,7 @@ Run::Run(TETModelImport* tetData)
 	edepMap[-2]={0.,0.};
 	if(!doseOrganized) for(auto itr:massMap) edepMap[itr.first] = {0.,0.};
 	else               for(auto itr:organ2dose) edepMap[itr.first] = {0.,0.};
+	for(auto itr:handDoseMassMap) edepMap[itr.first] = {0.,0.};
 }
 
 Run::~Run()
@@ -70,6 +87,45 @@ void Run::RecordEvent(const G4Event* event)
 	G4HCofThisEvent* HCE = event->GetHCofThisEvent();
 	if(!HCE) return;
 
+	if(fCollID_EyeTrackEnter >= 0){
+		G4THitsMap<G4double>* eyeMap =
+				static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID_EyeTrackEnter));
+		if(eyeMap){
+			for(auto itr : *eyeMap->GetMap()){
+				eyeTrackEnterMap[itr.first] += *itr.second;
+			}
+		}
+	}
+	if(fCollID_EyeTrackEnterW >= 0){
+		G4THitsMap<G4double>* eyeMapW =
+				static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID_EyeTrackEnterW));
+		if(eyeMapW){
+			for(auto itr : *eyeMapW->GetMap()){
+				eyeTrackEnterWeightedMap[itr.first] += *itr.second;
+			}
+		}
+	}
+	if(fCollID_ShieldTrackEnter >= 0){
+		G4THitsMap<G4double>* map =
+				static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID_ShieldTrackEnter));
+		if(map) for(auto itr : *map->GetMap()) shieldTrackEnter += *itr.second;
+	}
+	if(fCollID_ShieldTrackEnterW >= 0){
+		G4THitsMap<G4double>* map =
+				static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID_ShieldTrackEnterW));
+		if(map) for(auto itr : *map->GetMap()) shieldTrackEnterWeighted += *itr.second;
+	}
+	if(fCollID_ShieldTrackExit >= 0){
+		G4THitsMap<G4double>* map =
+				static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID_ShieldTrackExit));
+		if(map) for(auto itr : *map->GetMap()) shieldTrackExit += *itr.second;
+	}
+	if(fCollID_ShieldTrackExitW >= 0){
+		G4THitsMap<G4double>* map =
+				static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID_ShieldTrackExitW));
+		if(map) for(auto itr : *map->GetMap()) shieldTrackExitWeighted += *itr.second;
+	}
+
 	//RBM doses
 	G4THitsMap<G4double>* evtMap_DRF =
 			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID_DRF));
@@ -83,6 +139,23 @@ void Run::RecordEvent(const G4Event* event)
 	G4THitsMap<G4double>* evtMap =
 			static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID));
 	auto doseMap = *evtMap->GetMap();
+
+	if(!handTet2dose.empty()){
+		G4THitsMap<G4double>* evtMap_Hands =
+				static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fCollID_Hands));
+		auto handDoseMap = *evtMap_Hands->GetMap();
+		std::map<G4int, G4double> handEdepSum;
+		for(auto itr : handDoseMap){
+			auto doseIDs = handTet2dose.find(itr.first);
+			if(doseIDs == handTet2dose.end()) continue;
+			for(auto doseID : doseIDs->second) handEdepSum[doseID] += *itr.second;
+		}
+		for(auto edep : handEdepSum){
+			edepMap[edep.first].first += edep.second;
+			edepMap[edep.first].second += edep.second * edep.second;
+		}
+	}
+
 	if(!doseOrganized){
 		for(auto itr:doseMap){
 			edepMap[itr.first].first += *itr.second;
@@ -135,12 +208,23 @@ void Run::Merge(const G4Run* run)
 	beamArea = localRun->beamArea;
 	isExternal = localRun->isExternal;
 	useSpec = localRun->useSpec;
+	useIAEASpec = localRun->useIAEASpec;
 
 	for(auto itr : localMap){
 		edepMap[itr.first].first  += itr.second.first;
 		edepMap[itr.first].second += itr.second.second;
 	}
 
+	for(auto itr : localRun->eyeTrackEnterMap){
+		eyeTrackEnterMap[itr.first] += itr.second;
+	}
+	for(auto itr : localRun->eyeTrackEnterWeightedMap){
+		eyeTrackEnterWeightedMap[itr.first] += itr.second;
+	}
+	shieldTrackEnter += localRun->shieldTrackEnter;
+	shieldTrackEnterWeighted += localRun->shieldTrackEnterWeighted;
+	shieldTrackExit += localRun->shieldTrackExit;
+	shieldTrackExitWeighted += localRun->shieldTrackExitWeighted;
+
 	G4Run::Merge(run);
 }
-

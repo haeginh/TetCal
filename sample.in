@@ -1,4 +1,13 @@
 # Set the verbose
+# Set TET model file prefixes before /run/initialize.
+# The phantom prefix reads only [prefix].node.
+# Other base phantom files are read as MRCP_AM.ele/.material/.dose/.RBMnBS/.DRF
+# from the same directory as [prefix].node.
+# Extra TET prefixes read only .ele/.node/.material and can be repeated.
+#/tetcal/phantom ../phantoms/MRCP_AM_posture1_mod
+#/tetcal/addTet ./parts/apron
+#/tetcal/addTet ./parts/shield
+
 /run/verbose 2
 
 # Set the number of threads for multi-threading mode
@@ -32,6 +41,9 @@
 
 /gun/particle gamma
 /internal/source 13200
+# Per-decay isotope source from IAEA LiveChart files generated in iaea_spectra/.
+# Use instead of /spec/RADcodes and /spec/input when running isotope spectra.
+#/spec/IAEA iaea_spectra I-131
 /spec/RADcodes X G
 /spec/input I-131.RAD
 /run/beamOn 10000

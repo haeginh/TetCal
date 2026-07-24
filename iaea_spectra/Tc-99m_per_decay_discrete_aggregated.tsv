@@ -1,0 +1,69 @@
+nuclide	particle	radiation_code	shell	energy_keV	energy_MeV	yield_per_decay	intensity_percent	source
+Tc-99m	electron	CE	M	1.6216	0.0016216	0.87516	87.516	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	N	2.0986	0.0020986	0.115335	11.5335	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	O	2.16433	0.00216433	2.5146e-06	0.00025146	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	AU	L	2.306	0.002306	0.103932035194	10.3932035194	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	AU	L	2.437	0.002437	1.42595424145e-05	0.00142595424145	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	AU	KLL	15.319	0.015319	0.0142566594168	1.42566594168	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	AU	KLL	16.049	0.016049	1.71420605211e-06	0.000171420605211	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	AU	KLX	17.905	0.017905	0.00574543374496	0.574543374496	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	AU	K	17.975	0.017975	0.0205823392	2.05823392	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	AU	KLX	18.786	0.018786	7.01110275313e-07	7.01110275313e-05	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	AU	K	18.864	0.018864	2.4869701404e-06	0.00024869701404	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	AU	KXY	20.472	0.020472	0.000580246038263	0.0580246038263	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	AU	KXY	21.502	0.021502	7.16538129782e-08	7.16538129782e-06	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	K	67.477	0.067477	1.2173e-05	0.0012173	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	L	86.37	0.08637	2.74281e-06	0.000274281	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	M	89.008	0.089008	5.1541e-07	5.1541e-05	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	N	89.519	0.089519	7.7182e-08	7.7182e-06	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	O	89.59188	0.08959188	1.79228e-09	1.79228e-07	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	K	119.461	0.119461	0.087932	8.7932	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	K	121.58	0.12158	0.0064824	0.64824	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	L	137.463	0.137463	0.01068	1.068	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	L	139.582	0.139582	0.00201576	0.201576	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	M	139.96	0.13996	0.0019402	0.19402	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	N	140.437	0.140437	0.00030705	0.030705	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	O	140.50273	0.14050273	1.9758e-05	0.0019758	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	M	142.079	0.142079	0.000394716	0.0394716	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	N	142.556	0.142556	5.9718e-05	0.0059718	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	O	142.62173	0.14262173	2.37762e-06	0.000237762	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	K	210.677	0.210677	3.4891e-09	3.4891e-07	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	L	229.57	0.22957	4.6805e-10	4.6805e-08	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	M	232.208	0.232208	8.6802e-11	8.6802e-09	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	N	232.719	0.232719	1.3616e-11	1.3616e-09	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	O	232.79188	0.23279188	5.957e-13	5.957e-11	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	K	300.277	0.300277	1.4541e-08	1.4541e-06	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	L	319.17	0.31917	1.84186e-09	1.84186e-07	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	M	321.808	0.321808	3.3929e-10	3.3929e-08	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	N	322.319	0.322319	5.42864e-11	5.42864e-09	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	electron	CE	O	322.39188	0.32239188	2.52044e-12	2.52044e-10	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		2.1726	0.0021726	7.07e-11	7.07e-09	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		2.586	0.002586	0.0044999264064	0.44999264064	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		2.737	0.002737	6.76607595453e-07	6.76607595453e-05	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		18.25	0.01825	0.0211751271706	2.11751271706	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		18.367	0.018367	0.0402645506192	4.02645506192	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		19.15	0.01915	2.78047020177e-06	0.000278047020177	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		19.279	0.019279	5.27603453846e-06	0.000527603453846	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		20.695	0.020695	0.0107015397325	1.07015397325	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		20.82	0.02082	0.0123923830102	1.23923830102	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		21.003	0.021003	0.00169084327773	0.169084327773	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		21.736	0.021736	1.41786163457e-06	0.000141786163457	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		21.875	0.021875	1.64755521938e-06	0.000164755521938	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		22.072	0.022072	2.29693584801e-07	2.29693584801e-05	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		89.6	0.0896	1.04e-05	0.00104	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		140.511	0.140511	0.89	89	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		142.63	0.14263	0.000222	0.0222	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		232.8	0.2328	8.51e-08	8.51e-06	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	gamma	G		322.4	0.3224	9.694e-07	9.694e-05	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	xray	X	L	2.586	0.002586	0.0044999264064	0.44999264064	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	xray	X	L	2.737	0.002737	6.76607595453e-07	6.76607595453e-05	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	xray	X	KA2	18.25	0.01825	0.0211751271706	2.11751271706	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	xray	X	KA1	18.367	0.018367	0.0402645506192	4.02645506192	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	xray	X	KA2	19.15	0.01915	2.78047020177e-06	0.000278047020177	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	xray	X	KA1	19.279	0.019279	5.27603453846e-06	0.000527603453846	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	xray	X	KpB1	20.695	0.020695	0.0107015397325	1.07015397325	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	xray	X	KB	20.82	0.02082	0.0123923830102	1.23923830102	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	xray	X	KpB2	21.003	0.021003	0.00169084327773	0.169084327773	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	xray	X	KpB1	21.736	0.021736	1.41786163457e-06	0.000141786163457	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	xray	X	KB	21.875	0.021875	1.64755521938e-06	0.000164755521938	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
+Tc-99m	xray	X	KpB2	22.072	0.022072	2.29693584801e-07	2.29693584801e-05	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy

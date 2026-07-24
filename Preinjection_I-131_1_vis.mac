@@ -1,0 +1,8 @@
+# Execute this after starting TetCal in interactive visualization mode.
+# The geometry is supplied on the TetCal command line.
+/internal/source -4
+/spec/IAEA iaea_spectra I-131
+# The full phantom has millions of tetrahedra and I-131 can create many tracks.
+# Keep trajectories off for stable visual checks; geometry remains visible.
+/tracking/storeTrajectory 0
+/run/beamOn 1

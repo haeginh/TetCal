@@ -68,9 +68,17 @@ public:
     G4double GetBeamArea()     {return beamArea;}
     G4bool   GetIsExternal()   {return isExternal;}
     G4bool   GetUseSpec()      {return useSpec;}
+    G4bool   GetUseIAEASpec()  {return useIAEASpec;}
+    const std::map<G4int, G4double>& GetEyeTrackEnterMap() const { return eyeTrackEnterMap; }
+    const std::map<G4int, G4double>& GetEyeTrackEnterWeightedMap() const { return eyeTrackEnterWeightedMap; }
+    G4double GetShieldTrackEnter() const { return shieldTrackEnter; }
+    G4double GetShieldTrackEnterWeighted() const { return shieldTrackEnterWeighted; }
+    G4double GetShieldTrackExit() const { return shieldTrackExit; }
+    G4double GetShieldTrackExitWeighted() const { return shieldTrackExitWeighted; }
 
 
-    void SetPrimary(G4String _primary, G4String _dir, G4double _primaryE, G4double _beamArea, G4bool _isExternal, G4bool _useSpec)
+    void SetPrimary(G4String _primary, G4String _dir, G4double _primaryE, G4double _beamArea,
+                    G4bool _isExternal, G4bool _useSpec, G4bool _useIAEASpec)
     {
     	primary = _primary;
     	dir = _dir;
@@ -78,22 +86,38 @@ public:
     	beamArea = _beamArea;
     	isExternal = _isExternal;
         useSpec = _useSpec;
+        useIAEASpec = _useIAEASpec;
     }
 
 private:
     EDEPMAP edepMap;
     G4int   fCollID;
+    G4int   fCollID_Hands;
     G4int   fCollID_DRF;
+    G4int   fCollID_EyeTrackEnter;
+    G4int   fCollID_EyeTrackEnterW;
+    G4int   fCollID_ShieldTrackEnter;
+    G4int   fCollID_ShieldTrackEnterW;
+    G4int   fCollID_ShieldTrackExit;
+    G4int   fCollID_ShieldTrackExitW;
     G4String primary;
     G4String dir;
     G4double primaryE;
     G4double beamArea;
     G4bool   isExternal;
     G4bool   useSpec;
+    G4bool   useIAEASpec;
     std::map<G4int, std::vector<G4int>>   organ2dose;
+    std::map<G4int, std::vector<G4int>>   handTet2dose;
 	std::map<G4int, G4double>  rbmFactor;
 	std::map<G4int, G4double>  bsFactor;
 	G4bool doseOrganized;
+	std::map<G4int, G4double> eyeTrackEnterMap;
+	std::map<G4int, G4double> eyeTrackEnterWeightedMap;
+	G4double shieldTrackEnter;
+	G4double shieldTrackEnterWeighted;
+	G4double shieldTrackExit;
+	G4double shieldTrackExitWeighted;
 };
 
 #endif

@@ -1,0 +1,4 @@
+nuclide	particle	mean_energy_keV	mean_energy_MeV	endpoint_energy_keV	endpoint_energy_MeV	yield_per_decay	intensity_percent	daughter_level_energy_keV	transition_type	log_ft	parent_energy_keV	decay	decay_percent	daughter	source
+Tc-99m	beta-	30	0.03	117.8	0.1178	1.1e-06	0.00011	322.40	1NU	8.5	142.6836	B-	0.0037	Ru	IAEA LiveChart decay_rads
+Tc-99m	beta-	101.9	0.1019	350.6	0.3506	2.6e-05	0.0026	89.60	1NU	8.65	142.6836	B-	0.0037	Ru	IAEA LiveChart decay_rads
+Tc-99m	beta-	152.2	0.1522	440.2	0.4402	1e-05	0.001	0	1U	9.38	142.6836	B-	0.0037	Ru	IAEA LiveChart decay_rads

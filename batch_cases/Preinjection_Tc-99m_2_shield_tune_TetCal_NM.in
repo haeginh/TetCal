@@ -1,0 +1,17 @@
+/tetcal/phantom phantoms/MRCP_AM_posture2_mod
+/tetcal/basePhantom phantoms/MRCP_AM
+/tetcal/addTet models/merged/vial_assembly_Tc99m
+
+/tetcal/shieldImportance true
+/tetcal/shieldImportanceValue 1
+/tetcal/shieldImportanceParticle gamma
+/tetcal/shieldImportanceTune true
+/tetcal/shieldImportanceTuneTolerance 0.2
+/tetcal/shieldImportanceTuneMaxIterations 1
+
+/run/numberOfThreads 4
+/run/initialize
+
+/internal/source -4
+/spec/IAEA TetCal/iaea_spectra Tc-99m
+/run/beamOn 100000

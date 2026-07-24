@@ -54,7 +54,7 @@ class G4VPhysicalVolume;
 class TETParameterisation : public G4VPVParameterisation
 {
   public:
-    TETParameterisation(TETModelImport* tetData);
+    TETParameterisation(TETModelImport* tetData, G4bool visSkinOnly=false);
     virtual ~TETParameterisation();
     
     virtual G4VSolid* ComputeSolid(
@@ -68,9 +68,13 @@ class TETParameterisation : public G4VPVParameterisation
                                         const G4VTouchable*);
 
   private:
+    G4bool IsSkinMaterial(G4int materialID) const;
+
     TETModelImport*                    tetData;
     std::map<G4int, G4VisAttributes*>  visAttMap;
+    G4VisAttributes*                   invisibleVisAtt;
     G4bool                             isforVis;
+    G4bool                             visSkinOnly;
 };
 
 #endif

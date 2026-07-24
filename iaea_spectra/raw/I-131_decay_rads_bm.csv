@@ -1,0 +1,8 @@
+mean_energy,unc_me,intensity_beta,unc_ib,daughter_level_hl,daughter_level_energy,max_energy,unc_me,log_ft,unc_lf,transition_type,anti_nu_mean_energy,unc_ame,p_z,p_n,p_symbol,p_energy_shift,p_energy,unc_pe,jp,half_life,operator_hl,unc_hl,unit_hl,half_life_sec,unc_hls,decay,decay_%,unc_d,q,unc_q,d_z,d_n,d_symbol,ensdf_publication_cut-off,ensdf_authors,Extraction_date
+69.36,0.25,2.08,0.03,,722.909,247.9,0.6,6.987,0.008,A,179.1,0.7,53,78,I,,0,,7/2+,8.0252,,6,d,693377.28,51.84,B-,100,,970.8,6,54,77,Xe,17-Jul-2006,YU. KHAZOV and  I. MITROPOLSKY and  A. RODIONOV,2026-07-09
+86.94,0.26,0.645,0.023,0.0000000005,666.934,303.9,0.6,7.781,0.016,1NU,217.6,0.7,53,78,I,,0,,7/2+,8.0252,,6,d,693377.28,51.84,B-,100,,970.8,6,54,77,Xe,17-Jul-2006,YU. KHAZOV and  I. MITROPOLSKY and  A. RODIONOV,2026-07-09
+96.62,0.26,7.23,0.1,,636.991,333.8,0.6,6.864,0.007,A,237.7,0.7,53,78,I,,0,,7/2+,8.0252,,6,d,693377.28,51.84,B-,100,,970.8,6,54,77,Xe,17-Jul-2006,YU. KHAZOV and  I. MITROPOLSKY and  A. RODIONOV,2026-07-09
+191.58,0.3,89.6,0.8,0.0000000000675,364.490,606.3,0.6,6.643,0.005,A,415,0.6,53,78,I,,0,,7/2+,8.0252,,6,d,693377.28,51.84,B-,100,,970.8,6,54,77,Xe,17-Jul-2006,YU. KHAZOV and  I. MITROPOLSKY and  A. RODIONOV,2026-07-09
+200.22,0.3,0.05,0.023,0.0000000016,341.144,629.7,0.6,9.95,0.2,1NU,430.54,0.43,53,78,I,,0,,7/2+,8.0252,,6,d,693377.28,51.84,B-,100,,970.8,6,54,77,Xe,17-Jul-2006,YU. KHAZOV and  I. MITROPOLSKY and  A. RODIONOV,2026-07-09
+283.24,0.31,0.39,0.09,1024704,163.930,806.9,0.6,9.83,0.1,1U,525.2,0.7,53,78,I,,0,,7/2+,8.0252,,6,d,693377.28,51.84,B-,100,,970.8,6,54,77,Xe,17-Jul-2006,YU. KHAZOV and  I. MITROPOLSKY and  A. RODIONOV,2026-07-09
+

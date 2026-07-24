@@ -1,0 +1,20 @@
+/tetcal/phantom phantoms/MRCP_AM_posture1_mod
+/tetcal/basePhantom phantoms/MRCP_AM
+/tetcal/addTet models/merged/L_block_shield
+/tetcal/addTet models/merged/L_block_vial
+
+/tetcal/eyeImportance true
+/tetcal/eyeImportanceValues 1 4 15.313053 61.252212 245.00885
+/tetcal/eyeImportanceRadii 55.257 40.171 25.086 10
+/tetcal/eyeImportanceValues 1 4 15.313053 61.252212 245.00885
+/tetcal/eyeImportanceParticle gamma
+/tetcal/eyeImportanceTune true
+/tetcal/eyeImportanceTuneTolerance 0.2
+/tetcal/eyeImportanceTuneMaxIterations 10
+
+/run/numberOfThreads 4
+/run/initialize
+
+/internal/source -4
+/spec/IAEA TetCal/iaea_spectra I-131
+/run/beamOn 10000

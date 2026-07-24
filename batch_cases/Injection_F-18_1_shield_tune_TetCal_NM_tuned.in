@@ -1,0 +1,18 @@
+/tetcal/phantom phantoms/MRCP_AM_posture3_mod
+/tetcal/basePhantom phantoms/MRCP_AM
+/tetcal/addTet models/merged/syringe_assembly_F18
+/tetcal/addTet models/merged/syringe
+
+/tetcal/shieldImportance true
+/tetcal/shieldImportanceValue 6.8475692
+/tetcal/shieldImportanceParticle gamma
+/tetcal/shieldImportanceTune true
+/tetcal/shieldImportanceTuneTolerance 0.2
+/tetcal/shieldImportanceTuneMaxIterations 1
+
+/run/numberOfThreads 4
+/run/initialize
+
+/internal/source -4
+/spec/IAEA TetCal/iaea_spectra F-18
+/run/beamOn 100000

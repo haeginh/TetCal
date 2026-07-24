@@ -33,8 +33,8 @@
 #include "G4VisExecutive.hh"
 #include "G4RunManager.hh"
 
-TETParameterisation::TETParameterisation(TETModelImport* _tetData)
-: G4VPVParameterisation(), tetData(_tetData)
+TETParameterisation::TETParameterisation(TETModelImport* _tetData, G4bool _visSkinOnly)
+: G4VPVParameterisation(), tetData(_tetData), invisibleVisAtt(nullptr), visSkinOnly(_visSkinOnly)
 {
 	// initialise visAttMap which contains G4VisAttributes* for each organ
 	auto colourMap =  tetData->GetColourMap();
@@ -44,10 +44,18 @@ TETParameterisation::TETParameterisation(TETModelImport* _tetData)
 
 	if(colourMap.size()) isforVis = true;
 	else                 isforVis = false;
+
+	invisibleVisAtt = new G4VisAttributes();
+	invisibleVisAtt->SetVisibility(false);
 }
 
 TETParameterisation::~TETParameterisation()
 {}
+
+G4bool TETParameterisation::IsSkinMaterial(G4int materialID) const
+{
+	return materialID >= 12200 && materialID <= 12501;
+}
 
 G4VSolid* TETParameterisation::ComputeSolid(
     		       const G4int copyNo, G4VPhysicalVolume* )
@@ -67,6 +75,11 @@ G4Material* TETParameterisation::ComputeMaterial(const G4int copyNo,
    // set the colour for each organ if visualization is required
 	if(isforVis){
 		G4int idx = tetData->GetMaterialIndex(copyNo);
+		if(visSkinOnly && !IsSkinMaterial(idx)){
+			phy->GetLogicalVolume()->SetVisAttributes(invisibleVisAtt);
+			phy->GetLogicalVolume()->SetMaterial(tetData->GetMaterial(idx));
+			return tetData->GetMaterial(idx);
+		}
 		if(visAttMap.find(idx)==visAttMap.end()) idx = visAttMap.begin()->first;
 		phy->GetLogicalVolume()->SetVisAttributes(visAttMap[idx]);
 		phy->GetLogicalVolume()->SetMaterial(tetData->GetMaterial(tetData->GetMaterialIndex(copyNo)));
@@ -75,5 +88,4 @@ G4Material* TETParameterisation::ComputeMaterial(const G4int copyNo,
 	// return the material data for each material index
 	return tetData->GetMaterial(tetData->GetMaterialIndex(copyNo));
 }
-
 

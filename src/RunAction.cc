@@ -34,10 +34,12 @@
 #include "G4Neutron.hh"
 #include <iostream>
 #include "../include/RunAction.hh"
+#include "EyeImportanceTuning.hh"
+#include "ShieldImportanceTuning.hh"
 
 RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init, G4bool _useGPS)
 :tetData(_tetData), fRun(0), numOfEvent(0), runID(0), outputFile(_output), initTimer(_init), runTimer(0),
- primaryEnergy(-1.), beamArea(-1.), isExternal(true), useGPS(_useGPS)
+ primaryEnergy(-1.), beamArea(-1.), isExternal(true), useGPS(_useGPS), spec(false), iaeaSpec(false)
 {
 	if(!isMaster) return;
 
@@ -52,6 +54,10 @@ RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init,
 		massMap = tetData->GetMassMap();
 		for(auto itr:massMap) nameMap[itr.first] = tetData->GetMaterial(itr.first)->GetName();
 	}
+	auto handDoseMassMap = tetData->GetHandDoseMassMap();
+	auto handDoseNameMap = tetData->GetHandDoseNameMap();
+	for(auto itr:handDoseMassMap) massMap[itr.first] = itr.second;
+	for(auto itr:handDoseNameMap) nameMap[itr.first] = itr.second;
 
 	nameMap[-4] = "RBM(DRF)"; nameMap[-3] = "BS(DRF)";
 	nameMap[-2] = "RBM"     ; nameMap[-1] = "BS"     ;
@@ -64,7 +70,7 @@ RunAction::RunAction(TETModelImport* _tetData, G4String _output, G4Timer* _init,
 	// }
 	// else
 	// {
-	ofs<<"[External: pGycm2 / Internal: SAF (kg-1), spectrum (pGy) / GPS: pGy"<<G4endl;
+	ofs<<"[External: pGycm2 / Internal: SAF (kg-1), spectrum (pGy), IAEA spectrum (pGy/decay) / GPS: pGy"<<G4endl;
 	ofs<<"run#\tnps\tinitT\trunT\tparticle\tsource\tenergy[MeV]\t";
 	// }
 	for(auto name:nameMap) ofs<<std::to_string(name.first)+"_"+name.second<<"\t"<<massMap[name.first]/g<<"\t";
@@ -102,6 +108,7 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 //		    G4cout<<result;
 //		    fclose(file);
 	if(isMaster){
+		ShieldImportanceTuning::ResetCounts();
 		initTimer->Stop();
 		runTimer->Start();
 	}
@@ -116,7 +123,8 @@ void RunAction::BeginOfRunAction(const G4Run* aRun)
 	isExternal = primary-> GetSourceGenerator()->IsExternal();
 	if(isExternal) beamArea = primary->GetExternalBeamGenerator()->GetBeamArea();
 	spec = primary->IsSpectrum();
-	fRun->SetPrimary(primaryParticle, primarySourceName, primaryEnergy, beamArea, isExternal, spec);
+	iaeaSpec = primary->IsIAEASpectrum();
+	fRun->SetPrimary(primaryParticle, primarySourceName, primaryEnergy, beamArea, isExternal, spec, iaeaSpec);
 
 }
 
@@ -136,6 +144,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	beamArea        = fRun->GetBeamArea();
 	isExternal      = fRun->GetIsExternal();
 	spec            = fRun->GetUseSpec();
+	iaeaSpec        = fRun->GetUseIAEASpec();
 
 	G4ParticleDefinition* particle = G4ParticleTable::GetParticleTable()->FindParticle(primaryParticle);
 	weight = GetRadiationWeighting(particle, primaryEnergy);
@@ -151,13 +160,38 @@ void RunAction::EndOfRunAction(const G4Run* aRun)
 	if(useGPS||spec)          PrintResultGPS(G4cout);
 	else if(isExternal) PrintResultExternal(G4cout);
 	else                PrintResultInternal(G4cout);
+	EyeImportanceTuning::PrintSummary(G4cout,
+	                                  fRun->GetEyeTrackEnterMap(),
+	                                  fRun->GetEyeTrackEnterWeightedMap(),
+	                                  numOfEvent);
+	ShieldImportanceTuning::PrintSummary(G4cout,
+	                                     ShieldImportanceTuning::GetEnter(),
+	                                     ShieldImportanceTuning::GetWeightedEnter(),
+	                                     ShieldImportanceTuning::GetExit(),
+	                                     ShieldImportanceTuning::GetWeightedExit());
 
 	// print by std::ofstream
 	std::ofstream ofs(outputFile.c_str(), std::ios::app);
 	if(useGPS||spec)         PrintLineGPS(ofs);
 	else if(isExternal)PrintLineExternal(ofs);
 	else               PrintLineInternal(ofs);
+	EyeImportanceTuning::PrintSummary(ofs,
+	                                  fRun->GetEyeTrackEnterMap(),
+	                                  fRun->GetEyeTrackEnterWeightedMap(),
+	                                  numOfEvent);
+	ShieldImportanceTuning::PrintSummary(ofs,
+	                                     ShieldImportanceTuning::GetEnter(),
+	                                     ShieldImportanceTuning::GetWeightedEnter(),
+	                                     ShieldImportanceTuning::GetExit(),
+	                                     ShieldImportanceTuning::GetWeightedExit());
 	ofs.close();
+	EyeImportanceTuning::WriteTunedMacroAndData(fRun->GetEyeTrackEnterMap(),
+	                                            fRun->GetEyeTrackEnterWeightedMap(),
+	                                            numOfEvent);
+	ShieldImportanceTuning::WriteTunedMacroAndData(ShieldImportanceTuning::GetEnter(),
+	                                               ShieldImportanceTuning::GetWeightedEnter(),
+	                                               ShieldImportanceTuning::GetExit(),
+	                                               ShieldImportanceTuning::GetWeightedExit());
 
 	initTimer->Start();
 }
@@ -250,7 +284,7 @@ void RunAction::PrintResultGPS(std::ostream &out)
 	    << "=======================================================================" << G4endl
 	    << setw(27) << "organ ID| "
 		<< setw(15) << "Organ Mass (g)"
-		<< setw(15) << "Dose (pGy)"
+		<< setw(15) << (iaeaSpec ? "Dose (pGy/decay)" : "Dose (pGy)")
 		<< setw(15) << "Relative Error" << G4endl;
 
 	out.precision(3);
@@ -464,5 +498,3 @@ G4double RunAction::GetRadiationWeighting(G4ParticleDefinition* _particle, G4dou
 	return weightingFactor;
 
 }
-
-

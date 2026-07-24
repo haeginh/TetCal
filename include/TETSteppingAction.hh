@@ -39,6 +39,7 @@
 #include "G4UnitsTable.hh"
 
 class G4LogicalVolume;
+class TETModelImport;
 
 // *********************************************************************
 // With very low probability, because of the internal bug of G4TET, the
@@ -51,7 +52,7 @@ class G4LogicalVolume;
 class TETSteppingAction : public G4UserSteppingAction
 {
   public:
-    TETSteppingAction();
+    TETSteppingAction(TETModelImport* tetData = nullptr);
     virtual ~TETSteppingAction();
 
     virtual void UserSteppingAction(const G4Step*);
@@ -60,6 +61,10 @@ class TETSteppingAction : public G4UserSteppingAction
     G4double kCarTolerance;
     G4int    stepCounter;
     G4bool   checkFlag;
+    TETModelImport* tetData;
+
+    G4bool IsShieldMaterial(G4int materialID) const;
+    void ApplyShieldSplitting(const G4Step* step) const;
 };
 
 #endif

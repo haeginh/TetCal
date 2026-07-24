@@ -1,0 +1,25 @@
+/tetcal/phantom phantoms/MRCP_AM_posture3_mod
+/tetcal/basePhantom phantoms/MRCP_AM
+/tetcal/addTet models/merged/syringe_assembly_Tc99m
+/tetcal/addTet models/merged/syringe
+
+/tetcal/eyeImportance true
+/tetcal/eyeImportanceRadii 52.133 38.089 24.044 10
+/tetcal/eyeImportanceValues 1 1 1 1 1
+/tetcal/eyeImportanceParticle gamma
+/tetcal/eyeImportanceTune true
+/tetcal/eyeImportanceTuneTolerance 0.2
+/tetcal/eyeImportanceTuneMaxIterations 10
+/tetcal/shieldImportance true
+/tetcal/shieldImportanceValue 1
+/tetcal/shieldImportanceParticle gamma
+/tetcal/shieldImportanceTune true
+/tetcal/shieldImportanceTuneTolerance 0.2
+/tetcal/shieldImportanceTuneMaxIterations 10
+
+/run/numberOfThreads 4
+/run/initialize
+
+/internal/source -4
+/spec/IAEA TetCal/iaea_spectra Tc-99m
+/run/beamOn 100000

@@ -30,16 +30,47 @@
 
 #include "../include/PSEnergyDeposit.hh"
 
-PSEnergyDeposit::PSEnergyDeposit(G4String name, TETModelImport* _tetData)
-  :G4PSEnergyDeposit(name), tetData(_tetData)
+#include "G4HCofThisEvent.hh"
+#include "G4Step.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4Track.hh"
+
+PSEnergyDeposit::PSEnergyDeposit(G4String name, TETModelImport* _tetData, G4bool _scoreByTet)
+  :G4VPrimitiveScorer(name), tetData(_tetData), scoreByTet(_scoreByTet), HCID(-1), EvtMap(nullptr)
 {}
 
 PSEnergyDeposit::~PSEnergyDeposit()
 {}
 
+G4bool PSEnergyDeposit::ProcessHits(G4Step* aStep, G4TouchableHistory*)
+{
+	G4double edep = aStep->GetTotalEnergyDeposit();
+	if(edep == 0.) return FALSE;
+
+	G4double weight = aStep->GetTrack()->GetWeight();
+	G4double weightedEdep = edep * weight;
+	EvtMap->add(GetIndex(aStep), weightedEdep);
+	return TRUE;
+}
+
 G4int PSEnergyDeposit::GetIndex(G4Step* aStep)
 {
-	// return the organ ID (= material index)
 	G4int copyNo = aStep->GetPreStepPoint()->GetTouchable()->GetCopyNumber();
+	if(scoreByTet) return copyNo;
 	return tetData->GetMaterialIndex(copyNo);
 }
+
+void PSEnergyDeposit::Initialize(G4HCofThisEvent* HCE)
+{
+	EvtMap = new G4THitsMap<G4double>(detector->GetName(), GetName());
+	if(HCID < 0) HCID = GetCollectionID(0);
+	HCE->AddHitsCollection(HCID,EvtMap);
+}
+
+void PSEnergyDeposit::clear()
+{
+	EvtMap->clear();
+}
+
+void PSEnergyDeposit::PrintAll()
+{}

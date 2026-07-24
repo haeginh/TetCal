@@ -1,0 +1,12 @@
+nuclide	particle	discrete_yield_sum_per_decay	beta_branch_yield_sum_per_decay	beta_continuum_integral_per_decay	n_discrete_rows	n_beta_branch_rows	n_beta_bins
+I-131	beta-	0	0.99995	0.999953064095	0	6	458
+I-131	electron	0.140259636839	0	0	118	0	0
+I-131	gamma	1.07193209442	0	0	26	0	0
+I-131	xray	0.0664860729236	0	0	6	0	0
+Tc-99m	beta-	0	3.71e-05	3.7100077788e-05	0	3	454
+Tc-99m	electron	1.24546297233	0	0	38	0	0
+Tc-99m	gamma	0.98096985301	0	0	18	0	0
+Tc-99m	xray	0.0907363984394	0	0	12	0	0
+F-18	beta+	0	0.9673	0.9672012221	0	1	318
+F-18	electron-capture	0	0.0327	0	0	1	0
+F-18	gamma	1.9346	0	0	1	0	0

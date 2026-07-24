@@ -1,0 +1,18 @@
+/tetcal/phantom phantoms/MRCP_AM_posture2_mod
+/tetcal/basePhantom phantoms/MRCP_AM
+/tetcal/addTet models/merged/vial
+
+/tetcal/eyeImportance true
+/tetcal/eyeImportanceRadii 67.956 53.467 38.978 24.489 10
+/tetcal/eyeImportanceValues 1 1 1 1 1 1
+/tetcal/eyeImportanceParticle gamma
+/tetcal/eyeImportanceTune true
+/tetcal/eyeImportanceTuneTolerance 0.2
+/tetcal/eyeImportanceTuneMaxIterations 10
+
+/run/numberOfThreads 4
+/run/initialize
+
+/internal/source -4
+/spec/IAEA TetCal/iaea_spectra Tc-99m
+/run/beamOn 100000

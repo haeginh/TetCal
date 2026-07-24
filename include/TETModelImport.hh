@@ -37,6 +37,8 @@
 #include <iomanip>
 #include <vector>
 #include <map>
+#include <algorithm>
+#include <set>
 
 #include "G4UIExecutive.hh"
 #include "G4SystemOfUnits.hh"
@@ -66,6 +68,9 @@ class TETModelImport
 {
 public:
 	TETModelImport(G4String phantomName, G4UIExecutive* ui);
+	TETModelImport(G4String phantomName, const std::vector<G4String>& extraTetNames, G4UIExecutive* ui);
+	TETModelImport(G4String phantomName, G4String phantomDataName, const std::vector<G4String>& extraTetNames, G4UIExecutive* ui);
+	TETModelImport(G4String phantomName, G4String phantomDataName, const std::vector<G4String>& extraTetNames, const std::vector<G4String>& patientTetNames, G4UIExecutive* ui);
     virtual ~TETModelImport() {}
 
 	// get methods
@@ -74,12 +79,18 @@ public:
 	              GetDoseMap()               { return organ2dose;}
 	G4String      GetDoseName(G4int doseID)  { return doseName[doseID];}
 	std::map<G4int, G4double> GetDoseMassMap(){ return doseMassMap; }
+	std::map<G4int, G4String> GetHandDoseNameMap() { return handDoseName; }
+	std::map<G4int, G4double> GetHandDoseMassMap() { return handDoseMassMap; }
+	std::map<G4int, std::vector<G4int>> GetHandTetDoseMap() { return handTet2dose; }
 
     G4String      GetPhantomName()           { return phantomName; }
 	G4Material*   GetMaterial(G4int idx)     { return materialMap[idx];}
 	G4int         GetNumTetrahedron()        { return tetVector.size();}
 	G4int         GetMaterialIndex(G4int idx){ return materialVector[idx]; }
+	std::vector<G4int> GetCopyNumbersForMaterials(const std::set<G4int>& materialIDs);
 	G4Tet*        GetTetrahedron(G4int idx)  { return tetVector[idx]; }
+	G4ThreeVector GetTetrahedronCentroid(G4int idx);
+	G4bool        GetMaterialSetCenterOfMass(const std::set<G4int>& materialIDs, G4ThreeVector& center);
 	G4double      GetVolume(G4int idx)       { return volumeMap[idx]; }
 	std::map<G4int, G4double> GetMassMap()   { return massMap; }
 	std::map<G4int, G4Colour> GetColourMap() { return colourMap; }
@@ -88,8 +99,16 @@ public:
 	G4ThreeVector GetPhantomBoxMax()         { return boundingBox_Max; }
 	std::map<G4int, G4double> GetRBMratio()  { return rbmRatio;}
 	std::map<G4int, G4double> GetBSratio()   { return bsRatio;}
-	G4double GetRBMDRF(G4int idx, G4int eIdx){ return rbmDRF[idx][eIdx];}
-	G4double GetBSDRF (G4int idx, G4int eIdx){ return bsDRF[idx][eIdx];}
+	G4double GetRBMDRF(G4int idx, G4int eIdx){
+		if(rbmDRF.find(idx)==rbmDRF.end()) return 0.;
+		if(eIdx<0 || eIdx>=(G4int)rbmDRF[idx].size()) return 0.;
+		return rbmDRF[idx][eIdx];
+	}
+	G4double GetBSDRF (G4int idx, G4int eIdx){
+		if(bsDRF.find(idx)==bsDRF.end()) return 0.;
+		if(eIdx<0 || eIdx>=(G4int)bsDRF[idx].size()) return 0.;
+		return bsDRF[idx][eIdx];
+	}
     G4ThreeVector GetAVertex(G4int idx)      { return vertexVector[idx]; }
 
     std::vector<std::vector<G4int>> GetElements(G4int organID){
@@ -110,10 +129,13 @@ private:
 
 	// private methods
 	void DoseRead(G4String);
-    void DataRead(G4String, G4String);
-	void MaterialRead(G4String);
+    void DataRead(G4String, G4String, G4bool patientNamespace=false);
+	void FinalizeGeometry();
+	void MaterialRead(G4String, G4bool patientNamespace=false);
+	void BuildMaterials();
 	void RBMBSRead(G4String);
 	void DRFRead(G4String);
+	void HandsRead(G4String);
 	void ColourRead();
 	void PrintMaterialInfomation();
 
@@ -128,16 +150,34 @@ private:
 		return atoi(token.c_str());
 	}
 
+	G4int PatientMaterialID(G4int originalID) {
+		return -(100000 + std::abs(originalID));
+	}
+
 	G4String phantomName;
+	enum HandDoseID {
+		LEFT_HAND_DOSE_ID = 91001,
+		RIGHT_HAND_DOSE_ID = 91002,
+		BOTH_HANDS_DOSE_ID = 91003,
+		LEFT_HAND_SKIN_SENSITIVE_DOSE_ID = 91004,
+		RIGHT_HAND_SKIN_SENSITIVE_DOSE_ID = 91005,
+		BOTH_HANDS_SKIN_SENSITIVE_DOSE_ID = 91006,
+		HAND_SKIN_SENSITIVE_MATERIAL_ID = 12401
+	};
 
 	G4ThreeVector boundingBox_Min;
 	G4ThreeVector boundingBox_Max;
 	G4ThreeVector phantomSize;
+	G4bool        hasGeometryBounds;
 
 	std::map<G4int, std::vector<G4int>>   organ2dose;
 	std::map<G4int, G4String>  doseName;
 	std::map<G4int, G4double>  doseMassMap;
 	G4bool                     doseOrganized;
+	std::map<G4int, G4String>  handDoseName;
+	std::map<G4int, G4double>  handDoseMassMap;
+	std::map<G4int, std::vector<G4int>> handTet2dose;
+	std::map<G4int, G4int>     elementIDToCopyNo;
 
 	std::vector<G4ThreeVector> vertexVector;
 	std::vector<G4Tet*>        tetVector;

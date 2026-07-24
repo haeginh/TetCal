@@ -1,0 +1,3 @@
+region	original_material_id	patient_material_id	count	centroid_x_cm	centroid_y_cm	centroid_z_cm	min_x_cm	max_x_cm	note
+left_arm_veins_x_positive	1110	-101110	28050	21.566227	8.273300	10.612161	17.012162	24.817961	selected as near-worker postinjection source
+right_arm_veins_x_negative	1110	-101110	36706	-22.351957	8.567940	17.637132	-26.121132	-16.704421	farther from worker hands in posture4/posture5

@@ -30,30 +30,114 @@
 
 #include "TETModelImport.hh"
 
+namespace {
+G4String TrimLocal(G4String str)
+{
+	const char* whitespace = " \t\r\n";
+	size_t begin = str.find_first_not_of(whitespace);
+	if(begin == std::string::npos) return "";
+	size_t end = str.find_last_not_of(whitespace);
+	return str.substr(begin, end - begin + 1);
+}
+
+G4String StripNodeExtension(G4String prefix)
+{
+	const G4String suffix = ".node";
+	if(prefix.size() >= suffix.size() &&
+	   prefix.substr(prefix.size() - suffix.size()) == suffix){
+		return prefix.substr(0, prefix.size() - suffix.size());
+	}
+	return prefix;
+}
+
+G4String StripPhantomDataExtension(G4String prefix)
+{
+	const std::vector<G4String> suffixes = {".ele", ".material", ".dose", ".RBMnBS", ".DRF", ".hands"};
+	for(auto suffix : suffixes){
+		if(prefix.size() >= suffix.size() &&
+		   prefix.substr(prefix.size() - suffix.size()) == suffix){
+			return prefix.substr(0, prefix.size() - suffix.size());
+		}
+	}
+	return prefix;
+}
+
+G4String DefaultPhantomDataPrefix(G4String nodePrefix)
+{
+	const G4String fixedName = "MRCP_AM";
+	size_t slash = nodePrefix.find_last_of("/\\");
+	if(slash == std::string::npos) return fixedName;
+	return nodePrefix.substr(0, slash + 1) + fixedName;
+}
+
+void AddUniqueDoseID(std::vector<G4int>& doseIDs, G4int doseID)
+{
+	if(std::find(doseIDs.begin(), doseIDs.end(), doseID) == doseIDs.end()){
+		doseIDs.push_back(doseID);
+	}
+}
+}
+
 TETModelImport::TETModelImport(G4String _phantomName, G4UIExecutive* ui)
-:doseOrganized(false)
+:TETModelImport(_phantomName, std::vector<G4String>(), ui)
+{}
+
+TETModelImport::TETModelImport(G4String _phantomName, const std::vector<G4String>& extraTetNames, G4UIExecutive* ui)
+:TETModelImport(_phantomName, "", extraTetNames, ui)
+{}
+
+TETModelImport::TETModelImport(G4String _phantomName, G4String _phantomDataName, const std::vector<G4String>& extraTetNames, G4UIExecutive* ui)
+:TETModelImport(_phantomName, _phantomDataName, extraTetNames, std::vector<G4String>(), ui)
+{}
+
+TETModelImport::TETModelImport(G4String _phantomName, G4String _phantomDataName, const std::vector<G4String>& extraTetNames, const std::vector<G4String>& patientTetNames, G4UIExecutive* ui)
+:doseOrganized(false), hasGeometryBounds(false)
 {
 	// set phantom name
-	phantomName = _phantomName;
+	phantomName = StripNodeExtension(_phantomName);
+	G4String phantomDataPrefix = _phantomDataName.empty()
+	                           ? DefaultPhantomDataPrefix(phantomName)
+	                           : StripPhantomDataExtension(_phantomDataName);
 
 	G4cout << "================================================================================"<<G4endl;
 	G4cout << "\t" << phantomName << " was implemented in this CODE!!   "<< G4endl;
+	G4cout << "\tBase phantom node file prefix: " << phantomName << G4endl;
+	G4cout << "\tBase phantom data file prefix: " << phantomDataPrefix << G4endl;
 	G4cout << "================================================================================"<<G4endl;
 
-	G4String eleFile      =  phantomName + ".ele";
 	G4String nodeFile     =  phantomName + ".node";
-	G4String materialFile =  phantomName + ".material";
-	G4String doseFile     =  phantomName + ".dose";
-	G4String boneFile     =  phantomName + ".RBMnBS";
-	G4String drfFile      =  phantomName + ".DRF";
-	G4String mtlFile      =  phantomName + ".mtl";
+	G4String eleFile      =  phantomDataPrefix + ".ele";
+	G4String materialFile =  phantomDataPrefix + ".material";
+	G4String doseFile     =  phantomDataPrefix + ".dose";
+	G4String boneFile     =  phantomDataPrefix + ".RBMnBS";
+	G4String drfFile      =  phantomDataPrefix + ".DRF";
+	G4String handsFile    =  phantomDataPrefix + ".hands";
 
 	// read dose file (*.dose) -if there is any
 	DoseRead(doseFile);
-	// read phantom data files (*. ele, *.node)
+	// read phantom data files (*.ele, *.node)
     DataRead(eleFile, nodeFile);
+	for(auto extraTetName : extraTetNames){
+		G4cout << "  Merging additional TET model '" << extraTetName << "'" << G4endl;
+		DataRead(extraTetName + ".ele", extraTetName + ".node");
+	}
+	for(auto patientTetName : patientTetNames){
+		G4cout << "  Merging patient TET model '" << patientTetName
+		       << "' with material IDs remapped to -(100000 + originalID)" << G4endl;
+		DataRead(patientTetName + ".ele", patientTetName + ".node", true);
+	}
+	FinalizeGeometry();
 	// read material file (*.material)
 	MaterialRead(materialFile);
+	for(auto extraTetName : extraTetNames){
+		MaterialRead(extraTetName + ".material");
+	}
+	for(auto patientTetName : patientTetNames){
+		MaterialRead(patientTetName + ".material", true);
+	}
+	BuildMaterials();
+	// read hand element classification file (*.hands) -if there is any
+	HandsRead(handsFile);
 	// read bone file (*.RBMnBS)
 	RBMBSRead(boneFile);
 	// read bone file (*.DRF)
@@ -89,10 +173,11 @@ void TETModelImport::DoseRead(G4String doseFile){
 
 }
 
-void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
+void TETModelImport::DataRead(G4String eleFile, G4String nodeFile, G4bool patientNamespace)
 {
 	G4String tempStr;
 	G4int tempInt;
+	std::map<G4int, G4int> nodeIndexMap;
 
 	// Read *.node file
 	//
@@ -108,14 +193,13 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 
 	G4int numVertex;
 	G4double xPos, yPos, zPos;
-	G4double xMin(DBL_MAX), yMin(DBL_MAX), zMin(DBL_MAX);
-	G4double xMax(DBL_MIN), yMax(DBL_MIN), zMax(DBL_MIN);
 
 	ifpNode >> numVertex >> tempInt >> tempInt >> tempInt;
 
 	for(G4int i=0; i<numVertex; i++)
 	{
-		ifpNode >> tempInt >> xPos >> yPos >> zPos;
+		G4int nodeID;
+		ifpNode >> nodeID >> xPos >> yPos >> zPos;
 
 		// set the unit
 		xPos*=cm;
@@ -123,24 +207,25 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 		zPos*=cm;
 
 		// save the node data as the form of std::vector<G4ThreeVector>
+		nodeIndexMap[nodeID] = vertexVector.size();
 		vertexVector.push_back(G4ThreeVector(xPos, yPos, zPos));
 
-		// to get the information of the bounding box of phantom
-		if (xPos < xMin) xMin = xPos;
-		if (xPos > xMax) xMax = xPos;
-		if (yPos < yMin) yMin = yPos;
-		if (yPos > yMax) yMax = yPos;
-		if (zPos < zMin) zMin = zPos;
-		if (zPos > zMax) zMax = zPos;
+		// to get the information of the bounding box of all imported TET models
+		if(!hasGeometryBounds){
+			boundingBox_Min = G4ThreeVector(xPos, yPos, zPos);
+			boundingBox_Max = G4ThreeVector(xPos, yPos, zPos);
+			hasGeometryBounds = true;
+		}
+		else {
+			if (xPos < boundingBox_Min.x()) boundingBox_Min.setX(xPos);
+			if (xPos > boundingBox_Max.x()) boundingBox_Max.setX(xPos);
+			if (yPos < boundingBox_Min.y()) boundingBox_Min.setY(yPos);
+			if (yPos > boundingBox_Max.y()) boundingBox_Max.setY(yPos);
+			if (zPos < boundingBox_Min.z()) boundingBox_Min.setZ(zPos);
+			if (zPos > boundingBox_Max.z()) boundingBox_Max.setZ(zPos);
+		}
 	}
 	ifpNode.close();
-
-	// set the variables for the bounding box and phantom size
-	boundingBox_Min = G4ThreeVector(xMin,yMin,zMin);
-	boundingBox_Max = G4ThreeVector(xMax,yMax,zMax);
-	G4ThreeVector center = (boundingBox_Max+boundingBox_Min)*0.5;
-	phantomSize = G4ThreeVector(xMax-xMin,yMax-yMin,zMax-zMin);
-	std::transform(vertexVector.begin(), vertexVector.end(), vertexVector.begin(), [center](G4ThreeVector& v){return v - center;});
 
 	// Read *.ele file
 	//
@@ -160,38 +245,94 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile)
 	for(G4int i=0; i<numEle; i++)
 	{
 		ifpEle >> tempInt;
+		G4int elementID = tempInt;
 		G4int* ele = new G4int[4];
 		for(G4int j=0;j<4;j++){
 			ifpEle >> tempInt;
-			ele[j]=tempInt;
+			if(nodeIndexMap.find(tempInt)==nodeIndexMap.end()){
+				G4Exception("TETModelImport::DataRead","",FatalErrorInArgument,
+						G4String("      Element in " + eleFile + " references unknown node ID").c_str());
+			}
+			ele[j]=nodeIndexMap[tempInt];
 		}
+		elementIDToCopyNo.insert(std::make_pair(elementID, (G4int)eleVector.size()));
 		eleVector.push_back(ele);
 		ifpEle >> tempInt;
-		materialVector.push_back(tempInt);
-
-		// save the element (tetrahedron) data as the form of std::vector<G4Tet*>
-		tetVector.push_back(new G4Tet("Tet_Solid",
-							   		  vertexVector[ele[0]],
-									  vertexVector[ele[1]],
-									  vertexVector[ele[2]],
-									  vertexVector[ele[3]]));
-
-		// calculate the total volume and the number of tetrahedrons for each organ
-		std::map<G4int, G4double>::iterator FindIter = volumeMap.find(materialVector[i]);
-
-		if(FindIter!=volumeMap.end()){
-			FindIter->second += tetVector[i]->GetCubicVolume();
-			numTetMap[materialVector[i]]++;
-		}
-		else {
-			volumeMap[materialVector[i]] = tetVector[i]->GetCubicVolume();
-			numTetMap[materialVector[i]] = 1;
-		}
+		materialVector.push_back(patientNamespace ? PatientMaterialID(tempInt) : tempInt);
 	}
 	ifpEle.close();
 }
 
-void TETModelImport::MaterialRead(G4String materialFile)
+void TETModelImport::FinalizeGeometry()
+{
+	if(!hasGeometryBounds) return;
+
+	// Center every imported TET model together in one common bounding box.
+	G4ThreeVector center = (boundingBox_Max+boundingBox_Min)*0.5;
+	phantomSize = boundingBox_Max - boundingBox_Min;
+	std::transform(vertexVector.begin(), vertexVector.end(), vertexVector.begin(),
+			[center](G4ThreeVector& v){return v - center;});
+
+	for(size_t i=0; i<eleVector.size(); i++)
+	{
+		G4int* ele = eleVector[i];
+		tetVector.push_back(new G4Tet("Tet_Solid",
+									  vertexVector[ele[0]],
+									  vertexVector[ele[1]],
+									  vertexVector[ele[2]],
+									  vertexVector[ele[3]]));
+
+		G4int materialID = materialVector[i];
+		if(volumeMap.find(materialID)!=volumeMap.end()){
+			volumeMap[materialID] += tetVector[i]->GetCubicVolume();
+			numTetMap[materialID]++;
+		}
+		else {
+			volumeMap[materialID] = tetVector[i]->GetCubicVolume();
+			numTetMap[materialID] = 1;
+		}
+	}
+}
+
+G4ThreeVector TETModelImport::GetTetrahedronCentroid(G4int idx)
+{
+	if(idx < 0 || idx >= (G4int)eleVector.size()) return G4ThreeVector();
+
+	G4int* ele = eleVector[idx];
+	return (vertexVector[ele[0]]
+	      + vertexVector[ele[1]]
+	      + vertexVector[ele[2]]
+	      + vertexVector[ele[3]]) * 0.25;
+}
+
+std::vector<G4int> TETModelImport::GetCopyNumbersForMaterials(const std::set<G4int>& materialIDs)
+{
+	std::vector<G4int> copyNumbers;
+	for(G4int i=0; i<(G4int)materialVector.size(); i++){
+		if(materialIDs.find(materialVector[i]) != materialIDs.end()) copyNumbers.push_back(i);
+	}
+	return copyNumbers;
+}
+
+G4bool TETModelImport::GetMaterialSetCenterOfMass(const std::set<G4int>& materialIDs, G4ThreeVector& center)
+{
+	G4double totalVolume = 0.;
+	G4ThreeVector weightedCenter;
+
+	for(G4int i=0; i<(G4int)materialVector.size(); i++){
+		if(materialIDs.find(materialVector[i]) == materialIDs.end()) continue;
+		G4double volume = tetVector[i]->GetCubicVolume();
+		weightedCenter += GetTetrahedronCentroid(i) * volume;
+		totalVolume += volume;
+	}
+
+	if(totalVolume <= 0.) return false;
+
+	center = weightedCenter / totalVolume;
+	return true;
+}
+
+void TETModelImport::MaterialRead(G4String materialFile, G4bool patientNamespace)
 {
 	// Read material file (*.material)
 	//
@@ -225,9 +366,9 @@ void TETModelImport::MaterialRead(G4String materialFile)
         if(G4String(read_data).empty()) continue;
 		token = std::strtok(read_data,"m");
 		G4int matID = std::atoi(token);        //ex) m'10'
-        materialIndex.push_back(matID);
-		organNameMap[matID]= MaterialName;
-		densityMap[matID] = density*g/cm3;
+		if(patientNamespace) matID = PatientMaterialID(matID);
+		G4bool newMaterial = (materialIndexMap.find(matID)==materialIndexMap.end());
+		std::vector<std::pair<G4int, G4double>> composition;
 
 		for(G4int i=0 ;  ; i++)
 		{
@@ -237,15 +378,25 @@ void TETModelImport::MaterialRead(G4String materialFile)
 			zaid = (G4int)(std::atoi(read_data)/1000);
 			ifpMat >> read_data;
 			fraction = -1.0 * std::atof(read_data);
-			materialIndexMap[matID].push_back(std::make_pair(G4int(zaid), fraction));
+			composition.push_back(std::make_pair(G4int(zaid), fraction));
+		}
+
+		if(newMaterial){
+			materialIndex.push_back(matID);
+			organNameMap[matID]= patientNamespace ? "patient_" + MaterialName : MaterialName;
+			densityMap[matID] = density*g/cm3;
+			materialIndexMap[matID] = composition;
 		}
 	}
 	ifpMat.close();
 
-	// Construct materials for each organ
-	//
-    G4Element *elH = new G4Element("TS_H_of_Water", "H", 1., 1.01*g/mole);
-    G4NistManager* nistManager = G4NistManager::Instance();
+}
+
+void TETModelImport::BuildMaterials()
+{
+	// Construct materials for each organ after all material files are read.
+	G4Element *elH = new G4Element("TS_H_of_Water", "H", 1., 1.01*g/mole);
+	G4NistManager* nistManager = G4NistManager::Instance();
 
 	for(G4int i=0;i<(G4int)materialIndex.size();i++){
 		G4int idx = materialIndex[i];
@@ -267,6 +418,110 @@ void TETModelImport::MaterialRead(G4String materialFile)
 				doseMassMap[doseID] += massMap[od.first];
 		}
 	}
+}
+
+void TETModelImport::HandsRead(G4String handsFile)
+{
+	std::ifstream ifs(handsFile);
+	if(!ifs.is_open()) {
+		G4Exception("TETModelImport::HandsRead","",JustWarning,
+				G4String("      There is no " + handsFile ).c_str());
+		return;
+	}
+
+	G4cout << "  Opening hand element classification file '" << handsFile << "'" << G4endl;
+
+	std::set<G4int> leftHand;
+	std::set<G4int> rightHand;
+	std::set<G4int>* activeSet = nullptr;
+
+	G4String line;
+	while(std::getline(ifs, line)){
+		size_t comment = line.find('#');
+		if(comment != std::string::npos) line = line.substr(0, comment);
+		line = TrimLocal(line);
+		if(line.empty()) continue;
+
+		if(line == "[left_hand]"){
+			activeSet = &leftHand;
+			continue;
+		}
+		if(line == "[right_hand]"){
+			activeSet = &rightHand;
+			continue;
+		}
+		if(line.front() == '['){
+			activeSet = nullptr;
+			continue;
+		}
+		if(!activeSet) continue;
+
+		std::stringstream ss(line);
+		G4String token;
+		while(ss >> token){
+			size_t dash = token.find('-');
+			if(dash == std::string::npos){
+				G4int elementID = std::atoi(token.c_str());
+				auto copyNo = elementIDToCopyNo.find(elementID);
+				if(copyNo != elementIDToCopyNo.end()) activeSet->insert(copyNo->second);
+				continue;
+			}
+
+			G4int firstID = std::atoi(token.substr(0, dash).c_str());
+			G4int lastID = std::atoi(token.substr(dash + 1).c_str());
+			if(lastID < firstID) std::swap(firstID, lastID);
+			for(G4int elementID = firstID; elementID <= lastID; elementID++){
+				auto copyNo = elementIDToCopyNo.find(elementID);
+				if(copyNo != elementIDToCopyNo.end()) activeSet->insert(copyNo->second);
+			}
+		}
+	}
+	ifs.close();
+
+	handDoseName[LEFT_HAND_DOSE_ID] = "LeftHand";
+	handDoseName[RIGHT_HAND_DOSE_ID] = "RightHand";
+	handDoseName[BOTH_HANDS_DOSE_ID] = "BothHands";
+	handDoseName[LEFT_HAND_SKIN_SENSITIVE_DOSE_ID] = "LeftHand_12401";
+	handDoseName[RIGHT_HAND_SKIN_SENSITIVE_DOSE_ID] = "RightHand_12401";
+	handDoseName[BOTH_HANDS_SKIN_SENSITIVE_DOSE_ID] = "BothHands_12401";
+
+	for(auto doseNamePair : handDoseName) handDoseMassMap[doseNamePair.first] = 0.;
+
+	auto addHandDose = [this](G4int copyNo, G4int totalDoseID, G4int sensitiveDoseID) {
+		if(copyNo < 0 || copyNo >= (G4int)tetVector.size()) return;
+
+		AddUniqueDoseID(handTet2dose[copyNo], totalDoseID);
+		AddUniqueDoseID(handTet2dose[copyNo], BOTH_HANDS_DOSE_ID);
+
+		G4int materialID = materialVector[copyNo];
+		G4double tetMass = tetVector[copyNo]->GetCubicVolume() * densityMap[materialID];
+		handDoseMassMap[totalDoseID] += tetMass;
+
+		if(materialID == HAND_SKIN_SENSITIVE_MATERIAL_ID){
+			AddUniqueDoseID(handTet2dose[copyNo], sensitiveDoseID);
+			AddUniqueDoseID(handTet2dose[copyNo], BOTH_HANDS_SKIN_SENSITIVE_DOSE_ID);
+			handDoseMassMap[sensitiveDoseID] += tetMass;
+		}
+	};
+
+	for(auto copyNo : leftHand) addHandDose(copyNo, LEFT_HAND_DOSE_ID, LEFT_HAND_SKIN_SENSITIVE_DOSE_ID);
+	for(auto copyNo : rightHand) addHandDose(copyNo, RIGHT_HAND_DOSE_ID, RIGHT_HAND_SKIN_SENSITIVE_DOSE_ID);
+
+	std::set<G4int> bothHands(leftHand);
+	bothHands.insert(rightHand.begin(), rightHand.end());
+	for(auto copyNo : bothHands){
+		if(copyNo < 0 || copyNo >= (G4int)tetVector.size()) continue;
+		G4int materialID = materialVector[copyNo];
+		G4double tetMass = tetVector[copyNo]->GetCubicVolume() * densityMap[materialID];
+		handDoseMassMap[BOTH_HANDS_DOSE_ID] += tetMass;
+		if(materialID == HAND_SKIN_SENSITIVE_MATERIAL_ID){
+			handDoseMassMap[BOTH_HANDS_SKIN_SENSITIVE_DOSE_ID] += tetMass;
+		}
+	}
+
+	G4cout << "  Hand dose groups: left=" << leftHand.size()
+		   << ", right=" << rightHand.size()
+		   << ", both=" << bothHands.size() << G4endl;
 }
 
 void TETModelImport::RBMBSRead(G4String bonefile){

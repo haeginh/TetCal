@@ -70,7 +70,7 @@ G4bool DRFScorer::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 	G4double stepLength = aStep->GetStepLength();
 	if (stepLength==0.) return FALSE;
 
-	G4double CellFlux = stepLength / PhantomData->GetVolume(index);
+	G4double CellFlux = stepLength * aStep->GetTrack()->GetWeight() / PhantomData->GetVolume(index);
 	G4double energy=aStep->GetPreStepPoint()->GetKineticEnergy();
 	G4double RBMdose = GetRBMdose(energy, CellFlux, index);
 	G4double BSdose = GetBSdose(energy, CellFlux, index);
@@ -157,5 +157,4 @@ G4int DRFScorer::FindIndexfromEnergyBin(G4double energy){
 	}
 	return (G4int)(energyBin).size()-2;
 }
-
 

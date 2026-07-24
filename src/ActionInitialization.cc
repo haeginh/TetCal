@@ -49,6 +49,5 @@ void ActionInitialization::Build() const
 	if(useGPS) SetUserAction(new GpsPrimaryGeneratorAction());
 	else SetUserAction(new PrimaryGeneratorAction(tetData));
 	SetUserAction(new RunAction(tetData, output, initTimer, useGPS));
-	SetUserAction(new TETSteppingAction);
+	SetUserAction(new TETSteppingAction(tetData));
 }  
-

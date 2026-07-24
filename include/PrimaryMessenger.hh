@@ -56,6 +56,7 @@ private:
 	G4UIdirectory*             fSpectrumDir;
 	G4UIcmdWithAString*        fSpectrumSourceCmd;
 	G4UIcmdWithAString*        fRadCodesCmd;
+	G4UIcmdWithAString*        fIAEASpectrumCmd;
 };
 
 #endif

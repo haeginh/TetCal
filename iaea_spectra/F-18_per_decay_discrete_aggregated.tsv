@@ -1,0 +1,2 @@
+nuclide	particle	radiation_code	shell	energy_keV	energy_MeV	yield_per_decay	intensity_percent	source
+F-18	gamma	G		511	0.511	1.9346	193.46	IAEA LiveChart decay_rads, grouped by particle/code/shell/energy
