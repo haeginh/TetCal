@@ -88,6 +88,8 @@ public:
 	G4int         GetNumTetrahedron()        { return tetVector.size();}
 	G4int         GetMaterialIndex(G4int idx){ return materialVector[idx]; }
 	std::vector<G4int> GetCopyNumbersForMaterials(const std::set<G4int>& materialIDs);
+	std::vector<G4int> GetCopyNumbersForElementIDs(const std::set<G4int>& elementIDs,
+	                                               const std::set<G4int>& materialIDs);
 	G4Tet*        GetTetrahedron(G4int idx)  { return tetVector[idx]; }
 	G4ThreeVector GetTetrahedronCentroid(G4int idx);
 	G4bool        GetMaterialSetCenterOfMass(const std::set<G4int>& materialIDs, G4ThreeVector& center);
@@ -178,6 +180,7 @@ private:
 	std::map<G4int, G4double>  handDoseMassMap;
 	std::map<G4int, std::vector<G4int>> handTet2dose;
 	std::map<G4int, G4int>     elementIDToCopyNo;
+	std::map<G4int, std::vector<G4int>> elementIDToCopyNos;
 
 	std::vector<G4ThreeVector> vertexVector;
 	std::vector<G4Tet*>        tetVector;

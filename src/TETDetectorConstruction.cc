@@ -30,7 +30,6 @@
 
 #include "TETDetectorConstruction.hh"
 #include "DRFScorer.hh"
-#include "G4PSEnergyDeposit.hh"
 #include "G4Region.hh"
 #include "G4VisAttributes.hh"
 

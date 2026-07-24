@@ -44,6 +44,7 @@ PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
 
 	fInternalDir      = new G4UIdirectory("/internal/");
 	fSourceOrganCmd   = new G4UIcmdWithAString("/internal/source", this);
+	fSourceElementFileCmd = new G4UIcmdWithAString("/internal/sourceElementFile", this);
 	fSurfaceSourceCmd = new G4UIcmdWithAString("/internal/surface", this);
 
 	fSpectrumDir = new G4UIdirectory("/spec/");
@@ -57,6 +58,7 @@ PrimaryMessenger::~PrimaryMessenger() {
 	delete fBeamDirCmd;
 	delete fInternalDir;
 	delete fSourceOrganCmd;
+	delete fSourceElementFileCmd;
 	delete fSurfaceSourceCmd;
 	delete fSpectrumDir;
 	delete fSpectrumSourceCmd;
@@ -89,6 +91,21 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 		G4int intTemp;
 		while(ss>>intTemp) organIDs.push_back(intTemp);
 		fInternal->SetSource(organIDs);
+	}
+	else if(command == fSourceElementFileCmd){
+		fPrimary->SetInternalBeam();
+		InternalSource* fInternal = fPrimary->GetInternalBeamGenerator();
+        if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);
+
+		fPrimary->SetSourceName("(E) "+newValue);
+
+		std::stringstream ss(newValue);
+		G4String sourceFile;
+		ss >> sourceFile;
+		std::vector<G4int> materialIDs;
+		G4int intTemp;
+		while(ss>>intTemp) materialIDs.push_back(intTemp);
+		fInternal->SetSourceElementFile(sourceFile, materialIDs);
 	}
     else if(command == fSurfaceSourceCmd){
         fPrimary->SetSurfaceSource();

@@ -255,7 +255,9 @@ void TETModelImport::DataRead(G4String eleFile, G4String nodeFile, G4bool patien
 			}
 			ele[j]=nodeIndexMap[tempInt];
 		}
-		elementIDToCopyNo.insert(std::make_pair(elementID, (G4int)eleVector.size()));
+		G4int copyNo = (G4int)eleVector.size();
+		elementIDToCopyNo.insert(std::make_pair(elementID, copyNo));
+		elementIDToCopyNos[elementID].push_back(copyNo);
 		eleVector.push_back(ele);
 		ifpEle >> tempInt;
 		materialVector.push_back(patientNamespace ? PatientMaterialID(tempInt) : tempInt);
@@ -311,6 +313,25 @@ std::vector<G4int> TETModelImport::GetCopyNumbersForMaterials(const std::set<G4i
 	for(G4int i=0; i<(G4int)materialVector.size(); i++){
 		if(materialIDs.find(materialVector[i]) != materialIDs.end()) copyNumbers.push_back(i);
 	}
+	return copyNumbers;
+}
+
+std::vector<G4int> TETModelImport::GetCopyNumbersForElementIDs(const std::set<G4int>& elementIDs,
+                                                               const std::set<G4int>& materialIDs)
+{
+	std::vector<G4int> copyNumbers;
+	for(auto elementID : elementIDs){
+		auto found = elementIDToCopyNos.find(elementID);
+		if(found == elementIDToCopyNos.end()) continue;
+
+		for(auto copyNo : found->second){
+			if(copyNo < 0 || copyNo >= (G4int)materialVector.size()) continue;
+			if(!materialIDs.empty() && materialIDs.find(materialVector[copyNo]) == materialIDs.end()) continue;
+			copyNumbers.push_back(copyNo);
+		}
+	}
+	std::sort(copyNumbers.begin(), copyNumbers.end());
+	copyNumbers.erase(std::unique(copyNumbers.begin(), copyNumbers.end()), copyNumbers.end());
 	return copyNumbers;
 }
 

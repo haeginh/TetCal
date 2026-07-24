@@ -13,6 +13,7 @@
 #include "G4Tet.hh"
 
 #include <vector>
+#include <set>
 
 class SourceGenerator
 {
@@ -59,11 +60,15 @@ public:
 	virtual ~InternalSource();
 
 	void SetSource(std::vector<G4int> sources);
+	void SetSourceElements(std::vector<G4int> elementIDs, std::vector<G4int> materialIDs = {});
+	void SetSourceElementFile(G4String sourceFile, std::vector<G4int> materialIDs = {});
 	void GetAprimaryPosDir(G4ThreeVector &pos, G4ThreeVector &dir);
 
 	std::vector<G4int> GetSource() 	const {return sourceIDs;}
 
 private:
+	void BuildSourceFromCopyNumbers(const std::vector<G4int>& copyNumbers, const G4String& sourceDescription);
+	std::vector<G4int> ReadElementIDFile(G4String sourceFile);
 	G4ThreeVector RandomSamplingInTet(G4Tet* tet);
 
 private:

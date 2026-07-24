@@ -13,6 +13,7 @@
 #include <set>
 #include <algorithm>
 #include <fstream>
+#include <cctype>
 #include "SourceGenerator.hh"
 
 InternalSource::InternalSource(TETModelImport* _tetData)
@@ -32,15 +33,48 @@ void InternalSource::SetSource(std::vector<G4int> sources)
 	ss<<"Set source organs for "<<G4endl;
 	for(auto source:sourceSet) ss<<source<<" ";
 
-	//Extract source tet IDs
+	std::vector<G4int> copyNumbers;
 	for(G4int i=0;i<tetData->GetNumTetrahedron();i++){
 		if(sourceSet.find(tetData->GetMaterialIndex(i)) != sourceSet.end())
-			tetPick.push_back(VOLPICK(tetData->GetTetrahedron(i)->GetCubicVolume(), i));
+			copyNumbers.push_back(i);
 	}
-    ss<<" -> "<<tetPick.size()<<G4endl;
+	BuildSourceFromCopyNumbers(copyNumbers, ss.str());
+}
+
+void InternalSource::SetSourceElements(std::vector<G4int> elementIDs, std::vector<G4int> materialIDs)
+{
+	std::set<G4int> elementSet(elementIDs.begin(), elementIDs.end());
+	std::set<G4int> materialSet(materialIDs.begin(), materialIDs.end());
+	tetPick.clear();
+
+	std::stringstream ss;
+	ss<<"Set source element IDs for "<<G4endl;
+	ss<<elementSet.size()<<" element IDs";
+	if(!materialSet.empty()){
+		ss<<" with material filter ";
+		for(auto materialID : materialSet) ss<<materialID<<" ";
+	}
+
+	BuildSourceFromCopyNumbers(tetData->GetCopyNumbersForElementIDs(elementSet, materialSet), ss.str());
+}
+
+void InternalSource::SetSourceElementFile(G4String sourceFile, std::vector<G4int> materialIDs)
+{
+	SetSourceElements(ReadElementIDFile(sourceFile), materialIDs);
+}
+
+void InternalSource::BuildSourceFromCopyNumbers(const std::vector<G4int>& copyNumbers, const G4String& sourceDescription)
+{
+	for(auto copyNo : copyNumbers){
+		if(copyNo < 0 || copyNo >= tetData->GetNumTetrahedron()) continue;
+		tetPick.push_back(VOLPICK(tetData->GetTetrahedron(copyNo)->GetCubicVolume(), copyNo));
+	}
+
+	std::stringstream ss;
+	ss<<sourceDescription<<" -> "<<tetPick.size()<<G4endl;
 	if(tetPick.size()==0){
 		G4Exception("InternalSource::SetSource","",FatalErrorInArgument,
-				G4String("       Wrong source ID wad defined" ).c_str());
+				G4String("       No source tetrahedron was selected" ).c_str());
 	}
 
 	//Arrange volumes
@@ -55,6 +89,38 @@ void InternalSource::SetSource(std::vector<G4int> sources)
 
 	for(auto &tp:tetPick) tp.first /= previousVol;
 	G4cout<<ss.str();
+}
+
+std::vector<G4int> InternalSource::ReadElementIDFile(G4String sourceFile)
+{
+	std::ifstream ifs(sourceFile);
+	if(!ifs.is_open()){
+		G4Exception("InternalSource::ReadElementIDFile","",FatalErrorInArgument,
+				G4String("       There is no source element file: " + sourceFile).c_str());
+	}
+
+	std::vector<G4int> elementIDs;
+	G4String line;
+	while(std::getline(ifs, line)){
+		auto commentPos = line.find('#');
+		if(commentPos != std::string::npos) line = line.substr(0, commentPos);
+
+		line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](unsigned char ch){ return !std::isspace(ch); }));
+		line.erase(std::find_if(line.rbegin(), line.rend(), [](unsigned char ch){ return !std::isspace(ch); }).base(), line.end());
+		if(line.empty() || line.front() == '[') continue;
+
+		auto dash = line.find('-');
+		if(dash == std::string::npos){
+			elementIDs.push_back(std::atoi(line.c_str()));
+			continue;
+		}
+
+		G4int firstID = std::atoi(line.substr(0, dash).c_str());
+		G4int lastID = std::atoi(line.substr(dash + 1).c_str());
+		if(lastID < firstID) std::swap(firstID, lastID);
+		for(G4int elementID = firstID; elementID <= lastID; elementID++) elementIDs.push_back(elementID);
+	}
+	return elementIDs;
 }
 
 void InternalSource::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &direction)
@@ -98,5 +164,4 @@ G4ThreeVector InternalSource::RandomSamplingInTet(G4Tet* tet){
 	G4ThreeVector SampledPosition = a*v1+varS*v2+varT*v3+varU*v4;
 	return SampledPosition;
 }
-
 

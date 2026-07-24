@@ -1,0 +1,14 @@
+/tetcal/phantom phantoms/MRCP_AM_posture3_mod
+/tetcal/basePhantom phantoms/MRCP_AM
+/tetcal/addPatientTet phantoms/MRCP_AM
+/tetcal/addTet models/merged/syringe
+
+/tetcal/eyeImportance false
+/tetcal/shieldImportance false
+
+/run/numberOfThreads 4
+/run/initialize
+
+/internal/sourceElementFile TetCal/source_regions/MRCP_AM_patient_injection_near_arm_veins_element_ids.txt -101110
+/spec/IAEA TetCal/iaea_spectra F-18
+/run/beamOn 100000

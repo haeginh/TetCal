@@ -1,0 +1,13 @@
+/tetcal/phantom phantoms/MRCP_AM_posture4_mod
+/tetcal/basePhantom phantoms/MRCP_AM
+/tetcal/addPatientTet phantoms/MRCP_AM
+
+/tetcal/eyeImportance false
+/tetcal/shieldImportance false
+
+/run/numberOfThreads 4
+/run/initialize
+
+/internal/source -108800 -100900 -100910 -101000 -101010 -101100 -101110 -101200 -101210
+/spec/IAEA TetCal/iaea_spectra Tc-99m
+/run/beamOn 100000

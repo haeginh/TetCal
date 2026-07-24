@@ -1,0 +1,3 @@
+region	original_material_id	patient_material_id	count	centroid_x_cm	centroid_y_cm	centroid_z_cm	distance_to_syringe_source_cm	note
+left_arm_veins_x_positive	1110	-101110	28050	21.566227	8.273300	10.612161	24.275	selected for injection arm-vein source; slightly closer to syringe source_water centroid
+right_arm_veins_x_negative	1110	-101110	36706	-22.351957	8.567940	17.637132	24.421	not selected for injection arm-vein source
