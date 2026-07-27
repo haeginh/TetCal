@@ -221,10 +221,10 @@ void EyeImportanceTuning::WriteTunedMacroAndData(const std::map<G4int, G4double>
 		while(std::getline(ifs, line)){
 			G4String command = FirstCommand(line);
 			if(command == "/tetcal/eyeImportanceValues"){
-				if(!replaced){
+				if(!replaced && !inserted){
 					ofs << ImportanceLine(recommended) << G4endl;
-					replaced = true;
 				}
+				replaced = true;
 				continue;
 			}
 			ofs << line << G4endl;
