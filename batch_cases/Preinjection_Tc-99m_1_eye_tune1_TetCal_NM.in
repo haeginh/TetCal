@@ -1,3 +1,4 @@
+/control/macroPath ./build/
 /tetcal/phantom phantoms/MRCP_AM_posture1_mod
 /tetcal/basePhantom phantoms/MRCP_AM
 /tetcal/addTet models/merged/L_block_shield

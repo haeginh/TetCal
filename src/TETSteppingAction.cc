@@ -34,7 +34,6 @@
 #include "TETModelImport.hh"
 
 #include "G4EventManager.hh"
-#include "G4DynamicParticle.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4StackManager.hh"
 #include "G4StepPoint.hh"
@@ -49,20 +48,37 @@ namespace {
 class ShieldSplitTrackInformation : public G4VUserTrackInformation
 {
   public:
-	ShieldSplitTrackInformation() = default;
+	explicit ShieldSplitTrackInformation(G4bool split = false)
+	: shieldSplit(split)
+	{}
 	~ShieldSplitTrackInformation() override = default;
 	void Print() const override {}
+	G4bool IsSplit() const { return shieldSplit; }
+	void SetSplit() { shieldSplit = true; }
+
+  private:
+	G4bool shieldSplit;
 };
+
+ShieldSplitTrackInformation* GetShieldTrackInformation(const G4Track* track)
+{
+	return dynamic_cast<ShieldSplitTrackInformation*>(track->GetUserInformation());
+}
 
 G4bool HasShieldSplitInformation(const G4Track* track)
 {
-	return dynamic_cast<const ShieldSplitTrackInformation*>(track->GetUserInformation()) != nullptr;
+	auto information = GetShieldTrackInformation(track);
+	return information && information->IsSplit();
 }
 
-void MarkShieldSplit(G4Track* track, G4bool forceNew = false)
+void MarkShieldSplit(G4Track* track)
 {
-	if(forceNew || !HasShieldSplitInformation(track)){
-		track->SetUserInformation(new ShieldSplitTrackInformation());
+	auto information = GetShieldTrackInformation(track);
+	if(information){
+		information->SetSplit();
+	}
+	else{
+		track->SetUserInformation(new ShieldSplitTrackInformation(true));
 	}
 }
 }
@@ -154,35 +170,36 @@ void TETSteppingAction::ApplyShieldSplitting(const G4Step* step) const
 	G4bool preShield = hasPreTet && IsShieldMaterial(preMaterial);
 	G4bool postShield = hasPostTet && IsShieldMaterial(postMaterial);
 
-	if(!preShield && postShield){
+	// The radioactive source generator creates primary tracks (parent ID 0).
+	// Restrict splitting to those primaries at their first entry into a shield;
+	// interaction-produced secondary gammas are never split here.
+	if(!preShield && postShield && track->GetParentID() == 0){
 		ShieldImportanceTuning::AddEnter(track->GetWeight());
 		if(HasShieldSplitInformation(track)) return;
-		MarkShieldSplit(track);
 
 		G4double splitValue = ShieldImportanceTuning::GetImportance();
 		G4int splitCount = std::max(1, (G4int)std::floor(splitValue + 0.5));
 		if(splitCount <= 1) return;
 
-		G4double newWeight = track->GetWeight() / splitCount;
-		track->SetWeight(newWeight);
-
 		G4StackManager* stack = G4EventManager::GetEventManager()->GetStackManager();
 		if(!stack) return;
-		for(G4int i=1; i<splitCount; i++){
-			G4DynamicParticle* dynamicParticle = new G4DynamicParticle(*track->GetDynamicParticle());
-			G4Track* clone = new G4Track(dynamicParticle,
-			                             track->GetGlobalTime(),
-			                             track->GetPosition());
-			clone->SetTouchableHandle(track->GetTouchableHandle());
-			clone->SetNextTouchableHandle(track->GetNextTouchableHandle());
+
+		const G4double newWeight = track->GetWeight() / splitCount;
+		for(G4int i=0; i<splitCount; i++){
+			// Replace the parent with complete G4Track copies.  This preserves all
+			// kinematic, timing, polarization, vertex, and touchable state equally
+			// for every branch instead of treating the original asymmetrically.
+			G4Track* clone = new G4Track(*track);
 			clone->SetWeight(newWeight);
 			clone->SetTrackID(0);
-			clone->SetParentID(track->GetTrackID());
-			MarkShieldSplit(clone, true);
+			clone->SetParentID(track->GetParentID());
+			clone->SetTrackStatus(fAlive);
+			MarkShieldSplit(clone);
 			stack->PushOneTrack(clone);
 		}
+		track->SetTrackStatus(fStopAndKill);
 	}
-	else if(preShield && !postShield){
+	else if(preShield && !postShield && HasShieldSplitInformation(track)){
 		ShieldImportanceTuning::AddExit(track->GetWeight());
 	}
 }

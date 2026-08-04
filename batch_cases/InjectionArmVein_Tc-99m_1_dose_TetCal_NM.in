@@ -1,8 +1,7 @@
-/tetcal/phantom phantoms/MRCP_AM_posture3_mod
+/control/macroPath ./build/
+/tetcal/phantom phantoms/MRCP_AM_posture5_mod
 /tetcal/basePhantom phantoms/MRCP_AM
 /tetcal/addPatientTet phantoms/MRCP_AM
-/tetcal/addTet models/merged/syringe_assembly_Tc99m
-/tetcal/addTet models/merged/syringe
 
 /tetcal/eyeImportance false
 /tetcal/shieldImportance false

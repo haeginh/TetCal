@@ -1,3 +1,4 @@
+/control/macroPath ./build/
 /tetcal/phantom phantoms/MRCP_AM_posture3_mod
 /tetcal/basePhantom phantoms/MRCP_AM
 /tetcal/addTet models/merged/syringe_assembly_Tc99m
