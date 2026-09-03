@@ -4,6 +4,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(TetCal)
 
+include(CTest)
+
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
 # You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui
@@ -36,6 +38,15 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 add_executable(TetCal TetCal.cc ${sources} ${headers})
 target_link_libraries(TetCal ${Geant4_LIBRARIES})
 
+if(BUILD_TESTING)
+  add_executable(SourceDistributionTest
+    tests/SourceDistributionTest.cc
+    src/SourceDistribution.cc
+    )
+  target_include_directories(SourceDistributionTest PRIVATE ${PROJECT_SOURCE_DIR}/include)
+  add_test(NAME SourceDistributionTest COMMAND SourceDistributionTest)
+endif()
+
 #----------------------------------------------------------------------------
 # copy macro files
 #
@@ -53,4 +64,3 @@ foreach(_script ${TETCAL_SCRIPTS})
     COPYONLY
     )
 endforeach()
-

@@ -10,13 +10,14 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4RandomDirection.hh"
-#include <set>
 #include <algorithm>
-#include <fstream>
+#include <exception>
+#include <unordered_set>
 #include "SourceGenerator.hh"
+#include "SourceDistribution.hh"
 
 InternalSource::InternalSource(TETModelImport* _tetData)
-:tetData(_tetData)
+:useFractions(false), tetData(_tetData)
 {}
 
 InternalSource::~InternalSource()
@@ -24,46 +25,69 @@ InternalSource::~InternalSource()
 
 void InternalSource::SetSource(std::vector<G4int> sources)
 {
-	std::set<G4int>    sourceSet(sources.begin(), sources.end());
+	sourceIDs = sources;
+	sourceFractions.clear();
+	useFractions = false;
 	tetPick.clear();
-	
-	//Cout
-	std::stringstream ss;
-	ss<<"Set source organs for "<<G4endl;
-	for(auto source:sourceSet) ss<<source<<" ";
+	G4cout << "Configured internal source organs: ";
+	for(auto source : sourceIDs) G4cout << source << " ";
+	G4cout << G4endl;
+}
 
-	//Extract source tet IDs
-	for(G4int i=0;i<tetData->GetNumTetrahedron();i++){
-		if(sourceSet.find(tetData->GetMaterialIndex(i)) != sourceSet.end())
-			tetPick.push_back(VOLPICK(tetData->GetTetrahedron(i)->GetCubicVolume(), i));
+void InternalSource::SetFractions(std::vector<G4double> fractions)
+{
+	if(sourceIDs.empty()){
+		G4Exception("InternalSource::SetFractions", "", FatalErrorInArgument,
+				"/internal/source must be defined before /internal/fraction");
+		return;
 	}
-    ss<<" -> "<<tetPick.size()<<G4endl;
-	if(tetPick.size()==0){
-		G4Exception("InternalSource::SetSource","",FatalErrorInArgument,
-				G4String("       Wrong source ID wad defined" ).c_str());
+	sourceFractions = fractions;
+	useFractions = true;
+	BuildTetPick();
+	G4cout << "Set fraction-weighted source organs with "
+	       << sourceFractions.size() << " fractions -> "
+	       << tetPick.size() << " tetrahedra" << G4endl;
+}
+
+void InternalSource::BuildTetPick()
+{
+	std::unordered_set<G4int> requested(sourceIDs.begin(), sourceIDs.end());
+	std::vector<tetcal::SourceTet> tetrahedra;
+	for(G4int i = 0; i < tetData->GetNumTetrahedron(); ++i){
+		if(requested.find(tetData->GetMaterialIndex(i)) == requested.end()) continue;
+		tetrahedra.push_back(tetcal::SourceTet{
+			tetData->GetTetrahedron(i)->GetCubicVolume(),
+			tetData->GetMaterialIndex(i),
+			i});
 	}
 
-	//Arrange volumes
-	std::sort(tetPick.begin(), tetPick.end());
-	std::reverse(tetPick.begin(), tetPick.end());
-
-	G4double previousVol(0.);
-	for(auto &tp:tetPick) {
-		tp.first += previousVol;
-		previousVol = tp.first;
+	try {
+		std::vector<int> ids(sourceIDs.begin(), sourceIDs.end());
+		if(!useFractions){
+			tetPick = tetcal::BuildVolumeWeightedCDF(tetrahedra, ids);
+		} else {
+			std::vector<double> fractions(sourceFractions.begin(), sourceFractions.end());
+			tetPick = tetcal::BuildFractionWeightedCDF(tetrahedra, ids, fractions);
+		}
+	} catch(const std::exception& error) {
+		tetPick.clear();
+		G4Exception("InternalSource::BuildTetPick", "", FatalErrorInArgument,
+				error.what());
 	}
-
-	for(auto &tp:tetPick) tp.first /= previousVol;
-	G4cout<<ss.str();
+	G4cout << (!useFractions ? "Built volume-weighted source over "
+	                        : "Built fraction-weighted source over ")
+	       << tetPick.size() << " tetrahedra" << G4endl;
 }
 
 void InternalSource::GetAprimaryPosDir(G4ThreeVector &position, G4ThreeVector &direction)
 {
+	if(tetPick.empty()) BuildTetPick();
 	G4double rand = G4UniformRand();
-	for(auto tp:tetPick){
-		if(rand>tp.first) continue;
-		position = RandomSamplingInTet(tetData->GetTetrahedron(tp.second)); break;
-	}
+	std::vector<VOLPICK>::const_iterator selected = std::lower_bound(
+		tetPick.begin(), tetPick.end(), rand,
+		[](const VOLPICK& entry, G4double value) {return entry.first < value;});
+	if(selected == tetPick.end()) selected = tetPick.end() - 1;
+	position = RandomSamplingInTet(tetData->GetTetrahedron(selected->second));
 	direction = G4RandomDirection();
 }
 
@@ -98,5 +122,3 @@ G4ThreeVector InternalSource::RandomSamplingInTet(G4Tet* tet){
 	G4ThreeVector SampledPosition = a*v1+varS*v2+varT*v3+varU*v4;
 	return SampledPosition;
 }
-
-

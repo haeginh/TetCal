@@ -34,6 +34,8 @@
 #include "globals.hh"
 #include "G4UImessenger.hh"
 
+#include <vector>
+
 class G4UIdirectory;
 class G4UIcmdWithAString;
 class PrimaryGeneratorAction;
@@ -52,10 +54,13 @@ private:
 	G4UIcmdWithAString*        fBeamDirCmd;
 	G4UIdirectory*             fInternalDir;
 	G4UIcmdWithAString*        fSourceOrganCmd;
+	G4UIcmdWithAString*        fSourceOrganFractionCmd;
 	G4UIcmdWithAString*        fSurfaceSourceCmd;
 	G4UIdirectory*             fSpectrumDir;
 	G4UIcmdWithAString*        fSpectrumSourceCmd;
 	G4UIcmdWithAString*        fRadCodesCmd;
+	std::vector<G4double>      fPendingFractions;
+	G4String                   fCurrentSourceText;
 };
 
 #endif

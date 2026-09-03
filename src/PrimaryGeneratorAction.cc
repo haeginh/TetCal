@@ -35,7 +35,8 @@
 
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(TETModelImport* _tetData)
-:tetData(_tetData), fSourceGenerator(0), spectrumSource(false)
+:tetData(_tetData), fParticleGun(0), fMessenger(0), fSourceGenerator(0),
+ fExternal(0), fInternal(0), fSurface(0), spectrumSource(false)
 {
 	fParticleGun = new G4ParticleGun(1);
 	fMessenger   = new PrimaryMessenger(this);

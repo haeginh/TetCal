@@ -16,6 +16,7 @@
 /gun/energy    1 MeV  (energy)
 /external/dir  AP     (idealized external irradiation geometries)
 /internal/source "1 2" [or 1] (internal soruce organ IDs, double quotation is required for multiple sources) 
+/internal/fraction "1 3" (optional non-negative weights corresponding to `/internal/source`; organ selection follows these relative weights, then tetrahedra within each organ are sampled by volume)
 /internal/surface "1 2" [or 1] (internal soruce organ IDs, double quotation is required for multiple sources) 
 /run/beamOn    10000  (nps)
 ```

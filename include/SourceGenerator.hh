@@ -59,15 +59,20 @@ public:
 	virtual ~InternalSource();
 
 	void SetSource(std::vector<G4int> sources);
+	void SetFractions(std::vector<G4double> fractions);
 	void GetAprimaryPosDir(G4ThreeVector &pos, G4ThreeVector &dir);
 
 	std::vector<G4int> GetSource() 	const {return sourceIDs;}
+	G4bool HasSource() const {return !sourceIDs.empty();}
 
 private:
 	G4ThreeVector RandomSamplingInTet(G4Tet* tet);
+	void BuildTetPick();
 
 private:
     std::vector<G4int>    sourceIDs;
+    std::vector<G4double> sourceFractions;
+    G4bool                useFractions;
     TETModelImport*       tetData;
     std::vector<VOLPICK>  tetPick;
 };

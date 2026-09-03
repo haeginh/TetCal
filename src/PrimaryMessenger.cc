@@ -44,7 +44,11 @@ PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
 
 	fInternalDir      = new G4UIdirectory("/internal/");
 	fSourceOrganCmd   = new G4UIcmdWithAString("/internal/source", this);
+	fSourceOrganFractionCmd = new G4UIcmdWithAString("/internal/fraction", this);
 	fSurfaceSourceCmd = new G4UIcmdWithAString("/internal/surface", this);
+	fSourceOrganCmd->SetGuidance("Set the internal source organ IDs.");
+	fSourceOrganFractionCmd->SetGuidance(
+		"Set one non-negative source weight per /internal/source organ ID.");
 
 	fSpectrumDir = new G4UIdirectory("/spec/");
 	fSpectrumSourceCmd = new G4UIcmdWithAString("/spec/input", this);
@@ -52,10 +56,15 @@ PrimaryMessenger::PrimaryMessenger(PrimaryGeneratorAction* _primary)
 }
 
 PrimaryMessenger::~PrimaryMessenger() {
-	delete fExternalDir;
 	delete fBeamDirCmd;
-	delete fInternalDir;
 	delete fSourceOrganCmd;
+	delete fSourceOrganFractionCmd;
+	delete fSurfaceSourceCmd;
+	delete fSpectrumSourceCmd;
+	delete fRadCodesCmd;
+	delete fExternalDir;
+	delete fInternalDir;
+	delete fSpectrumDir;
 }
 
 void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
@@ -76,13 +85,58 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 		InternalSource* fInternal = fPrimary->GetInternalBeamGenerator();
         if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);
 
-		fPrimary->SetSourceName("(V) "+newValue);
-
 		std::stringstream ss(newValue);
 		std::vector<G4int> organIDs;
 		G4int intTemp;
 		while(ss>>intTemp) organIDs.push_back(intTemp);
+		if(!ss.eof()){
+			G4Exception("PrimaryMessenger::SetNewValue", "InvalidSourceList",
+					FatalErrorInArgument, "Invalid value in /internal/source");
+			return;
+		}
+		if(organIDs.empty()){
+			G4Exception("PrimaryMessenger::SetNewValue", "EmptySourceList",
+					FatalErrorInArgument, "/internal/source requires at least one organ ID");
+			return;
+		}
 		fInternal->SetSource(organIDs);
+		fCurrentSourceText = newValue;
+		if(fPendingFractions.empty()){
+			fPrimary->SetSourceName("(V) "+newValue);
+		} else {
+			fInternal->SetFractions(fPendingFractions);
+			fPendingFractions.clear();
+			fPrimary->SetSourceName("(VF) "+newValue);
+		}
+	}
+	else if(command == fSourceOrganFractionCmd){
+		fPrimary->SetInternalBeam();
+		if(newValue.substr(0, 1)=="\"") newValue = newValue.substr(1, newValue.size()-2);
+
+		std::stringstream ss(newValue);
+		std::vector<G4double> fractions;
+		G4double doubleTemp;
+		while(ss>>doubleTemp) fractions.push_back(doubleTemp);
+		if(!ss.eof()){
+			G4Exception("PrimaryMessenger::SetNewValue", "InvalidFractionList",
+					FatalErrorInArgument, "Invalid value in /internal/fraction");
+			return;
+		}
+		if(fractions.empty()){
+			G4Exception("PrimaryMessenger::SetNewValue", "EmptyFractionList",
+					FatalErrorInArgument, "/internal/fraction requires at least one weight");
+			return;
+		}
+
+		InternalSource* fInternal = fPrimary->GetInternalBeamGenerator();
+		if(fInternal->HasSource()){
+			fInternal->SetFractions(fractions);
+			fPrimary->SetSourceName("(VF) "+fCurrentSourceText);
+		} else {
+			fPendingFractions = fractions;
+			G4cout << "Stored " << fractions.size()
+			       << " source fractions; waiting for /internal/source" << G4endl;
+		}
 	}
     else if(command == fSurfaceSourceCmd){
         fPrimary->SetSurfaceSource();
@@ -104,4 +158,3 @@ void PrimaryMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 		fPrimary->SetRadCodes(newValue);
 	}
 }
-
